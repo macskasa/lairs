@@ -462,8 +462,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     if (last && last[0] === r && last[1] === c) return;
     snap();
     S.path.push([r, c]);
+    // The space you move into becomes known automatically (one Undo reverts both).
+    const k = key(r, c);
+    S.cells[k] = Object.assign({}, S.cells[k], {known: true});
     commit();
-    if (last && !S.cells[key(r, c)]) toast(coord(r, c) + ' is not drawn yet. Switch to Map to draw it.');
   }
 
   function step(d){
