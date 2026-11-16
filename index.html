@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lairs Tracker</title>
+<meta name="description" content="Map tracker for the Lairs board game.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lairs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EEE6DA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120F" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap">
+<style>
+/* Layout: one column that mirrors the paper map sheet: the 6x6 lair grid with A-F / 1-6 rulers, then a tray that swaps between Move (compass) and Map (legend tools). */
+:root{
+  --bg:#EEE6DA;
+  --paper:#FBF8F3;
+  --ink:#4B342A;
+  --muted:#8A7163;
+  --line:#DBC2A6;
+  --wall:#8C6354;
+  --tint:#F3E6D5;
+  --pc:#B4432C;
+  --onp:#FFFFFF;
+  --display:"Oswald","Arial Narrow",sans-serif;
+  --body:"Barlow",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
+    --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
+  --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--body);font-size:15px;line-height:1.4;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  margin:0;
+  padding-top:calc(14px + env(safe-area-inset-top, 0px));
+  padding-bottom:calc(48px + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color:transparent;
+}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-offset:2px}
+
+.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+/* Header */
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--wall)}
+.brand span{font-family:var(--display);font-weight:500;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.note{margin:0;font-size:13.5px;color:var(--muted);background:var(--tint);border-radius:8px;padding:8px 12px}
+
+/* Map sheet */
+.sheet{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 6px}
+.cols{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(6,1fr);padding:0 5px}
+.rows{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,1fr);padding:5px 0}
+.cols span,.rows span{display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px;line-height:1;color:var(--wall)}
+.board{grid-column:2;grid-row:2;position:relative;aspect-ratio:1;max-width:100%;border:5px solid var(--wall);border-radius:7px;background:var(--paper);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(6,minmax(0,1fr))}
+.cell{position:relative;border:0;padding:0;background:transparent;min-width:0;min-height:0}
+.cell:focus-visible{outline:2px solid var(--pc);outline-offset:-2px;border-radius:5px}
+.cell .box{position:absolute;inset:2.5px;border:1.5px solid var(--line);border-radius:4px;display:grid;place-items:center;transition:background-color .15s}
+.cell.visited .box{background:var(--tint)}
+.cell:active .box{background:var(--tint);border-color:var(--wall)}
+.cell.sel .box{border-color:var(--pc);box-shadow:inset 0 0 0 1.5px var(--pc)}
+@media (hover:hover){ .board.mapping .cell:hover .box{border-color:var(--wall)} }
+.cell .co{position:absolute;top:3px;left:4px;font-family:var(--display);font-size:9.5px;font-weight:500;line-height:1;color:var(--muted)}
+.cell .ring{width:62%;aspect-ratio:1;border:1.25px dashed var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink)}
+.cell.marked .ring{border-color:transparent}
+.cell.known .ring{border:2px solid var(--ink)}
+.cell .ring svg{width:74%;height:74%}
+.cell .se-big{font-family:var(--display);font-weight:700;font-size:13px;line-height:1;color:var(--ink)}
+.cell .se{position:absolute;left:4px;bottom:3px;font-family:var(--display);font-weight:700;font-size:10px;line-height:1;color:var(--ink)}
+.cell .scr{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--ink)}
+.cell .pw{position:absolute;right:2px;bottom:2px;min-width:15px;height:14px;padding:0 3px;border-radius:7px;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:600;font-size:10px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}
+
+.trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#trail{fill:none;stroke:var(--pc);stroke-width:.07;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.14 .12;opacity:.65}
+.walls{position:absolute;inset:0;pointer-events:none}
+.wall{position:absolute;background:var(--wall);border-radius:3px}
+.wall.h{height:6px;transform:translateY(-50%)}
+.wall.v{width:6px;transform:translateX(-50%)}
+.token{position:absolute;width:calc(100% / 6);height:calc(100% / 6);display:grid;place-items:center;pointer-events:none;transition:left .22s ease, top .22s ease}
+.token span{width:46%;aspect-ratio:1;border-radius:50%;background:var(--pc);border:3px solid var(--paper);box-shadow:0 0 0 1.5px var(--pc),0 3px 8px rgb(0 0 0 / .28);display:grid;place-items:center}
+.token span::after{content:"";width:34%;aspect-ratio:1;border-radius:50%;background:var(--onp)}
+
+/* Tray */
+.tray{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:12px}
+.trayhead{display:flex;gap:8px}
+.seg{flex:1;display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:8px;border-radius:8px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
+.undo{flex:none;display:flex;align-items:center;gap:6px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.07em;text-transform:uppercase}
+.panel{display:flex;flex-direction:column;gap:12px}
+.label{font-family:var(--display);font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.move{display:flex;gap:14px;align-items:center}
+.where{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.pos{font-family:var(--display);font-weight:700;font-size:46px;line-height:1;color:var(--pc);font-variant-numeric:tabular-nums}
+.steps{font-size:13.5px;color:var(--muted)}
+.dpad{flex:none;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
+.dir{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;font-family:var(--display);font-weight:700;font-size:18px;color:var(--wall);transition:transform .08s}
+.dir:active{background:var(--tint);transform:scale(.95)}
+.dn{grid-column:2;grid-row:1}.dw{grid-column:1;grid-row:2}.de{grid-column:3;grid-row:2}.ds{grid-column:2;grid-row:3}
+.rose{grid-column:2;grid-row:2;display:grid;place-items:center;color:var(--muted)}
+.pathbox{display:flex;flex-direction:column;gap:3px}
+.path{margin:0;font-size:14px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+
+.tools{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px}
+.tool{grid-column:span 3;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--display);font-size:10.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.tool.act{grid-column:span 4;border-style:dashed}
+.tool svg{width:22px;height:22px;color:var(--ink)}
+.tool span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool[aria-pressed="true"]{border-color:var(--wall);border-style:solid;background:var(--tint);color:var(--ink)}
+.hint{margin:0;font-size:13.5px;color:var(--muted);min-height:2.8em}
+
+.power{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:10px;background:var(--tint);border:1.5px solid var(--line)}
+.power strong{font-family:var(--display);font-weight:600;font-size:15px}
+.pw-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pw-step{width:42px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-family:var(--display);font-size:22px;font-weight:600;line-height:1;color:var(--ink)}
+#pwInput{width:58px;height:44px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.pw-txt{height:44px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+#pwDone{margin-left:auto;background:var(--pc);border-color:var(--pc);color:var(--onp)}
+
+.files{display:flex;flex-direction:column;gap:8px}
+.filebtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.filebtn{min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 9px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.filebtn svg{width:22px;height:22px;color:var(--wall);margin-bottom:2px}
+.filebtn small{font-family:var(--body);font-weight:500;font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--muted)}
+.filebtn:active{background:var(--tint)}
+.filebtn:disabled{opacity:.6;cursor:progress}
+.foot{display:flex;flex-direction:column;align-items:center;gap:12px}
+#newBtn{padding:9px 20px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
+.motto{margin:0;text-align:center;font-family:var(--display);font-weight:600;font-size:16px;color:var(--wall);text-wrap:balance}
+
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,16px);opacity:0;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;text-align:center;pointer-events:none;transition:opacity .2s, transform .2s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion: reduce){
+  .token,.toast,.dir,.cell .box{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="brand"><h1>Lairs</h1><span>Map tracker</span></header>
+
+  <p class="note" id="exampleNote" hidden>This is an example map so you can see how it works. Tap <b>New game</b> at the bottom to start your own.</p>
+
+  <section class="sheet" aria-label="Lair map">
+    <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+    <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
+    <div class="board" id="board">
+      <div class="cells" id="cells"></div>
+      <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><polyline id="trail" points=""/></svg>
+      <div class="walls" id="walls" aria-hidden="true"></div>
+      <div class="token" id="token" aria-hidden="true" hidden><span></span></div>
+    </div>
+  </section>
+
+  <section class="tray">
+    <div class="trayhead">
+      <div class="seg" role="tablist" aria-label="Mode">
+        <button type="button" role="tab" data-mode="move">Move</button>
+        <button type="button" role="tab" data-mode="map">Map</button>
+      </div>
+      <button type="button" class="undo" id="undoBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Undo
+      </button>
+    </div>
+
+    <div class="panel" id="movePanel">
+      <div class="move">
+        <div class="where">
+          <span class="label">Tracker at</span>
+          <strong class="pos" id="posLabel">—</strong>
+          <span class="steps" id="stepLabel"></span>
+        </div>
+        <div class="dpad">
+          <button type="button" class="dir dn" data-dir="n" aria-label="Step north">N</button>
+          <button type="button" class="dir dw" data-dir="w" aria-label="Step west">W</button>
+          <div class="rose" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>
+          </div>
+          <button type="button" class="dir de" data-dir="e" aria-label="Step east">E</button>
+          <button type="button" class="dir ds" data-dir="s" aria-label="Step south">S</button>
+        </div>
+      </div>
+      <div class="pathbox">
+        <span class="label">Path</span>
+        <p class="path" id="pathLabel"></p>
+      </div>
+    </div>
+
+    <div class="panel" id="mapPanel" hidden>
+      <div class="tools" id="tools"></div>
+      <p class="hint" id="toolHint"></p>
+      <form class="power" id="powerEd" hidden>
+        <strong id="pwCell">Monster power</strong>
+        <div class="pw-row">
+          <button type="button" class="pw-step" data-d="-1" aria-label="Lower power">−</button>
+          <input id="pwInput" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="done" placeholder="–">
+          <button type="button" class="pw-step" data-d="1" aria-label="Raise power">+</button>
+          <button type="button" class="pw-txt" id="pwClear">Clear</button>
+          <button type="submit" class="pw-txt" id="pwDone">Done</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="files" aria-label="Game file">
+    <span class="label">Game file</span>
+    <div class="filebtns">
+      <button type="button" class="filebtn" id="saveBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Save game<small>.json file</small>
+      </button>
+      <button type="button" class="filebtn" id="loadBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5V4.5M7 9.5l5-5 5 5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Load game<small>from .json</small>
+      </button>
+      <button type="button" class="filebtn" id="pdfBtn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4M9.5 12h6M9.5 15.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        Export PDF<small>printable map</small>
+      </button>
+    </div>
+    <input type="file" id="loadInput" accept=".json,application/json" hidden>
+  </section>
+
+  <div class="foot">
+    <button type="button" id="newBtn">New game</button>
+    <p class="motto">Always draw the space before you move in!</p>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const ROWS = 'ABCDEF';
+  const KEY = 'lairs-tracker-v2';
+  const OLD_KEY = 'lairs-tracker-v1';
+  const FEAT = {trap:'trap', monster:'monster', chest:'chest'};
+  const TOOLS = [
+    ['known','Known'],['start','Start'],['exit','Exit'],['scr','Scrounged'],
+    ['trap','Trap'],['monster','Monster'],['chest','Chest'],['wall','Wall'],
+    ['kill','Eliminate',1],['power','Power',1],['erase','Clear',1]
+  ];
+  const HINTS = {
+    known:'Tap a space to mark it as known. Known can sit alongside any other mark.',
+    start:'Tap the space where the Start is.',
+    exit:'Tap the space where the Exit is.',
+    scr:'Tap a space once you have scrounged it.',
+    trap:'Tap to draw a trap. Tap it again to remove it.',
+    monster:'Tap to draw a monster, then set its power below. Tap it again to remove it.',
+    chest:'Tap to draw a chest. Tap it again to remove it.',
+    wall:'Tap close to the side of a space to add or remove a wall there.',
+    kill:'Tap a monster or trap to fill it in as eliminated. Tap again to bring it back.',
+    power:'Tap a monster to set its remaining power (0–99).',
+    erase:'Tap a space to clear all its markings. Walls stay.'
+  };
+  const DIRS = {n:[-1,0,'north'], s:[1,0,'south'], w:[0,-1,'west'], e:[0,1,'east']};
+  const $ = id => document.getElementById(id);
+  const key = (r, c) => r + ',' + c;
+  const coord = (r, c) => ROWS[r] + (c + 1);
+  const coordK = k => { const [r, c] = k.split(',').map(Number); return coord(r, c); };
+
+  function example(){
+    return {
+      mode:'move', tool:'known', example:true,
+      path:[[5,2],[4,2],[4,3],[3,3],[2,3]],
+      cells:{
+        '5,2':{known:true, start:true},
+        '4,2':{known:true},
+        '4,3':{known:true, feat:'trap', dead:true},
+        '3,3':{known:true, scr:true},
+        '2,3':{known:true},
+        '3,4':{feat:'monster', power:7},
+        '4,1':{feat:'chest'},
+        '0,5':{exit:true}
+      },
+      walls:{'v,4,1':1, 'h,1,3':1, 'h,4,4':1, 'v,2,3':1}
+    };
+  }
+  function fromV1(o){
+    if (!o || o.example || !Array.isArray(o.players)) return null;
+    const p = o.players[o.active || 0] || o.players[0];
+    if (!p) return null;
+    const cells = {};
+    for (const k in (p.cells || {})) {
+      const c = p.cells[k], n = {};
+      if (c.scr) n.scr = true;
+      if (c.f === 'known') n.known = true;
+      else if (c.f === 'se') n.start = true;
+      else if (FEAT[c.f]) { n.feat = c.f; if (c.gone && c.f !== 'chest') n.dead = true; }
+      if (Object.keys(n).length) cells[k] = n;
+    }
+    return {mode:'move', tool:'known', example:false, path:p.path || [], cells, walls:p.walls || {}};
+  }
+
+  let S = null;
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) S = JSON.parse(raw);
+    else { const old = localStorage.getItem(OLD_KEY); if (old) S = fromV1(JSON.parse(old)); }
+  } catch (e) {}
+  if (!S || !Array.isArray(S.path) || typeof S.cells !== 'object' || !S.cells || typeof S.walls !== 'object' || !S.walls) S = example();
+  if (!HINTS[S.tool]) S.tool = 'known';
+
+  let hist = [];
+  let sel = null;        // cell key whose monster power is being edited
+  let pwSnapped = false; // one undo step per power-editing session
+
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function snap(){
+    hist.push(JSON.stringify({path:S.path, cells:S.cells, walls:S.walls}));
+    if (hist.length > 300) hist.shift();
+  }
+  function commit(){ save(); render(); }
+  function select(k){ sel = k; pwSnapped = false; }
+
+  let toastT;
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  function sym(t, filled){
+    const fill = filled ? 'currentColor' : 'none';
+    const open = '<svg viewBox="0 0 24 24" aria-hidden="true">';
+    const frame = '<rect x="3.5" y="3.5" width="17" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"/>';
+    const letter = ch => '<text x="12" y="17" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor" font-family="Oswald, Arial Narrow, sans-serif">' + ch + '</text>';
+    switch (t) {
+      case 'known': return open + '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+      case 'start': return open + frame + letter('S') + '</svg>';
+      case 'exit': return open + frame + letter('E') + '</svg>';
+      case 'scr': return open + frame + '<circle cx="15.5" cy="8.5" r="2.4" fill="currentColor"/></svg>';
+      case 'trap': return open + '<polygon points="4,6 20,6 12,20" fill="' + fill + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+      case 'monster': return open + '<rect x="5" y="5" width="14" height="14" rx="1" fill="' + fill + '" stroke="currentColor" stroke-width="2"/></svg>';
+      case 'chest': return open + '<path d="M5 19V12a7 7 0 0 1 14 0v7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 13.5h14" stroke="currentColor" stroke-width="2"/></svg>';
+      case 'wall': return open + '<rect x="10" y="3" width="4" height="18" rx="1.5" style="fill:var(--wall)"/></svg>';
+      case 'kill': return open + '<rect x="2.5" y="4" width="9" height="9" rx="1" fill="currentColor"/><polygon points="12.5,10 21.5,10 17,19" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+      case 'power': return open + '<rect x="2" y="6" width="20" height="12" rx="6" fill="currentColor"/><text x="12" y="15.6" text-anchor="middle" font-size="9.5" font-weight="700" style="fill:var(--paper)" font-family="Oswald, Arial Narrow, sans-serif">12</text></svg>';
+      case 'erase': return open + '<path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+    }
+    return '';
+  }
+
+  const liveMonster = c => !!c && c.feat === 'monster' && !c.dead;
+
+  function render(){
+    $('exampleNote').hidden = !S.example;
+    if (sel && (S.mode !== 'map' || !liveMonster(S.cells[sel]))) sel = null;
+
+    const here = S.path[S.path.length - 1];
+    const visited = new Set(S.path.map(([r, c]) => key(r, c)));
+    let html = '';
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const k = key(r, c), cell = S.cells[k] || {}, co = coord(r, c);
+      const isHere = here && here[0] === r && here[1] === c;
+      const se = (cell.start ? 'S' : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? 'E' : '');
+      let center = '';
+      if (cell.feat) center = sym(cell.feat, cell.dead);
+      else if (se) center = '<span class="se-big">' + se + '</span>';
+      const parts = [co];
+      if (cell.known) parts.push('known');
+      if (cell.start) parts.push('start');
+      if (cell.exit) parts.push('exit');
+      if (cell.feat) parts.push(FEAT[cell.feat] + (cell.dead ? ' eliminated' : ''));
+      if (liveMonster(cell) && cell.power != null) parts.push('power ' + cell.power);
+      if (cell.scr) parts.push('scrounged');
+      if (isHere) parts.push('your tracker is here');
+      const cls = 'cell' + (visited.has(k) ? ' visited' : '') + (center ? ' marked' : '') + (cell.known ? ' known' : '') + (sel === k ? ' sel' : '');
+      html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
+        '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' +
+        (cell.feat && se ? '<span class="se">' + se + '</span>' : '') +
+        (cell.scr ? '<span class="scr"></span>' : '') +
+        (liveMonster(cell) && cell.power != null ? '<span class="pw">' + cell.power + '</span>' : '') +
+        '</span></button>';
+    }
+    $('cells').innerHTML = html;
+
+    const u = 100 / 6;
+    let w = '';
+    for (const k in S.walls) {
+      const [t, r, c] = k.split(',');
+      w += t === 'h'
+        ? '<span class="wall h" style="left:' + (+c * u) + '%;top:' + ((+r + 1) * u) + '%;width:' + u + '%"></span>'
+        : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
+    }
+    $('walls').innerHTML = w;
+    $('trail').setAttribute('points', S.path.map(([r, c]) => (c + 0.5) + ',' + (r + 0.5)).join(' '));
+
+    const tok = $('token');
+    if (here) {
+      tok.hidden = false;
+      tok.style.left = (here[1] * u) + '%';
+      tok.style.top = (here[0] * u) + '%';
+    } else {
+      tok.hidden = true;
+    }
+
+    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
+    $('movePanel').hidden = S.mode !== 'move';
+    $('mapPanel').hidden = S.mode !== 'map';
+    $('board').classList.toggle('mapping', S.mode === 'map');
+    document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
+    $('toolHint').textContent = HINTS[S.tool];
+
+    $('powerEd').hidden = !sel;
+    if (sel) {
+      const cell = S.cells[sel], inp = $('pwInput');
+      $('pwCell').textContent = 'Monster power on ' + coordK(sel);
+      inp.setAttribute('aria-label', 'Power for the monster on ' + coordK(sel));
+      if (document.activeElement !== inp) inp.value = cell.power != null ? cell.power : '';
+    }
+
+    const n = S.path.length;
+    $('posLabel').textContent = here ? coord(here[0], here[1]) : '—';
+    $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
+    const coords = S.path.map(([r, c]) => coord(r, c));
+    $('pathLabel').textContent = n
+      ? (n > 12 ? '… ' + coords.slice(-12).join(' → ') : coords.join(' → '))
+      : 'Tap a space on the map to place your tracker.';
+  }
+
+  function wallKey(r, c, dr, dc){
+    if (dr === -1) return 'h,' + (r - 1) + ',' + c;
+    if (dr === 1) return 'h,' + r + ',' + c;
+    if (dc === -1) return 'v,' + r + ',' + (c - 1);
+    return 'v,' + r + ',' + c;
+  }
+
+  function moveTo(r, c){
+    const last = S.path[S.path.length - 1];
+    if (last && last[0] === r && last[1] === c) return;
+    snap();
+    S.path.push([r, c]);
+    commit();
+    if (last && !S.cells[key(r, c)]) toast(coord(r, c) + ' is not drawn yet. Switch to Map to draw it.');
+  }
+
+  function step(d){
+    const last = S.path[S.path.length - 1];
+    if (!last) { toast('Tap a space to place your tracker first.'); return; }
+    const [dr, dc, name] = DIRS[d];
+    const r = last[0] + dr, c = last[1] + dc;
+    if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
+    if (S.walls[wallKey(last[0], last[1], dr, dc)]) { toast('You mapped a wall to the ' + name + ' of ' + coord(last[0], last[1]) + '.'); return; }
+    moveTo(r, c);
+  }
+
+  function mark(r, c, e, btn){
+    const k = key(r, c), t = S.tool, co = coord(r, c);
+    const cur = S.cells[k] || {};
+
+    if (t === 'wall') {
+      if (!e.detail) { toast('Tap near a side of a space to place a wall.'); return; }
+      const rect = btn.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width, y = (e.clientY - rect.top) / rect.height;
+      const d = [[y, -1, 0], [1 - y, 1, 0], [x, 0, -1], [1 - x, 0, 1]].sort((a, b) => a[0] - b[0])[0];
+      const nr = r + d[1], nc = c + d[2];
+      if (nr < 0 || nr > 5 || nc < 0 || nc > 5) { toast('That side is the outer wall.'); return; }
+      snap();
+      const wk = wallKey(r, c, d[1], d[2]);
+      if (S.walls[wk]) delete S.walls[wk]; else S.walls[wk] = 1;
+      commit();
+      return;
+    }
+    if (t === 'erase') {
+      if (!S.cells[k]) return;
+      snap(); delete S.cells[k]; commit();
+      return;
+    }
+    if (t === 'power') {
+      if (cur.feat !== 'monster') { toast('There is no monster on ' + co + '.'); return; }
+      if (cur.dead) { toast('The monster on ' + co + ' is eliminated.'); return; }
+      select(sel === k ? null : k);
+      render();
+      return;
+    }
+    if (t === 'kill') {
+      if (cur.feat !== 'monster' && cur.feat !== 'trap') { toast('There is no monster or trap on ' + co + '.'); return; }
+      snap();
+      const n = Object.assign({}, cur);
+      if (n.dead) delete n.dead; else n.dead = true;
+      S.cells[k] = n;
+      commit();
+      return;
+    }
+
+    snap();
+    const n = Object.assign({}, cur);
+    if (t === 'known' || t === 'start' || t === 'exit' || t === 'scr') {
+      if (n[t]) delete n[t]; else n[t] = true;
+    } else {
+      if (n.feat === t) { delete n.feat; delete n.dead; delete n.power; }
+      else {
+        n.feat = t; delete n.dead; delete n.power;
+        if (t === 'monster') select(k);
+      }
+    }
+    if (Object.keys(n).length) S.cells[k] = n; else delete S.cells[k];
+    commit();
+  }
+
+  function setPower(v){
+    const cell = sel && S.cells[sel];
+    if (!liveMonster(cell)) return;
+    if (!pwSnapped) { snap(); pwSnapped = true; }
+    const n = Object.assign({}, cell);
+    if (v == null || isNaN(v)) delete n.power; else n.power = Math.max(0, Math.min(99, Math.round(v)));
+    S.cells[sel] = n;
+    commit();
+  }
+
+  function undo(){
+    if (!hist.length) { toast('Nothing to undo.'); return; }
+    Object.assign(S, JSON.parse(hist.pop()));
+    pwSnapped = false;
+    commit();
+  }
+
+  // Build tool buttons
+  $('tools').innerHTML = TOOLS.map(([id, label, act]) =>
+    '<button type="button" class="tool' + (act ? ' act' : '') + '" data-tool="' + id + '" aria-pressed="false">' + sym(id, id === 'kill') + '<span>' + label + '</span></button>'
+  ).join('');
+
+  // Events
+  $('cells').addEventListener('click', e => {
+    const b = e.target.closest('.cell');
+    if (!b) return;
+    const r = +b.dataset.r, c = +b.dataset.c;
+    if (S.mode === 'move') moveTo(r, c); else mark(r, c, e, b);
+    if (e.detail === 0) {
+      const nb = $('cells').querySelector('[data-r="' + r + '"][data-c="' + c + '"]');
+      if (nb) nb.focus();
+    }
+  });
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; select(null); commit(); }));
+  $('tools').addEventListener('click', e => {
+    const b = e.target.closest('.tool');
+    if (!b) return;
+    S.tool = b.dataset.tool;
+    if (S.tool !== 'monster' && S.tool !== 'power') select(null);
+    commit();
+  });
+  document.querySelectorAll('.dir').forEach(b => b.addEventListener('click', () => step(b.dataset.dir)));
+  $('undoBtn').addEventListener('click', undo);
+
+  // Power editor
+  $('pwInput').addEventListener('input', e => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
+    if (digits !== e.target.value) e.target.value = digits;
+    setPower(digits === '' ? null : parseInt(digits, 10));
+  });
+  document.querySelectorAll('.pw-step').forEach(b => b.addEventListener('click', () => {
+    const cell = sel && S.cells[sel];
+    if (!cell) return;
+    const d = +b.dataset.d;
+    const cur = cell.power;
+    setPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
+  }));
+  $('pwClear').addEventListener('click', () => setPower(null));
+  $('powerEd').addEventListener('submit', e => {
+    e.preventDefault();
+    $('pwInput').blur();
+    select(null);
+    render();
+  });
+
+  let armT;
+  const newBtn = $('newBtn');
+  function disarm(){ clearTimeout(armT); newBtn.classList.remove('armed'); newBtn.textContent = 'New game'; }
+  newBtn.addEventListener('click', () => {
+    if (!S.example && !newBtn.classList.contains('armed')) {
+      newBtn.classList.add('armed');
+      newBtn.textContent = 'Tap again to clear the map';
+      armT = setTimeout(disarm, 3000);
+      return;
+    }
+    disarm();
+    S = {mode:'move', tool:S.tool, example:false, path:[], cells:{}, walls:{}};
+    hist = [];
+    select(null);
+    commit();
+    window.scrollTo({top:0, behavior:'smooth'});
+    toast('New game. Tap your starting space.');
+  });
+
+  // ---------- Game file: save / load JSON, export PDF ----------
+  const pad2 = n => String(n).padStart(2, '0');
+  const fileStamp = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
+  const niceDate = d => d.toLocaleString('en-GB', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  function parseCoord(s){
+    if (typeof s !== 'string') return null;
+    const m = /^([A-F])([1-6])$/i.exec(s.trim());
+    return m ? [ROWS.indexOf(m[1].toUpperCase()), +m[2] - 1] : null;
+  }
+
+  function toFile(){
+    const here = S.path[S.path.length - 1];
+    const spaces = {};
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const cell = S.cells[key(r, c)];
+      if (!cell) continue;
+      const o = {};
+      if (cell.known) o.known = true;
+      if (cell.start) o.start = true;
+      if (cell.exit) o.exit = true;
+      if (cell.scr) o.scrounged = true;
+      if (cell.feat) {
+        o.feature = cell.feat;
+        if (cell.dead) o.eliminated = true;
+        if (cell.feat === 'monster' && cell.power != null) o.power = cell.power;
+      }
+      spaces[coord(r, c)] = o;
+    }
+    const walls = Object.keys(S.walls).map(k => {
+      const [t, r, c] = k.split(','), R = +r, Cn = +c;
+      return t === 'h' ? [coord(R, Cn), coord(R + 1, Cn)] : [coord(R, Cn), coord(R, Cn + 1)];
+    });
+    return {
+      format:'lairs-tracker', version:1, game:'Lairs',
+      savedAt:new Date().toISOString(),
+      tracker: here ? coord(here[0], here[1]) : null,
+      path: S.path.map(([r, c]) => coord(r, c)),
+      spaces, walls
+    };
+  }
+
+  function fromFile(o){
+    if (!o || o.format !== 'lairs-tracker' || !Array.isArray(o.path)) return null;
+    const path = [];
+    for (const s of o.path) { const p = parseCoord(s); if (!p) return null; path.push(p); }
+    const cells = {};
+    const sp = o.spaces && typeof o.spaces === 'object' ? o.spaces : {};
+    for (const name in sp) {
+      const p = parseCoord(name), v = sp[name];
+      if (!p || !v || typeof v !== 'object') return null;
+      const n = {};
+      if (v.known) n.known = true;
+      if (v.start) n.start = true;
+      if (v.exit) n.exit = true;
+      if (v.scrounged) n.scr = true;
+      if (FEAT[v.feature]) {
+        n.feat = v.feature;
+        if (v.eliminated && v.feature !== 'chest') n.dead = true;
+        if (v.feature === 'monster' && Number.isInteger(v.power) && v.power >= 0 && v.power <= 99) n.power = v.power;
+      }
+      if (Object.keys(n).length) cells[key(p[0], p[1])] = n;
+    }
+    const walls = {};
+    for (const w of (Array.isArray(o.walls) ? o.walls : [])) {
+      const a = parseCoord(w && w[0]), b = parseCoord(w && w[1]);
+      if (!a || !b) return null;
+      const dr = b[0] - a[0], dc = b[1] - a[1];
+      if (Math.abs(dr) + Math.abs(dc) !== 1) return null;
+      walls[wallKey(a[0], a[1], dr, dc)] = 1;
+    }
+    return {path, cells, walls, savedAt:o.savedAt};
+  }
+
+  // Saving files: the share sheet on iPhone/iPad (Save to Files), a normal download elsewhere.
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const MIME = {json:'application/json', pdf:'application/pdf'};
+  function download(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('Downloading ' + filename);
+  }
+  async function offerFile(filename, data){
+    const type = MIME[filename.split('.').pop()] || 'application/octet-stream';
+    const blob = data instanceof Blob ? data : new Blob([data], {type});
+    if (IS_IOS && navigator.canShare) {
+      let file = null;
+      try { file = new File([blob], filename, {type}); } catch (err) {}
+      if (file && navigator.canShare({files:[file]})) {
+        try { await navigator.share({files:[file]}); return; }
+        catch (err) {
+          if (err && err.name === 'AbortError') { toast('Save cancelled.'); return; }
+          // Otherwise fall back to a normal download.
+        }
+      }
+    }
+    download(blob, filename);
+  }
+
+  $('saveBtn').addEventListener('click', () => {
+    offerFile('lairs-map-' + fileStamp(new Date()) + '.json', JSON.stringify(toFile(), null, 2));
+  });
+
+  $('loadBtn').addEventListener('click', () => $('loadInput').click());
+  $('loadInput').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let o = null;
+      try { o = fromFile(JSON.parse(rd.result)); } catch (err) {}
+      if (!o) { toast('That file is not a Lairs Tracker save.'); return; }
+      snap();
+      S.path = o.path; S.cells = o.cells; S.walls = o.walls; S.example = false;
+      select(null);
+      commit();
+      const d = new Date(o.savedAt);
+      toast(isNaN(d) ? 'Save loaded.' : 'Loaded the save from ' + niceDate(d) + '.');
+    };
+    rd.onerror = () => toast('Could not read that file.');
+    rd.readAsText(f);
+  });
+
+  let jsPDFP = null;
+  function loadJsPDF(){
+    if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+    if (!jsPDFP) jsPDFP = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = () => (window.jspdf && window.jspdf.jsPDF) ? res(window.jspdf.jsPDF) : rej(new Error('jsPDF missing'));
+      s.onerror = () => { jsPDFP = null; s.remove(); rej(new Error('jsPDF failed to load')); };
+      document.head.appendChild(s);
+    });
+    return jsPDFP;
+  }
+  // Fetch the PDF tool early while online, so export also works offline later.
+  if (navigator.onLine !== false) setTimeout(() => loadJsPDF().catch(() => {}), 1500);
+
+  function buildPdf(JsPDF){
+    const doc = new JsPDF({unit:'mm', format:'a4', orientation:'portrait'});
+    const K = {wall:[140,99,84], ink:[75,52,42], tan:[219,194,166], tint:[243,230,213], red:[180,67,44], muted:[138,113,99], white:[255,255,255]};
+    const sd = c => doc.setDrawColor(c[0], c[1], c[2]);
+    const sf = c => doc.setFillColor(c[0], c[1], c[2]);
+    const st = c => doc.setTextColor(c[0], c[1], c[2]);
+    const font = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); };
+    const dash = pattern => doc.setLineDashPattern(pattern || [], 0);
+    const BZ = 0.5523;
+
+    function trap(cx, cy, s, filled){
+      sd(K.ink); sf(K.ink); doc.setLineWidth(0.55); doc.setLineJoin('round');
+      doc.triangle(cx - s, cy - s * 0.65, cx + s, cy - s * 0.65, cx, cy + s, filled ? 'FD' : 'S');
+    }
+    function monster(cx, cy, s, filled){
+      sd(K.ink); sf(K.ink); doc.setLineWidth(0.55);
+      doc.rect(cx - s * 0.85, cy - s * 0.85, s * 1.7, s * 1.7, filled ? 'FD' : 'S');
+    }
+    function chest(cx, cy, s){
+      sd(K.ink); doc.setLineWidth(0.55);
+      const r = s * 0.85, h = s * 0.8, k = BZ * r;
+      doc.lines([[0, -h], [0, -k, r - k, -r, r, -r], [k, 0, r, r - k, r, r], [0, h]], cx - r, cy + h, [1, 1], 'S', true);
+      doc.line(cx - r, cy + s * 0.15, cx + r, cy + s * 0.15);
+    }
+    function badge(cx, cy, txt){
+      const w = txt.length > 1 ? 6.4 : 4.6, h = 4.2;
+      sf(K.ink); doc.roundedRect(cx - w / 2, cy - h / 2, w, h, h / 2, h / 2, 'F');
+      font('bold', 7.5); st(K.white); doc.text(txt, cx, cy, {align:'center', baseline:'middle'});
+    }
+
+    // Header
+    font('bold', 24); st(K.wall); doc.text('LAIRS', 20, 22);
+    const tw = doc.getTextWidth('LAIRS');
+    font('normal', 10); st(K.muted);
+    doc.text('MAP TRACKER', 20 + tw + 4, 22);
+    doc.text(niceDate(new Date()), 190, 22, {align:'right'});
+
+    // Grid
+    const x0 = 35, y0 = 38, cs = 25, size = cs * 6;
+    font('bold', 14); st(K.wall);
+    for (let i = 0; i < 6; i++) {
+      doc.text(String(i + 1), x0 + i * cs + cs / 2, y0 - 4, {align:'center'});
+      doc.text(ROWS[i], x0 - 7, y0 + i * cs + cs / 2, {align:'center', baseline:'middle'});
+    }
+    const here = S.path[S.path.length - 1];
+    const visited = new Set(S.path.map(([r, c]) => key(r, c)));
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const x = x0 + c * cs, y = y0 + r * cs, cx = x + cs / 2, cy = y + cs / 2;
+      const cell = S.cells[key(r, c)] || {};
+      sd(K.tan); doc.setLineWidth(0.35);
+      if (visited.has(key(r, c))) { sf(K.tint); doc.roundedRect(x + 1.2, y + 1.2, cs - 2.4, cs - 2.4, 1.5, 1.5, 'FD'); }
+      else doc.roundedRect(x + 1.2, y + 1.2, cs - 2.4, cs - 2.4, 1.5, 1.5, 'S');
+      font('normal', 7); st(K.muted); doc.text(coord(r, c), x + 2.6, y + 4.6);
+      const se = (cell.start ? 'S' : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? 'E' : '');
+      if (cell.known) { sd(K.ink); doc.setLineWidth(0.6); doc.circle(cx, cy, 7.5, 'S'); }
+      else if (!cell.feat && !se) { sd(K.tan); doc.setLineWidth(0.3); dash([0.9, 0.9]); doc.circle(cx, cy, 7.5, 'S'); dash(null); }
+      if (cell.feat === 'trap') trap(cx, cy + 0.3, 4.6, cell.dead);
+      else if (cell.feat === 'monster') monster(cx, cy, 4.6, cell.dead);
+      else if (cell.feat === 'chest') chest(cx, cy + 0.3, 4.6);
+      else if (se) { font('bold', 13); st(K.ink); doc.text(se, cx, cy, {align:'center', baseline:'middle'}); }
+      if (cell.feat && se) { font('bold', 7.5); st(K.ink); doc.text(se, x + 2.6, y + cs - 2.8); }
+      if (cell.scr) { sf(K.ink); doc.circle(x + cs - 3.6, y + 3.6, 1, 'F'); }
+      if (liveMonster(cell) && cell.power != null) badge(x + cs - 5, y + cs - 4.4, String(cell.power));
+    }
+
+    // Path
+    if (S.path.length > 1) {
+      sd(K.red); doc.setLineWidth(0.6); doc.setLineCap('round'); dash([1.6, 1.2]);
+      const segs = [];
+      for (let i = 1; i < S.path.length; i++) segs.push([(S.path[i][1] - S.path[i - 1][1]) * cs, (S.path[i][0] - S.path[i - 1][0]) * cs]);
+      doc.lines(segs, x0 + S.path[0][1] * cs + cs / 2, y0 + S.path[0][0] * cs + cs / 2, [1, 1], 'S', false);
+      dash(null);
+    }
+
+    // Walls and outer wall
+    sd(K.wall); doc.setLineWidth(1.6); doc.setLineCap('round');
+    for (const k in S.walls) {
+      const [t, r, c] = k.split(','), R = +r, Cn = +c;
+      if (t === 'h') doc.line(x0 + Cn * cs + 1, y0 + (R + 1) * cs, x0 + (Cn + 1) * cs - 1, y0 + (R + 1) * cs);
+      else doc.line(x0 + (Cn + 1) * cs, y0 + R * cs + 1, x0 + (Cn + 1) * cs, y0 + (R + 1) * cs - 1);
+    }
+    doc.setLineWidth(2); doc.roundedRect(x0, y0, size, size, 2, 2, 'S');
+
+    // Tracker
+    if (here) {
+      const tx = x0 + here[1] * cs + cs / 2, ty = y0 + here[0] * cs + cs / 2;
+      sf(K.white); doc.circle(tx, ty, 4, 'F');
+      sf(K.red); doc.circle(tx, ty, 3.1, 'F');
+      sf(K.white); doc.circle(tx, ty, 1, 'F');
+    }
+
+    // Summary
+    let y = y0 + size + 11;
+    const n = S.path.length;
+    font('bold', 11); st(K.ink);
+    doc.text(here ? 'Tracker at ' + coord(here[0], here[1]) : 'Tracker not placed', 20, y);
+    font('normal', 10); st(K.muted);
+    if (n > 1) doc.text((n - 1) + ' move' + (n === 2 ? '' : 's'), 190, y, {align:'right'});
+    y += 7;
+    const rowsOut = [];
+    if (n) rowsOut.push(['Path', S.path.map(([r, c]) => coord(r, c)).join(' > ')]);
+    const live = [], traps = [], dead = [], chests = [];
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const cell = S.cells[key(r, c)]; if (!cell || !cell.feat) continue;
+      const co = coord(r, c);
+      if (cell.dead) dead.push(co + ' ' + cell.feat);
+      else if (cell.feat === 'monster') live.push(co + (cell.power != null ? ' (power ' + cell.power + ')' : ''));
+      else if (cell.feat === 'trap') traps.push(co);
+      else if (cell.feat === 'chest') chests.push(co);
+    }
+    if (live.length) rowsOut.push(['Monsters', live.join(', ')]);
+    if (traps.length) rowsOut.push(['Traps', traps.join(', ')]);
+    if (dead.length) rowsOut.push(['Eliminated', dead.join(', ')]);
+    if (chests.length) rowsOut.push(['Chests', chests.join(', ')]);
+    for (const [label, txt] of rowsOut) {
+      if (y > 250) break;
+      font('bold', 9.5); st(K.ink); doc.text(label, 20, y);
+      font('normal', 9.5);
+      const wrapped = doc.splitTextToSize(txt, 145);
+      doc.text(wrapped, 45, y);
+      y += wrapped.length * 3.9 + 2.4;
+    }
+
+    // Legend
+    const ly = 266;
+    sd(K.tan); doc.setLineWidth(0.3); doc.line(20, ly - 9, 190, ly - 9);
+    const letter = ch => (x, yy) => { font('bold', 10); st(K.ink); doc.text(ch, x, yy, {align:'center', baseline:'middle'}); };
+    const items = [
+      ['Known', (x, yy) => { sd(K.ink); doc.setLineWidth(0.5); doc.circle(x, yy, 2.6, 'S'); }],
+      ['Start', letter('S')],
+      ['Exit', letter('E')],
+      ['Scrounged', (x, yy) => { sf(K.ink); doc.circle(x, yy, 0.9, 'F'); }],
+      ['Trap', (x, yy) => trap(x, yy, 2.6, false)],
+      ['Monster', (x, yy) => monster(x, yy, 2.6, false)],
+      ['Chest', (x, yy) => chest(x, yy, 2.6)],
+      ['Eliminated', (x, yy) => monster(x, yy, 2.6, true)],
+      ['Power', (x, yy) => badge(x, yy, '7')],
+      ['Wall', (x, yy) => { sd(K.wall); doc.setLineWidth(1.4); doc.setLineCap('round'); doc.line(x, yy - 2.8, x, yy + 2.8); }],
+      ['Tracker', (x, yy) => { sf(K.red); doc.circle(x, yy, 2.2, 'F'); sf(K.white); doc.circle(x, yy, 0.7, 'F'); }]
+    ];
+    const stepW = 170 / items.length;
+    items.forEach(([label, draw], i) => {
+      const x = 20 + stepW * i + stepW / 2;
+      draw(x, ly);
+      font('normal', 6.5); st(K.muted);
+      doc.text(label.toUpperCase(), x, ly + 6.5, {align:'center'});
+    });
+
+    font('bold', 12); st(K.wall);
+    doc.text('Always draw the space before you move in!', 105, 284, {align:'center'});
+    return doc.output('blob');
+  }
+
+  $('pdfBtn').addEventListener('click', async () => {
+    const btn = $('pdfBtn');
+    if (btn.disabled) return;
+    const sm = btn.querySelector('small'), old = sm.textContent;
+    btn.disabled = true; sm.textContent = 'Preparing…';
+    try {
+      const JsPDF = await loadJsPDF();
+      const blob = buildPdf(JsPDF);
+      await offerFile('lairs-map-' + fileStamp(new Date()) + '.pdf', blob);
+    } catch (err) {
+      toast('Could not build the PDF. Check your connection and try again.');
+    } finally {
+      btn.disabled = false; sm.textContent = old;
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.target && e.target.closest && e.target.closest('input')) return;
+    const d = {ArrowUp:'n', ArrowDown:'s', ArrowLeft:'w', ArrowRight:'e'}[e.key];
+    if (d && S.mode === 'move') { e.preventDefault(); step(d); }
+  });
+
+  render();
+
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
