@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap">
 <style>
-/* Layout: one column that mirrors the paper map sheet: the 6x6 lair grid with A-F / 1-6 rulers, then a tray that swaps between Move (compass) and Map (legend tools). */
+/* Layout: one screen, no scrolling. The 6x6 lair grid with A-F / 1-6 rulers, then a tray that swaps between Move (compass), Map (legend tools) and Game (save, load, PDF, new game). */
 :root{
   --bg:#EEE6DA;
   --paper:#FBF8F3;
@@ -56,24 +56,28 @@ body{
   padding-left:max(16px, env(safe-area-inset-left, 0px));
   padding-right:max(16px, env(safe-area-inset-right, 0px));
   margin:0;
-  padding-top:calc(14px + env(safe-area-inset-top, 0px));
-  padding-bottom:calc(48px + env(safe-area-inset-bottom, 0px));
+  padding-top:calc(12px + env(safe-area-inset-top, 0px));
+  padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
   -webkit-tap-highlight-color:transparent;
 }
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-offset:2px}
 
-.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 
 /* Header */
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--wall)}
-.brand span{font-family:var(--display);font-weight:500;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand{display:flex;align-items:baseline;gap:10px;line-height:1}
+.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:22px;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--wall)}
+.brand span{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .note{margin:0;font-size:13.5px;color:var(--muted);background:var(--tint);border-radius:8px;padding:8px 12px}
 
 /* Map sheet */
-.sheet{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 6px}
+/* The map shrinks on short screens so the whole app fits without scrolling
+   (304px = header, tray and page padding; the sheet is about as tall as it is wide). */
+.sheet{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 6px;width:100%;margin-inline:auto;
+  max-width:max(250px, calc(100vh - 304px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(250px, calc(100dvh - 304px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
 .cols{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(6,1fr);padding:0 5px}
 .rows{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,1fr);padding:5px 0}
 .cols span,.rows span{display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px;line-height:1;color:var(--wall)}
@@ -106,54 +110,57 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .token span{width:46%;aspect-ratio:1;border-radius:50%;background:var(--pc);border:3px solid var(--paper);box-shadow:0 0 0 1.5px var(--pc),0 3px 8px rgb(0 0 0 / .28);display:grid;place-items:center}
 .token span::after{content:"";width:34%;aspect-ratio:1;border-radius:50%;background:var(--onp)}
 
-/* Tray */
-.tray{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:12px}
+/* Tray: the Move, Map and Game tabs share one fixed-height panel, so switching never makes the page jump */
+.tray{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px}
 .trayhead{display:flex;gap:8px}
-.seg{flex:1;display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:10px;padding:3px}
-.seg button{border:0;background:transparent;padding:8px;border-radius:8px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.seg{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--bg);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:8px 4px;border-radius:8px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .seg button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
-.undo{flex:none;display:flex;align-items:center;gap:6px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.07em;text-transform:uppercase}
-.panel{display:flex;flex-direction:column;gap:12px}
-.label{font-family:var(--display);font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.move{display:flex;gap:14px;align-items:center}
+.undo{flex:none;width:46px;display:grid;place-items:center;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
+.undo:active{background:var(--tint)}
+.panel{min-height:160px;display:flex;flex-direction:column;gap:8px}
+.label{font-family:var(--display);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* Move tab */
+.move{display:flex;gap:12px;align-items:center}
 .where{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.pos{font-family:var(--display);font-weight:700;font-size:46px;line-height:1;color:var(--pc);font-variant-numeric:tabular-nums}
+.pos{font-family:var(--display);font-weight:700;font-size:42px;line-height:1;color:var(--pc);font-variant-numeric:tabular-nums}
 .steps{font-size:13.5px;color:var(--muted)}
-.dpad{flex:none;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
-.dir{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;font-family:var(--display);font-weight:700;font-size:18px;color:var(--wall);transition:transform .08s}
+.dpad{flex:none;display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);gap:4px}
+.dir{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--wall);transition:transform .08s}
 .dir:active{background:var(--tint);transform:scale(.95)}
 .dn{grid-column:2;grid-row:1}.dw{grid-column:1;grid-row:2}.de{grid-column:3;grid-row:2}.ds{grid-column:2;grid-row:3}
 .rose{grid-column:2;grid-row:2;display:grid;place-items:center;color:var(--muted)}
-.pathbox{display:flex;flex-direction:column;gap:3px}
-.path{margin:0;font-size:14px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.pathbox{display:flex;align-items:baseline;gap:8px;min-width:0}
+.path{flex:1;min-width:0;margin:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 
-.tools{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px}
-.tool{grid-column:span 3;min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--display);font-size:10.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.tool.act{grid-column:span 4;border-style:dashed}
-.tool svg{width:22px;height:22px;color:var(--ink)}
+/* Map tab */
+.tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.tool{min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 1px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--display);font-size:10px;font-weight:500;letter-spacing:0;text-transform:uppercase;color:var(--muted)}
+.tool.act{border-style:dashed}
+.tool svg{width:20px;height:20px;color:var(--ink)}
 .tool span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tool[aria-pressed="true"]{border-color:var(--wall);border-style:solid;background:var(--tint);color:var(--ink)}
-.hint{margin:0;font-size:13.5px;color:var(--muted);min-height:2.8em}
+.hintrow{min-height:44px;display:flex;align-items:center}
+.hint{margin:0;font-size:13.5px;line-height:1.3;color:var(--muted)}
+.power{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+.power strong{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pw-step{flex:none;width:42px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-size:22px;font-weight:600;line-height:1;color:var(--ink)}
+#pwInput{flex:none;width:54px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+#pwDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
 
-.power{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:10px;background:var(--tint);border:1.5px solid var(--line)}
-.power strong{font-family:var(--display);font-weight:600;font-size:15px}
-.pw-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.pw-step{width:42px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);font-family:var(--display);font-size:22px;font-weight:600;line-height:1;color:var(--ink)}
-#pwInput{width:58px;height:44px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
-.pw-txt{height:44px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
-#pwDone{margin-left:auto;background:var(--pc);border-color:var(--pc);color:var(--onp)}
-
-.files{display:flex;flex-direction:column;gap:8px}
+/* Game tab */
 .filebtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.filebtn{min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 9px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
-.filebtn svg{width:22px;height:22px;color:var(--wall);margin-bottom:2px}
-.filebtn small{font-family:var(--body);font-weight:500;font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--muted)}
+.filebtn{min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 7px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
+.filebtn svg{width:20px;height:20px;color:var(--wall);margin-bottom:2px}
+.filebtn small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0;text-transform:none;color:var(--muted)}
 .filebtn:active{background:var(--tint)}
 .filebtn:disabled{opacity:.6;cursor:progress}
-.foot{display:flex;flex-direction:column;align-items:center;gap:12px}
-#newBtn{padding:9px 20px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gamerow{display:flex;align-items:center;gap:10px}
+#newBtn{flex:none;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 #newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
-.motto{margin:0;text-align:center;font-family:var(--display);font-weight:600;font-size:16px;color:var(--wall);text-wrap:balance}
+.autosave{flex:1;min-width:0;font-size:12.5px;line-height:1.3;color:var(--muted)}
+.motto{margin:auto 0 0;text-align:center;font-family:var(--display);font-weight:600;font-size:15px;color:var(--wall);text-wrap:balance}
 
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,16px);opacity:0;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;text-align:center;pointer-events:none;transition:opacity .2s, transform .2s;z-index:20}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -167,7 +174,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <main class="app">
   <header class="brand"><h1>Lairs</h1><span>Map tracker</span></header>
 
-  <p class="note" id="exampleNote" hidden>This is an example map so you can see how it works. Tap <b>New game</b> at the bottom to start your own.</p>
+  <p class="note" id="exampleNote" hidden>This is an example map. Start your own with <b>New game</b> on the Game tab.</p>
 
   <section class="sheet" aria-label="Lair map">
     <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
@@ -185,10 +192,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       <div class="seg" role="tablist" aria-label="Mode">
         <button type="button" role="tab" data-mode="move">Move</button>
         <button type="button" role="tab" data-mode="map">Map</button>
+        <button type="button" role="tab" data-mode="game">Game</button>
       </div>
-      <button type="button" class="undo" id="undoBtn">
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Undo
+      <button type="button" class="undo" id="undoBtn" aria-label="Undo" title="Undo">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
 
@@ -217,23 +224,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
     <div class="panel" id="mapPanel" hidden>
       <div class="tools" id="tools"></div>
-      <p class="hint" id="toolHint"></p>
-      <form class="power" id="powerEd" hidden>
-        <strong id="pwCell">Monster power</strong>
-        <div class="pw-row">
+      <div class="hintrow">
+        <p class="hint" id="toolHint"></p>
+        <form class="power" id="powerEd" hidden>
+          <strong id="pwCell">Power</strong>
           <button type="button" class="pw-step" data-d="-1" aria-label="Lower power">−</button>
           <input id="pwInput" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="done" placeholder="–">
           <button type="button" class="pw-step" data-d="1" aria-label="Raise power">+</button>
-          <button type="button" class="pw-txt" id="pwClear">Clear</button>
-          <button type="submit" class="pw-txt" id="pwDone">Done</button>
-        </div>
-      </form>
+          <button type="submit" id="pwDone">Done</button>
+        </form>
+      </div>
     </div>
-  </section>
 
-  <section class="files" aria-label="Game file">
-    <span class="label">Game file</span>
-    <div class="filebtns">
+    <div class="panel" id="gamePanel" hidden>
+      <div class="filebtns">
       <button type="button" class="filebtn" id="saveBtn">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Save game<small>.json file</small>
@@ -246,14 +250,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7zM14 3v4h4M9.5 12h6M9.5 15.5h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
         Export PDF<small>printable map</small>
       </button>
+      </div>
+      <input type="file" id="loadInput" accept=".json,application/json" hidden>
+      <div class="gamerow">
+        <button type="button" id="newBtn">New game</button>
+        <span class="autosave">Your game also saves itself on this phone as you play.</span>
+      </div>
+      <p class="motto">Always draw the space before you move in!</p>
     </div>
-    <input type="file" id="loadInput" accept=".json,application/json" hidden>
   </section>
-
-  <div class="foot">
-    <button type="button" id="newBtn">New game</button>
-    <p class="motto">Always draw the space before you move in!</p>
-  </div>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -264,23 +269,22 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
   const FEAT = {trap:'trap', monster:'monster', chest:'chest'};
+  // Two rows of five: marks on the first row, features on the second. The 1 marks tools that act on what is already drawn.
   const TOOLS = [
-    ['known','Known'],['start','Start'],['exit','Exit'],['scr','Scrounged'],
-    ['trap','Trap'],['monster','Monster'],['chest','Chest'],['wall','Wall'],
-    ['kill','Eliminate',1],['power','Power',1],['erase','Clear',1]
+    ['known','Known'],['exit','Exit'],['scr','Scrounged'],['wall','Wall'],['erase','Clear',1],
+    ['trap','Trap'],['monster','Monster'],['chest','Chest'],['kill','Eliminate',1],['power','Power',1]
   ];
   const HINTS = {
-    known:'Tap a space to mark it as known. Known can sit alongside any other mark.',
-    start:'Tap the space where the Start is.',
+    known:'Tap a space to mark it as known.',
     exit:'Tap the space where the Exit is.',
     scr:'Tap a space once you have scrounged it.',
+    wall:'Tap near the side of a space to add or remove a wall.',
+    erase:'Tap a space to clear its marks. Walls stay.',
     trap:'Tap to draw a trap. Tap it again to remove it.',
-    monster:'Tap to draw a monster, then set its power below. Tap it again to remove it.',
+    monster:'Tap to draw a monster, then set its power.',
     chest:'Tap to draw a chest. Tap it again to remove it.',
-    wall:'Tap close to the side of a space to add or remove a wall there.',
-    kill:'Tap a monster or trap to fill it in as eliminated. Tap again to bring it back.',
-    power:'Tap a monster to set its remaining power (0–99).',
-    erase:'Tap a space to clear all its markings. Walls stay.'
+    kill:'Tap a monster, trap or chest to fill it in when it is gone.',
+    power:'Tap a monster to set its remaining power.'
   };
   const DIRS = {n:[-1,0,'north'], s:[1,0,'south'], w:[0,-1,'west'], e:[0,1,'east']};
   const $ = id => document.getElementById(id);
@@ -315,7 +319,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (c.scr) n.scr = true;
       if (c.f === 'known') n.known = true;
       else if (c.f === 'se') n.start = true;
-      else if (FEAT[c.f]) { n.feat = c.f; if (c.gone && c.f !== 'chest') n.dead = true; }
+      else if (FEAT[c.f]) { n.feat = c.f; if (c.gone) n.dead = true; }
       if (Object.keys(n).length) cells[k] = n;
     }
     return {mode:'move', tool:'known', example:false, path:p.path || [], cells, walls:p.walls || {}};
@@ -329,17 +333,33 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   } catch (e) {}
   if (!S || !Array.isArray(S.path) || typeof S.cells !== 'object' || !S.cells || typeof S.walls !== 'object' || !S.walls) S = example();
   if (!HINTS[S.tool]) S.tool = 'known';
+  if (S.mode !== 'move' && S.mode !== 'map' && S.mode !== 'game') S.mode = 'move';
 
   let hist = [];
   let sel = null;        // cell key whose monster power is being edited
   let pwSnapped = false; // one undo step per power-editing session
+
+  // Start is automatic: it always sits on the first space of the tracker's path.
+  function syncStart(){
+    for (const k in S.cells) {
+      if (!S.cells[k].start) continue;
+      const n = Object.assign({}, S.cells[k]);
+      delete n.start;
+      if (Object.keys(n).length) S.cells[k] = n; else delete S.cells[k];
+    }
+    if (S.path.length) {
+      const k = key(S.path[0][0], S.path[0][1]);
+      S.cells[k] = Object.assign({}, S.cells[k], {start: true});
+    }
+  }
+  syncStart();
 
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function snap(){
     hist.push(JSON.stringify({path:S.path, cells:S.cells, walls:S.walls}));
     if (hist.length > 300) hist.shift();
   }
-  function commit(){ save(); render(); }
+  function commit(){ syncStart(); save(); render(); }
   function select(k){ sel = k; pwSnapped = false; }
 
   let toastT;
@@ -363,7 +383,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       case 'scr': return open + frame + '<circle cx="15.5" cy="8.5" r="2.4" fill="currentColor"/></svg>';
       case 'trap': return open + '<polygon points="4,6 20,6 12,20" fill="' + fill + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
       case 'monster': return open + '<rect x="5" y="5" width="14" height="14" rx="1" fill="' + fill + '" stroke="currentColor" stroke-width="2"/></svg>';
-      case 'chest': return open + '<path d="M5 19V12a7 7 0 0 1 14 0v7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 13.5h14" stroke="currentColor" stroke-width="2"/></svg>';
+      case 'chest': return open + '<path d="M5 19V12a7 7 0 0 1 14 0v7z" fill="' + fill + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 13.5h14" stroke-width="2" style="stroke:' + (filled ? 'var(--paper)' : 'currentColor') + '"/></svg>';
       case 'wall': return open + '<rect x="10" y="3" width="4" height="18" rx="1.5" style="fill:var(--wall)"/></svg>';
       case 'kill': return open + '<rect x="2.5" y="4" width="9" height="9" rx="1" fill="currentColor"/><polygon points="12.5,10 21.5,10 17,19" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
       case 'power': return open + '<rect x="2" y="6" width="20" height="12" rx="6" fill="currentColor"/><text x="12" y="15.6" text-anchor="middle" font-size="9.5" font-weight="700" style="fill:var(--paper)" font-family="Oswald, Arial Narrow, sans-serif">12</text></svg>';
@@ -429,14 +449,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
     $('movePanel').hidden = S.mode !== 'move';
     $('mapPanel').hidden = S.mode !== 'map';
+    $('gamePanel').hidden = S.mode !== 'game';
     $('board').classList.toggle('mapping', S.mode === 'map');
     document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
     $('toolHint').textContent = HINTS[S.tool];
 
+    // The power editor takes the hint's place while a monster is selected.
+    $('toolHint').hidden = !!sel;
     $('powerEd').hidden = !sel;
     if (sel) {
       const cell = S.cells[sel], inp = $('pwInput');
-      $('pwCell').textContent = 'Monster power on ' + coordK(sel);
+      $('pwCell').textContent = coordK(sel) + ' power';
       inp.setAttribute('aria-label', 'Power for the monster on ' + coordK(sel));
       if (document.activeElement !== inp) inp.value = cell.power != null ? cell.power : '';
     }
@@ -446,8 +469,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
     const coords = S.path.map(([r, c]) => coord(r, c));
     $('pathLabel').textContent = n
-      ? (n > 12 ? '… ' + coords.slice(-12).join(' → ') : coords.join(' → '))
-      : 'Tap a space on the map to place your tracker.';
+      ? (n > 7 ? '… ' + coords.slice(-7).join(' → ') : coords.join(' → '))
+      : 'Tap your starting space on the map.';
   }
 
   function wallKey(r, c, dr, dc){
@@ -508,7 +531,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       return;
     }
     if (t === 'kill') {
-      if (cur.feat !== 'monster' && cur.feat !== 'trap') { toast('There is no monster or trap on ' + co + '.'); return; }
+      if (!cur.feat) { toast('There is no monster, trap or chest on ' + co + '.'); return; }
       snap();
       const n = Object.assign({}, cur);
       if (n.dead) delete n.dead; else n.dead = true;
@@ -519,7 +542,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
     snap();
     const n = Object.assign({}, cur);
-    if (t === 'known' || t === 'start' || t === 'exit' || t === 'scr') {
+    if (t === 'known' || t === 'exit' || t === 'scr') {
       if (n[t]) delete n[t]; else n[t] = true;
     } else {
       if (n.feat === t) { delete n.feat; delete n.dead; delete n.power; }
@@ -589,7 +612,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     const cur = cell.power;
     setPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
   }));
-  $('pwClear').addEventListener('click', () => setPower(null));
   $('powerEd').addEventListener('submit', e => {
     e.preventDefault();
     $('pwInput').blur();
@@ -603,7 +625,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   newBtn.addEventListener('click', () => {
     if (!S.example && !newBtn.classList.contains('armed')) {
       newBtn.classList.add('armed');
-      newBtn.textContent = 'Tap again to clear the map';
+      newBtn.textContent = 'Tap again to clear';
       armT = setTimeout(disarm, 3000);
       return;
     }
@@ -673,7 +695,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (v.scrounged) n.scr = true;
       if (FEAT[v.feature]) {
         n.feat = v.feature;
-        if (v.eliminated && v.feature !== 'chest') n.dead = true;
+        if (v.eliminated) n.dead = true;
         if (v.feature === 'monster' && Number.isInteger(v.power) && v.power >= 0 && v.power <= 99) n.power = v.power;
       }
       if (Object.keys(n).length) cells[key(p[0], p[1])] = n;
@@ -775,10 +797,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       sd(K.ink); sf(K.ink); doc.setLineWidth(0.55);
       doc.rect(cx - s * 0.85, cy - s * 0.85, s * 1.7, s * 1.7, filled ? 'FD' : 'S');
     }
-    function chest(cx, cy, s){
-      sd(K.ink); doc.setLineWidth(0.55);
+    function chest(cx, cy, s, filled){
+      sd(K.ink); sf(K.ink); doc.setLineWidth(0.55);
       const r = s * 0.85, h = s * 0.8, k = BZ * r;
-      doc.lines([[0, -h], [0, -k, r - k, -r, r, -r], [k, 0, r, r - k, r, r], [0, h]], cx - r, cy + h, [1, 1], 'S', true);
+      doc.lines([[0, -h], [0, -k, r - k, -r, r, -r], [k, 0, r, r - k, r, r], [0, h]], cx - r, cy + h, [1, 1], filled ? 'FD' : 'S', true);
+      if (filled) sd(K.white);
       doc.line(cx - r, cy + s * 0.15, cx + r, cy + s * 0.15);
     }
     function badge(cx, cy, txt){
@@ -815,7 +838,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       else if (!cell.feat && !se) { sd(K.tan); doc.setLineWidth(0.3); dash([0.9, 0.9]); doc.circle(cx, cy, 7.5, 'S'); dash(null); }
       if (cell.feat === 'trap') trap(cx, cy + 0.3, 4.6, cell.dead);
       else if (cell.feat === 'monster') monster(cx, cy, 4.6, cell.dead);
-      else if (cell.feat === 'chest') chest(cx, cy + 0.3, 4.6);
+      else if (cell.feat === 'chest') chest(cx, cy + 0.3, 4.6, cell.dead);
       else if (se) { font('bold', 13); st(K.ink); doc.text(se, cx, cy, {align:'center', baseline:'middle'}); }
       if (cell.feat && se) { font('bold', 7.5); st(K.ink); doc.text(se, x + 2.6, y + cs - 2.8); }
       if (cell.scr) { sf(K.ink); doc.circle(x + cs - 3.6, y + 3.6, 1, 'F'); }
