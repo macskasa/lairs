@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- The app has its own dark mode; this stops Samsung Internet's forced dark mode from recoloring it. -->
+<meta name="color-scheme" content="light dark">
 <title>Lairs Tracker</title>
 <meta name="description" content="Map tracker for the Lairs board game.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -31,6 +33,9 @@
   --onp:#FFFFFF;
   --display:"Oswald","Arial Narrow",sans-serif;
   --body:"Barlow",system-ui,-apple-system,sans-serif;
+  /* Spare height on tall phones (e.g. Galaxy S2x Ultra), up to 40px, used to enlarge the controls.
+     286px = header, map box, controls box and page padding around a map as wide as the screen. */
+  --g:clamp(0px, calc(100dvh - 100vw - 286px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 40px);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -53,8 +58,8 @@ img{max-width:100%}
 body{
   background:var(--bg);color:var(--ink);
   font-family:var(--body);font-size:15px;line-height:1.4;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));
-  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-left:max(12px, env(safe-area-inset-left, 0px));
+  padding-right:max(12px, env(safe-area-inset-right, 0px));
   margin:0;
   padding-top:calc(12px + env(safe-area-inset-top, 0px));
   padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
@@ -64,7 +69,10 @@ button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-offset:2px}
 
-.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+/* The app fills the screen height; leftover space goes above the map, so the map and controls sit near your thumb. */
+.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px;
+  min-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))}
 
 /* Header */
 .brand{display:flex;align-items:baseline;gap:10px;line-height:1}
@@ -73,12 +81,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .note{margin:0;font-size:13.5px;color:var(--muted);background:var(--tint);border-radius:8px;padding:8px 12px}
 
 /* Map sheet: sits in a box that matches the controls box, so both share the same edges */
-.mapcard{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:8px 10px 10px 6px}
+.mapcard{margin-top:auto;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:8px 8px 10px 4px}
 /* The map shrinks inside its box on short screens so the whole app fits without scrolling
-   (325px = header, map box padding, tray and page padding; the sheet is about as tall as it is wide). */
-.sheet{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 6px;width:100%;margin-inline:auto;
-  max-width:max(250px, calc(100vh - 325px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
-  max-width:max(250px, calc(100dvh - 325px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+   (322px = header, map box padding, tray and page padding; the sheet is as tall as it is wide). */
+.sheet{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px;width:100%;margin-inline:auto;
+  max-width:max(250px, calc(100vh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(250px, calc(100dvh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
 .cols{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(6,1fr);padding:0 5px}
 .rows{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,1fr);padding:5px 0}
 .cols span,.rows span{display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px;line-height:1;color:var(--wall)}
@@ -119,7 +127,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .seg button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
 .undo{flex:none;width:46px;display:grid;place-items:center;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
 .undo:active{background:var(--tint)}
-.panel{min-height:160px;display:flex;flex-direction:column;gap:8px}
+.panel{min-height:calc(160px + var(--g));display:flex;flex-direction:column;gap:8px}
 .label{font-family:var(--display);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
 /* Move tab */
@@ -127,7 +135,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .where{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .pos{font-family:var(--display);font-weight:700;font-size:42px;line-height:1;color:var(--pc);font-variant-numeric:tabular-nums}
 .steps{font-size:13.5px;color:var(--muted)}
-.dpad{flex:none;display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,42px);gap:4px}
+.dpad{--dp:calc(42px + var(--g) * .3);flex:none;display:grid;grid-template-columns:repeat(3,var(--dp));grid-template-rows:repeat(3,var(--dp));gap:4px}
 .dir{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--wall);transition:transform .08s}
 .dir:active{background:var(--tint);transform:scale(.95)}
 .dn{grid-column:2;grid-row:1}.dw{grid-column:1;grid-row:2}.de{grid-column:3;grid-row:2}.ds{grid-column:2;grid-row:3}
@@ -139,6 +147,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .tool{min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 1px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--display);font-size:10px;font-weight:500;letter-spacing:0;text-transform:uppercase;color:var(--muted)}
 .tool.act{border-style:dashed}
+.tool{min-height:calc(49px + var(--g) * .25);justify-content:center}
+.tool span.tight{font-size:8.5px}
 .tool svg{width:20px;height:20px;color:var(--ink)}
 .tool span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tool[aria-pressed="true"]{border-color:var(--wall);border-style:solid;background:var(--tint);color:var(--ink)}
@@ -157,6 +167,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .filebtn small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0;text-transform:none;color:var(--muted)}
 .filebtn:active{background:var(--tint)}
 .filebtn:disabled{opacity:.6;cursor:progress}
+.filebtn{min-height:calc(70px + var(--g) * .3);justify-content:center}
 .gamerow{display:flex;align-items:center;gap:10px}
 #newBtn{flex:none;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 #newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
@@ -466,6 +477,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('mapPanel').hidden = S.mode !== 'map';
     $('gamePanel').hidden = S.mode !== 'game';
     $('board').classList.toggle('mapping', S.mode === 'map');
+    if (S.mode === 'map' && typeof fitToolLabels === 'function') fitToolLabels();
     document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
     $('toolHint').textContent = HINTS[S.tool];
 
@@ -603,6 +615,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   $('tools').innerHTML = TOOLS.map(([id, label, act]) =>
     '<button type="button" class="tool' + (act ? ' act' : '') + '" data-tool="' + id + '" aria-pressed="false">' + sym(id, id === 'kill') + '<span>' + label + '</span></button>'
   ).join('');
+
+  // Shrink a tool label slightly if it would be cut off (e.g. "Scrounged" on a narrow screen).
+  function fitToolLabels(){
+    if (S.mode !== 'map') return;
+    document.querySelectorAll('.tool span').forEach(s => {
+      s.classList.remove('tight');
+      if (s.scrollWidth > s.clientWidth + 0.5) s.classList.add('tight');
+    });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitToolLabels);
+  window.addEventListener('resize', fitToolLabels);
 
   // Events
   $('cells').addEventListener('click', e => {
