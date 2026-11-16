@@ -72,12 +72,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .brand span{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .note{margin:0;font-size:13.5px;color:var(--muted);background:var(--tint);border-radius:8px;padding:8px 12px}
 
-/* Map sheet */
-/* The map shrinks on short screens so the whole app fits without scrolling
-   (304px = header, tray and page padding; the sheet is about as tall as it is wide). */
+/* Map sheet: sits in a box that matches the controls box, so both share the same edges */
+.mapcard{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:8px 10px 10px 6px}
+/* The map shrinks inside its box on short screens so the whole app fits without scrolling
+   (325px = header, map box padding, tray and page padding; the sheet is about as tall as it is wide). */
 .sheet{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 6px;width:100%;margin-inline:auto;
-  max-width:max(250px, calc(100vh - 304px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
-  max-width:max(250px, calc(100dvh - 304px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+  max-width:max(250px, calc(100vh - 325px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(250px, calc(100dvh - 325px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
 .cols{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(6,1fr);padding:0 5px}
 .rows{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,1fr);padding:5px 0}
 .cols span,.rows span{display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px;line-height:1;color:var(--wall)}
@@ -160,7 +161,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 #newBtn{flex:none;padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 #newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
 .autosave{flex:1;min-width:0;font-size:12.5px;line-height:1.3;color:var(--muted)}
-.motto{margin:auto 0 0;text-align:center;font-family:var(--display);font-weight:600;font-size:15px;color:var(--wall);text-wrap:balance}
 
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,16px);opacity:0;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;text-align:center;pointer-events:none;transition:opacity .2s, transform .2s;z-index:20}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -176,16 +176,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   <p class="note" id="exampleNote" hidden>This is an example map. Start your own with <b>New game</b> on the Game tab.</p>
 
-  <section class="sheet" aria-label="Lair map">
-    <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
-    <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
-    <div class="board" id="board">
-      <div class="cells" id="cells"></div>
-      <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><polyline id="trail" points=""/></svg>
-      <div class="walls" id="walls" aria-hidden="true"></div>
-      <div class="token" id="token" aria-hidden="true" hidden><span></span></div>
-    </div>
-  </section>
+  <div class="mapcard">
+    <section class="sheet" aria-label="Lair map">
+      <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+      <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
+      <div class="board" id="board">
+        <div class="cells" id="cells"></div>
+        <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><polyline id="trail" points=""/></svg>
+        <div class="walls" id="walls" aria-hidden="true"></div>
+        <div class="token" id="token" aria-hidden="true" hidden><span></span></div>
+      </div>
+    </section>
+  </div>
 
   <section class="tray">
     <div class="trayhead">
@@ -256,7 +258,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <button type="button" id="newBtn">New game</button>
         <span class="autosave">Your game also saves itself on this phone as you play.</span>
       </div>
-      <p class="motto">Always draw the space before you move in!</p>
     </div>
   </section>
 </main>
@@ -352,14 +353,27 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       S.cells[k] = Object.assign({}, S.cells[k], {start: true});
     }
   }
+  // Only one Exit: if an older map or save has several, keep the first (A1 to F6).
+  function keepOneExit(){
+    let seen = false;
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const k = key(r, c), cell = S.cells[k];
+      if (!cell || !cell.exit) continue;
+      if (!seen) { seen = true; continue; }
+      const n = Object.assign({}, cell);
+      delete n.exit;
+      if (Object.keys(n).length) S.cells[k] = n; else delete S.cells[k];
+    }
+  }
   syncStart();
+  keepOneExit();
 
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function snap(){
     hist.push(JSON.stringify({path:S.path, cells:S.cells, walls:S.walls}));
     if (hist.length > 300) hist.shift();
   }
-  function commit(){ syncStart(); save(); render(); }
+  function commit(){ syncStart(); keepOneExit(); save(); render(); }
   function select(k){ sel = k; pwSnapped = false; }
 
   let toastT;
@@ -385,7 +399,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       case 'monster': return open + '<rect x="5" y="5" width="14" height="14" rx="1" fill="' + fill + '" stroke="currentColor" stroke-width="2"/></svg>';
       case 'chest': return open + '<path d="M5 19V12a7 7 0 0 1 14 0v7z" fill="' + fill + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 13.5h14" stroke-width="2" style="stroke:' + (filled ? 'var(--paper)' : 'currentColor') + '"/></svg>';
       case 'wall': return open + '<rect x="10" y="3" width="4" height="18" rx="1.5" style="fill:var(--wall)"/></svg>';
-      case 'kill': return open + '<rect x="2.5" y="4" width="9" height="9" rx="1" fill="currentColor"/><polygon points="12.5,10 21.5,10 17,19" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+      // Eliminate: a filled monster, trap and chest together.
+      case 'kill': return open + '<rect x="2" y="2.5" width="8" height="8" rx="1" fill="currentColor"/><polygon points="13,2.5 22,2.5 17.5,10.5" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7.5 21.5v-4a4.5 4.5 0 0 1 9 0v4z" fill="currentColor"/><path d="M7.5 18.2h9" stroke-width="1.4" style="stroke:var(--bg)"/></svg>';
       case 'power': return open + '<rect x="2" y="6" width="20" height="12" rx="6" fill="currentColor"/><text x="12" y="15.6" text-anchor="middle" font-size="9.5" font-weight="700" style="fill:var(--paper)" font-family="Oswald, Arial Narrow, sans-serif">12</text></svg>';
       case 'erase': return open + '<path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
     }
@@ -542,6 +557,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
     snap();
     const n = Object.assign({}, cur);
+    // There is only one Exit: marking a new one moves it here.
+    if (t === 'exit' && !n.exit) {
+      let moved = false;
+      for (const k2 in S.cells) {
+        if (k2 === k || !S.cells[k2].exit) continue;
+        const o = Object.assign({}, S.cells[k2]);
+        delete o.exit;
+        if (Object.keys(o).length) S.cells[k2] = o; else delete S.cells[k2];
+        moved = true;
+      }
+      if (moved) toast('Exit moved to ' + co + '.');
+    }
     if (t === 'known' || t === 'exit' || t === 'scr') {
       if (n[t]) delete n[t]; else n[t] = true;
     } else {
@@ -928,8 +955,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       doc.text(label.toUpperCase(), x, ly + 6.5, {align:'center'});
     });
 
-    font('bold', 12); st(K.wall);
-    doc.text('Always draw the space before you move in!', 105, 284, {align:'center'});
     return doc.output('blob');
   }
 
