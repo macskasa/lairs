@@ -78,6 +78,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .brand{display:flex;align-items:baseline;gap:10px;line-height:1}
 .brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:22px;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--wall)}
 .brand span{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand .ver{margin-left:auto;letter-spacing:.04em;text-transform:none;font-variant-numeric:tabular-nums;opacity:.8}
 .note{margin:0;font-size:13.5px;color:var(--muted);background:var(--tint);border-radius:8px;padding:8px 12px}
 
 /* Map sheet: sits in a box that matches the controls box, so both share the same edges */
@@ -182,8 +183,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 /* Lair pieces editor (inside the Game tab) */
 .pc-head{display:flex;align-items:center;gap:8px;min-height:34px}
 .pc-head strong{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pcDefault,#pcDone{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
-#pcDone{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+#pcDefault,#pcDone,#saveCancel,#saveGo{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+#pcDone,#saveGo{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+#saveGo:disabled{opacity:.7;cursor:progress}
+
+/* File name box (Save game / Export PDF) */
+.namerow{display:flex;align-items:center;height:44px;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);overflow:hidden}
+.namerow:focus-within{outline:2px solid var(--pc);outline-offset:1px}
+#fileName{flex:1;min-width:0;height:100%;border:0;background:transparent;padding:0 2px 0 12px;font-size:16px;outline:none}
+.ext{flex:none;padding-right:12px;font-size:16px;color:var(--muted)}
 .pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .pc{min-width:0;display:flex;align-items:center;gap:2px;padding:3px 3px 3px 8px;border-radius:10px;background:var(--bg);border:1.5px solid var(--line)}
 .pc-name{flex:1;min-width:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -202,7 +210,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 </head>
 <body>
 <main class="app">
-  <header class="brand"><h1>Lairs</h1><span>Map tracker</span></header>
+  <header class="brand"><h1>Lairs</h1><span>Map tracker</span><span class="ver" id="appVer"></span></header>
 
   <p class="note" id="exampleNote" hidden>This is an example map. Start your own with <b>New game</b> on the Game tab.</p>
 
@@ -301,6 +309,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <div class="pc-grid" id="pcGrid"></div>
         <p class="hint">Eliminated pieces still count.</p>
       </div>
+
+      <form class="gameview" id="saveView" hidden autocomplete="off">
+        <div class="pc-head">
+          <strong id="saveTitle">Save game as</strong>
+          <button type="button" id="saveCancel">Cancel</button>
+          <button type="submit" id="saveGo">Save</button>
+        </div>
+        <div class="namerow">
+          <input id="fileName" type="text" maxlength="80" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go" aria-label="File name">
+          <span class="ext" id="fileExt">.json</span>
+        </div>
+        <p class="hint">Leave it empty to use the date and time.</p>
+      </form>
     </div>
   </section>
 </main>
@@ -309,6 +330,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
 <script>
 (() => {
+  // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
+  const APP_VERSION = '0.7';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -416,6 +439,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   let hist = [];
   let piecesOpen = false; // the Lair pieces editor is showing on the Game tab
+  let fileAsk = null;     // 'json' or 'pdf' while the file name box is showing
   let sel = null;        // cell key whose monster power is being edited
   let pwSnapped = false; // one undo step per power-editing session
 
@@ -561,8 +585,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       const v = document.querySelector('.pc-val[data-t="' + t + '"]');
       if (v) v.textContent = S.limits[t];
     }
-    $('gameMain').hidden = piecesOpen;
+    $('gameMain').hidden = piecesOpen || !!fileAsk;
     $('piecesView').hidden = !piecesOpen;
+    $('saveView').hidden = !fileAsk;
 
     // The power editor takes the hint's place while a monster is selected.
     $('toolHint').hidden = !!sel;
@@ -593,6 +618,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   function moveTo(r, c){
     const last = S.path[S.path.length - 1];
     if (last && last[0] === r && last[1] === c) return;
+    // The first space becomes the Start, and the Start can't be the Exit.
+    if (!last && (S.cells[key(r, c)] || {}).exit) { toast(coord(r, c) + ' is the Exit. Start on another space.'); return; }
     snap();
     S.path.push([r, c]);
     // The space you move into becomes known automatically (one Undo reverts both).
@@ -650,6 +677,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       commit();
       return;
     }
+    // The Exit can't share a space with the Start, a trap, a monster or a chest.
+    if (t === 'exit' && !cur.exit) {
+      if (cur.feat) { toast(co + ' has a ' + cur.feat + '. Clear it before marking the Exit here.'); return; }
+      if (cur.start) { toast(co + ' is the Start. The Exit can’t go there.'); return; }
+    }
+    if (PIECES[t] && cur.exit) { toast(co + ' is the Exit. Remove the Exit before drawing a ' + t + ' here.'); return; }
     // Drawing a trap, monster or chest (or swapping one in) needs one left.
     if (PIECES[t] && cur.feat !== t && left(t) <= 0) { toast(fullMsg(t)); return; }
 
@@ -734,7 +767,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (nb) nb.focus();
     }
   });
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; piecesOpen = false; select(null); commit(); }));
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; piecesOpen = false; fileAsk = null; select(null); commit(); }));
   $('tools').addEventListener('click', e => {
     const b = e.target.closest('.tool');
     if (!b) return;
@@ -842,7 +875,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       return t === 'h' ? [coord(R, Cn), coord(R + 1, Cn)] : [coord(R, Cn), coord(R, Cn + 1)];
     });
     return {
-      format:'lairs-tracker', version:1, game:'Lairs',
+      format:'lairs-tracker', version:1, game:'Lairs', appVersion:APP_VERSION,
       savedAt:new Date().toISOString(),
       tracker: here ? coord(here[0], here[1]) : null,
       path: S.path.map(([r, c]) => coord(r, c)),
@@ -917,9 +950,28 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     download(blob, filename);
   }
 
-  $('saveBtn').addEventListener('click', () => {
-    offerFile('lairs-map-' + fileStamp(new Date()) + '.json', JSON.stringify(toFile(), null, 2));
-  });
+  // Save game and Export PDF first ask for a file name (prefilled with the date and time).
+  function cleanName(s, ext){
+    return String(s || '')
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '')
+      .replace(/\s+/g, ' ').trim()
+      .replace(new RegExp('\\.' + ext + '$', 'i'), '')
+      .replace(/^\.+/, '').replace(/[. ]+$/, '')
+      .slice(0, 80);
+  }
+  function askName(kind){
+    const def = 'lairs-map-' + fileStamp(new Date());
+    fileAsk = kind;
+    $('fileName').value = def;
+    $('fileName').placeholder = def;
+    $('fileExt').textContent = '.' + kind;
+    $('saveTitle').textContent = kind === 'pdf' ? 'Export PDF as' : 'Save game as';
+    $('saveGo').textContent = kind === 'pdf' ? 'Export' : 'Save';
+    render();
+  }
+  $('saveBtn').addEventListener('click', () => askName('json'));
+  $('saveCancel').addEventListener('click', () => { fileAsk = null; render(); });
+  $('fileName').addEventListener('focus', e => setTimeout(() => e.target.select(), 0));
 
   $('loadBtn').addEventListener('click', () => $('loadInput').click());
   $('loadInput').addEventListener('change', e => {
@@ -1111,24 +1163,40 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       doc.text(label.toUpperCase(), x, ly + 6.5, {align:'center'});
     });
 
+    font('normal', 7.5); st(K.muted);
+    doc.text('Lairs Tracker v' + APP_VERSION, 190, 288, {align:'right'});
     return doc.output('blob');
   }
 
-  $('pdfBtn').addEventListener('click', async () => {
-    const btn = $('pdfBtn');
-    if (btn.disabled) return;
-    const sm = btn.querySelector('small'), old = sm.textContent;
-    btn.disabled = true; sm.textContent = 'Preparing…';
+  $('pdfBtn').addEventListener('click', () => askName('pdf'));
+
+  $('saveView').addEventListener('submit', async e => {
+    e.preventDefault();
+    const kind = fileAsk, go = $('saveGo');
+    if (!kind || go.disabled) return;
+    const name = (cleanName($('fileName').value, kind) || $('fileName').placeholder) + '.' + kind;
+    $('fileName').blur();
+    if (kind === 'json') {
+      fileAsk = null;
+      render();
+      offerFile(name, JSON.stringify(toFile(), null, 2));
+      return;
+    }
+    go.disabled = true; go.textContent = 'Preparing…';
     try {
       const JsPDF = await loadJsPDF();
       const blob = buildPdf(JsPDF);
-      await offerFile('lairs-map-' + fileStamp(new Date()) + '.pdf', blob);
+      fileAsk = null;
+      render();
+      await offerFile(name, blob);
     } catch (err) {
       toast('Could not build the PDF. Check your connection and try again.');
     } finally {
-      btn.disabled = false; sm.textContent = old;
+      go.disabled = false; go.textContent = 'Export';
     }
   });
+
+  $('appVer').textContent = 'v' + APP_VERSION;
 
   document.addEventListener('keydown', e => {
     if (e.target && e.target.closest && e.target.closest('input')) return;
