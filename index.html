@@ -380,7 +380,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.10';
+  const APP_VERSION = '0.11';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -553,6 +553,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     return {E, c1: [E[0] + t1[0] * k1, E[1] + t1[1] * k1], c2: [S[0] - t2[0] * k2, S[1] - t2[1] * k2], S};
   }
 
+  // Does an arc (centre a0 to centre b0, shifted `off` and bent `h` towards side (sx, sy)) stay inside the map's wall?
+  const ARC_MARGIN = 0.1; // squares kept clear of the wall
+  function arcInside(a0, b0, sx, sy, off, h){
+    const a = [a0[0] + sx * off, a0[1] + sy * off], b = [b0[0] + sx * off, b0[1] + sy * off];
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], q = [m[0] + sx * h * 2, m[1] + sy * h * 2];
+    for (let k = 0; k <= 16; k++) {
+      const p = qAt(a, q, b, k / 16);
+      if (p[0] < ARC_MARGIN || p[0] > 6 - ARC_MARGIN || p[1] < ARC_MARGIN || p[1] > 6 - ARC_MARGIN) return false;
+    }
+    return true;
+  }
+
   // One entry per move, oldest first, in square units (centres at x.5):
   // main = the move's own line ({s, e}) or arc ({s, q, e}); join = the curve into it from the previous move.
   function routeSegments(){
@@ -567,14 +579,30 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       trips[dirKey] = (trips[dirKey] || 0) + 1;
       const lane = (trips[dirKey] - 1) % LANES.length; // a third trip reuses the inner lane, drawn on top
       const off = LANES[lane];
-      const a = [ax + px * off, ay + py * off], b = [bx + px * off, by + py * off];
       const long = isSpecial(P[i - 1], P[i]);
+      // Arcs bend to the right of travel. If that would leave the map, they bend inward instead, a bit wider so they
+      // don't sit on a return trip that bends the same way. If neither side fits, the arc is flattened until it does.
+      let side = 1, bulge = 0;
+      if (long) {
+        const h = Math.min(0.6, 0.22 * len) + lane * 0.18;
+        const fits = (sd, hh) => arcInside([ax, ay], [bx, by], px * sd, py * sd, off, hh);
+        if (fits(1, h)) bulge = h;
+        else if (fits(-1, h + 0.18)) { side = -1; bulge = h + 0.18; }
+        else {
+          for (const sd of [1, -1]) {
+            let hh = h;
+            while (hh > 0.04 && !fits(sd, hh)) hh *= 0.85;
+            if (fits(sd, hh) && hh > bulge) { side = sd; bulge = hh; }
+          }
+        }
+      }
+      const sx = px * side, sy = py * side; // the side this move is drawn on
+      const a = [ax + sx * off, ay + sy * off], b = [bx + sx * off, by + sy * off];
       let ctrl = null, mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
       if (long) {
-        // Quadratic arc bulging to the right of travel; its midpoint sits `bulge` squares off the chord.
-        const bulge = Math.min(0.6, 0.22 * len) + lane * 0.18;
-        ctrl = [mid[0] + px * bulge * 2, mid[1] + py * bulge * 2];
-        mid = [mid[0] + px * bulge, mid[1] + py * bulge];
+        // Quadratic arc; its midpoint sits `bulge` squares off the chord.
+        ctrl = [mid[0] + sx * bulge * 2, mid[1] + sy * bulge * 2];
+        mid = [mid[0] + sx * bulge, mid[1] + sy * bulge];
       }
       const tip = [mid[0] + ux * ARROW_LEN / 2, mid[1] + uy * ARROW_LEN / 2];
       const base = [mid[0] - ux * ARROW_LEN / 2, mid[1] - uy * ARROW_LEN / 2];
