@@ -36,6 +36,8 @@
   /* Spare height on tall phones (e.g. Galaxy S2x Ultra), up to 40px, used to enlarge the controls.
      286px = header, map box, controls box and page padding around a map as wide as the screen. */
   --g:clamp(0px, calc(100dvh - 100vw - 286px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 40px);
+  /* More height for the controls on phones with room to spare (set with the .roomy class, see fitLayout). */
+  --x:0px;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -131,15 +133,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .seg button[aria-selected="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
 .undo{flex:none;width:46px;display:grid;place-items:center;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
 .undo:active{background:var(--tint)}
-.panel{min-height:calc(160px + var(--g));display:flex;flex-direction:column;gap:8px}
+.app.roomy{--x:36px}
+.panel{min-height:calc(160px + var(--g) + var(--x));display:flex;flex-direction:column;gap:8px}
 .label{font-family:var(--display);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
 /* Move tab */
-.move{display:flex;gap:12px;align-items:center}
-.where{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+/* Tracker info and Route button on the left, compass on the right. With room to spare,
+   the Route button gets its own full-width row under both. */
+#moveMain{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:4px;align-content:start}
+#moveMain .where{grid-column:1;grid-row:1;align-self:end}
+#moveMain .dpad{grid-column:2;grid-row:1 / span 2;align-self:center}
+#moveMain .routebtn{grid-column:1;grid-row:2;align-self:start}
+.app.roomy #moveMain .where{grid-row:1 / span 2;align-self:center}
+.app.roomy #moveMain .routebtn{grid-column:1 / -1;grid-row:3;margin-top:6px}
+.where{min-width:0;display:flex;flex-direction:column;gap:4px}
 .pos{font-family:var(--display);font-weight:700;font-size:42px;line-height:1;color:var(--pc);font-variant-numeric:tabular-nums}
 .steps{font-size:13.5px;color:var(--muted)}
-.dpad{--dp:calc(42px + var(--g) * .3);flex:none;display:grid;grid-template-columns:repeat(3,var(--dp));grid-template-rows:repeat(3,var(--dp));gap:4px}
+.dpad{--dp:calc(42px + var(--g) * .3 + var(--x) * .15);flex:none;display:grid;grid-template-columns:repeat(3,var(--dp));grid-template-rows:repeat(3,var(--dp));gap:4px}
 .dir{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--wall);transition:transform .08s}
 .dir:active{background:var(--tint);transform:scale(.95)}
 .dn{grid-column:2;grid-row:1}.dw{grid-column:1;grid-row:2}.de{grid-column:3;grid-row:2}.ds{grid-column:2;grid-row:3}
@@ -150,7 +160,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .routebtn:active{background:var(--tint)}
 .routebtn:disabled{cursor:default;color:var(--muted)}
 .routebtn:disabled svg{visibility:hidden}
-.routeview{height:calc(160px + var(--g))}
+.routeview{height:calc(160px + var(--g) + var(--x))}
 .routetext{flex:1;min-height:0;margin:0;overflow-y:auto;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:14.5px;line-height:1.7;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .routeview .hint{flex:none}
 
@@ -158,7 +168,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .tool{min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 1px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--display);font-size:10px;font-weight:500;letter-spacing:0;text-transform:uppercase;color:var(--muted)}
 .tool.act{border-style:dashed}
-.tool{min-height:calc(49px + var(--g) * .25);justify-content:center}
+.tool{min-height:calc(49px + var(--g) * .25 + var(--x) * .4);justify-content:center}
 .tool span.tight{font-size:8.5px}
 .tool svg{width:20px;height:20px;color:var(--ink)}
 .tool span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -183,7 +193,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .filebtn small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0;text-transform:none;color:var(--muted)}
 .filebtn:active{background:var(--tint)}
 .filebtn:disabled{opacity:.6;cursor:progress}
-.filebtn{min-height:calc(70px + var(--g) * .3);justify-content:center}
+.filebtn{min-height:calc(70px + var(--g) * .3 + var(--x) * .5);justify-content:center}
 .gameview{display:flex;flex-direction:column;gap:8px}
 .gamerow{display:flex;align-items:center;gap:8px}
 #newBtn,#piecesBtn{flex:none;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
@@ -251,16 +261,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
     <div class="panel" id="movePanel">
       <div class="gameview" id="moveMain">
-      <div class="move">
         <div class="where">
           <span class="label">Tracker at</span>
           <strong class="pos" id="posLabel">—</strong>
           <span class="steps" id="stepLabel"></span>
-          <button type="button" class="routebtn" id="routeBtn" aria-label="Show the whole route">
-            <span class="path" id="pathLabel"></span>
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
         </div>
+        <button type="button" class="routebtn" id="routeBtn" aria-label="Show the whole route">
+          <span class="path" id="pathLabel"></span>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <div class="dpad">
           <button type="button" class="dir dn" data-dir="n" aria-label="Step north">N</button>
           <button type="button" class="dir dw" data-dir="w" aria-label="Step west">W</button>
@@ -270,7 +279,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <button type="button" class="dir de" data-dir="e" aria-label="Step east">E</button>
           <button type="button" class="dir ds" data-dir="s" aria-label="Step south">S</button>
         </div>
-      </div>
       </div>
 
       <div class="gameview routeview" id="routeView" hidden>
@@ -352,7 +360,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.8';
+  const APP_VERSION = '0.9';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -471,9 +479,40 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   // Fading by age along the route: 6 moves per level, 4 levels.
   const FADE = [1, 0.7, 0.45, 0.25], FADE_EVERY = 6;
 
-  const isLong = (p, q) => Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) !== 1;
+  // Each move's line stops this far before a square's centre, so a curve can join it smoothly to the next move.
+  const TRIM = 0.22;
 
-  // One entry per move, oldest first, with points in square units (centres at x.5).
+  const isLong = (p, q) => Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) !== 1;
+  const lerp = (u, v, t) => [u[0] + (v[0] - u[0]) * t, u[1] + (v[1] - u[1]) * t];
+  const unit = v => { const l = Math.hypot(v[0], v[1]) || 1; return [v[0] / l, v[1] / l]; };
+  const qAt = (p0, q, p2, t) => lerp(lerp(p0, q, t), lerp(q, p2, t), t);
+  // The piece of a quadratic curve between t0 and t1, as a quadratic curve [start, control, end].
+  const qSub = (p0, q, p2, t0, t1) => [qAt(p0, q, p2, t0), lerp(lerp(p0, q, t0), lerp(q, p2, t0), t1), qAt(p0, q, p2, t1)];
+  function qLen(p0, q, p2){
+    let l = 0, prev = p0;
+    for (let k = 1; k <= 20; k++) { const p = qAt(p0, q, p2, k / 20); l += Math.hypot(p[0] - prev[0], p[1] - prev[1]); prev = p; }
+    return l;
+  }
+
+  // The curve from the end of one move (point E, heading t1) to the start of the next (point S, heading t2).
+  function joinCurve(E, t1, S, t2){
+    const dx = S[0] - E[0], dy = S[1] - E[1], d = Math.hypot(dx, dy);
+    const cr = t1[0] * t2[1] - t1[1] * t2[0];
+    let k1 = null, k2 = null;
+    if (Math.abs(cr) > 0.05) {
+      // A turn: aim both ends at the corner where the two lines would meet (E + s·t1 = S + w·t2).
+      const s = (dx * t2[1] - dy * t2[0]) / cr, w = (dx * t1[1] - dy * t1[0]) / cr;
+      if (s > 0 && w < 0) { k1 = 0.55 * s; k2 = 0.55 * -w; }
+    }
+    if (k1 === null) {
+      if (t1[0] * t2[0] + t1[1] * t2[1] > 0) k1 = k2 = d * 0.4;   // straight on, maybe switching lanes: a gentle S-bend
+      else k1 = k2 = Math.max(0.16, d * 0.8);                       // turning back: a small U-turn loop
+    }
+    return {E, c1: [E[0] + t1[0] * k1, E[1] + t1[1] * k1], c2: [S[0] - t2[0] * k2, S[1] - t2[1] * k2], S};
+  }
+
+  // One entry per move, oldest first, in square units (centres at x.5):
+  // main = the move's own line ({s, e}) or arc ({s, q, e}); join = the curve into it from the previous move.
   function routeSegments(){
     const P = S.path, out = [], trips = {}, n = P.length - 1;
     for (let i = 1; i < P.length; i++) {
@@ -498,7 +537,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       const tip = [mid[0] + ux * ARROW_LEN / 2, mid[1] + uy * ARROW_LEN / 2];
       const base = [mid[0] - ux * ARROW_LEN / 2, mid[1] - uy * ARROW_LEN / 2];
       const arrow = [tip, [base[0] + px * ARROW_HALF, base[1] + py * ARROW_HALF], [base[0] - px * ARROW_HALF, base[1] - py * ARROW_HALF]];
-      out.push({a, b, ctrl, arrow, long, op: FADE[Math.min(FADE.length - 1, Math.floor((n - i) / FADE_EVERY))]});
+      // Trim the ends that meet another move: the start (except at the Start) and the end (except under the tracker).
+      const trimStart = i > 1, trimEnd = i < n;
+      let main, ts, te;
+      if (!ctrl) {
+        const s = trimStart ? [a[0] + ux * TRIM, a[1] + uy * TRIM] : a;
+        const e = trimEnd ? [b[0] - ux * TRIM, b[1] - uy * TRIM] : b;
+        main = {s, e}; ts = te = [ux, uy];
+      } else {
+        const L = qLen(a, ctrl, b);
+        const t0 = trimStart ? Math.min(0.4, TRIM / L) : 0, t1 = trimEnd ? Math.max(0.6, 1 - TRIM / L) : 1;
+        const [A, Q, B] = qSub(a, ctrl, b, t0, t1);
+        main = {s: A, q: Q, e: B};
+        ts = unit([Q[0] - A[0], Q[1] - A[1]]); te = unit([B[0] - Q[0], B[1] - Q[1]]);
+      }
+      const prev = out[out.length - 1];
+      const join = prev ? joinCurve(prev.main.e, prev.te, main.s, ts) : null;
+      out.push({main, join, te, arrow, long, op: FADE[Math.min(FADE.length - 1, Math.floor((n - i) / FADE_EVERY))]});
     }
     return out;
   }
@@ -628,12 +683,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
     }
     $('walls').innerHTML = w;
-    const f = v => v.toFixed(3);
-    $('trail').innerHTML = routeSegments().map(s =>
-      '<g opacity="' + s.op + '"><path class="seg' + (s.long ? ' jump' : '') + '" d="M' + f(s.a[0]) + ' ' + f(s.a[1]) +
-      (s.ctrl ? ' Q' + f(s.ctrl[0]) + ' ' + f(s.ctrl[1]) + ' ' : ' L') + f(s.b[0]) + ' ' + f(s.b[1]) + '"/>' +
-      '<polygon class="arr" points="' + s.arrow.map(p => f(p[0]) + ',' + f(p[1])).join(' ') + '"/></g>'
-    ).join('');
+    const pt = p => p[0].toFixed(3) + ' ' + p[1].toFixed(3);
+    $('trail').innerHTML = routeSegments().map(s => {
+      const j = s.join, m = s.main;
+      const d = (j ? 'M' + pt(j.E) + ' C' + pt(j.c1) + ' ' + pt(j.c2) + ' ' + pt(j.S) : 'M' + pt(m.s)) +
+        (m.q ? ' Q' + pt(m.q) + ' ' + pt(m.e) : ' L' + pt(m.e));
+      return '<g opacity="' + s.op + '"><path class="seg' + (s.long ? ' jump' : '') + '" d="' + d + '"/>' +
+        '<polygon class="arr" points="' + s.arrow.map(p => p[0].toFixed(3) + ',' + p[1].toFixed(3)).join(' ') + '"/></g>';
+    }).join('');
 
     const tok = $('token');
     if (here) {
@@ -649,7 +706,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('mapPanel').hidden = S.mode !== 'map';
     $('gamePanel').hidden = S.mode !== 'game';
     $('board').classList.toggle('mapping', S.mode === 'map');
-    if (typeof fitToolLabels === 'function') requestAnimationFrame(fitToolLabels);
+    requestAnimationFrame(afterRender);
     document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
     $('toolHint').textContent = HINTS[S.tool];
 
@@ -689,7 +746,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     rb.disabled = n === 0;
     if (!n) pl.textContent = 'No route yet';
     else {
-      let shown = Math.min(n, 5);
+      let shown = Math.min(n, document.querySelector('.app').classList.contains('roomy') ? 10 : 5);
       pl.textContent = routeText(n - shown, '→', '⇢');
       while (shown > 2 && !$('movePanel').hidden && !routeOpen && pl.scrollWidth > pl.clientWidth + 0.5) {
         shown--;
@@ -852,8 +909,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (s.scrollWidth > s.clientWidth + 0.5) s.classList.add('tight');
     });
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitToolLabels);
-  window.addEventListener('resize', fitToolLabels);
+
+  // Give the controls 36px more (wide Route button, bigger buttons) when that still leaves no scrolling.
+  // Measured from the content itself, so it works whatever the phone, browser bar or navigation style.
+  const ROOMY_EXTRA = 36; // must match --x in .app.roomy
+  function fitLayout(){
+    const app = document.querySelector('.app'), card = document.querySelector('.mapcard'), tray = document.querySelector('.tray');
+    let above = card.previousElementSibling;
+    while (above && above.hidden) above = above.previousElementSibling;
+    const used = (above.getBoundingClientRect().bottom - app.getBoundingClientRect().top) + 10 +
+      card.getBoundingClientRect().height + 10 + tray.getBoundingClientRect().height;
+    const free = (parseFloat(getComputedStyle(app).minHeight) || 0) - used;
+    const roomy = app.classList.contains('roomy');
+    // Turn on only with a few px to spare; turn off as soon as it no longer fits, so it never flips back and forth.
+    if (!roomy && free >= ROOMY_EXTRA + 4) { app.classList.add('roomy'); render(); }
+    else if (roomy && free < 0) { app.classList.remove('roomy'); render(); }
+  }
+  function afterRender(){ fitLayout(); fitToolLabels(); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(afterRender);
+  window.addEventListener('resize', afterRender);
 
   // Events
   $('cells').addEventListener('click', e => {
@@ -1187,21 +1261,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     const X = p => x0 + p[0] * cs, Y = p => y0 + p[1] * cs;
     const faded = (c, op) => c.map(v => Math.round(255 - (255 - v) * op));
     doc.setLineCap('round');
+    // Each piece is relative to where the previous one ended; curves are cubic (quadratics converted).
+    const rel = (p, from) => [X(p) - X(from), Y(p) - Y(from)];
     for (const s of routeSegments()) {
       const col = faded(K.red, s.op);
       sd(col); sf(col); doc.setLineWidth(0.6);
-      const ax = X(s.a), ay = Y(s.a), bx = X(s.b), by = Y(s.b);
-      if (s.ctrl) {
-        // Quadratic arc as a cubic curve, relative to its start point.
-        const qx = X(s.ctrl), qy = Y(s.ctrl);
-        const c1x = ax + (qx - ax) * 2 / 3, c1y = ay + (qy - ay) * 2 / 3;
-        const c2x = bx + (qx - bx) * 2 / 3, c2y = by + (qy - by) * 2 / 3;
-        dash([1.4, 1.1]);
-        doc.lines([[c1x - ax, c1y - ay, c2x - ax, c2y - ay, bx - ax, by - ay]], ax, ay, [1, 1], 'S', false);
-        dash(null);
-      } else {
-        doc.line(ax, ay, bx, by);
-      }
+      const j = s.join, m = s.main, pieces = [];
+      if (j) pieces.push([...rel(j.c1, j.E), ...rel(j.c2, j.E), ...rel(j.S, j.E)]);
+      if (m.q) pieces.push([...rel(lerp(m.s, m.q, 2 / 3), m.s), ...rel(lerp(m.e, m.q, 2 / 3), m.s), ...rel(m.e, m.s)]);
+      else pieces.push(rel(m.e, m.s));
+      const from = j ? j.E : m.s;
+      if (s.long) dash([1.4, 1.1]);
+      doc.lines(pieces, X(from), Y(from), [1, 1], 'S', false);
+      if (s.long) dash(null);
       const t = s.arrow;
       doc.triangle(X(t[0]), Y(t[0]), X(t[1]), Y(t[1]), X(t[2]), Y(t[2]), 'F');
     }
