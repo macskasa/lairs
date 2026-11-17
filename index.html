@@ -111,7 +111,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .cell .pw{position:absolute;right:2px;bottom:2px;min-width:15px;height:14px;padding:0 3px;border-radius:7px;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:600;font-size:10px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}
 
 .trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#trail{fill:none;stroke:var(--pc);stroke-width:.07;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.14 .12;opacity:.65}
+/* Route: one line and arrow per move, in square units. Longer moves are dashed arcs. */
+.trail .seg{fill:none;stroke:var(--pc);stroke-width:.042;stroke-linecap:round}
+.trail .seg.jump{stroke-dasharray:.1 .08}
+.trail .arr{fill:var(--pc)}
 .walls{position:absolute;inset:0;pointer-events:none}
 .wall{position:absolute;background:var(--wall);border-radius:3px}
 .wall.h{height:6px;transform:translateY(-50%)}
@@ -141,8 +144,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .dir:active{background:var(--tint);transform:scale(.95)}
 .dn{grid-column:2;grid-row:1}.dw{grid-column:1;grid-row:2}.de{grid-column:3;grid-row:2}.ds{grid-column:2;grid-row:3}
 .rose{grid-column:2;grid-row:2;display:grid;place-items:center;color:var(--muted)}
-.pathbox{display:flex;align-items:baseline;gap:8px;min-width:0}
 .path{flex:1;min-width:0;margin:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.routebtn{margin-top:4px;width:100%;min-width:0;display:flex;align-items:center;gap:6px;padding:7px 8px 7px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);text-align:left;color:var(--ink)}
+.routebtn svg{flex:none;color:var(--muted)}
+.routebtn:active{background:var(--tint)}
+.routebtn:disabled{cursor:default;color:var(--muted)}
+.routebtn:disabled svg{visibility:hidden}
+.routeview{height:calc(160px + var(--g))}
+.routetext{flex:1;min-height:0;margin:0;overflow-y:auto;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:14.5px;line-height:1.7;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.routeview .hint{flex:none}
 
 /* Map tab */
 .tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
@@ -183,8 +193,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 /* Lair pieces editor (inside the Game tab) */
 .pc-head{display:flex;align-items:center;gap:8px;min-height:34px}
 .pc-head strong{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pcDefault,#pcDone,#saveCancel,#saveGo{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
-#pcDone,#saveGo{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+#pcDefault,#pcDone,#saveCancel,#saveGo,#routeClose{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+#pcDone,#saveGo,#routeClose{border-color:var(--pc);background:var(--pc);color:var(--onp)}
 #saveGo:disabled{opacity:.7;cursor:progress}
 
 /* File name box (Save game / Export PDF) */
@@ -220,7 +230,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
       <div class="board" id="board">
         <div class="cells" id="cells"></div>
-        <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><polyline id="trail" points=""/></svg>
+        <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><g id="trail"></g></svg>
         <div class="walls" id="walls" aria-hidden="true"></div>
         <div class="token" id="token" aria-hidden="true" hidden><span></span></div>
       </div>
@@ -240,11 +250,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     </div>
 
     <div class="panel" id="movePanel">
+      <div class="gameview" id="moveMain">
       <div class="move">
         <div class="where">
           <span class="label">Tracker at</span>
           <strong class="pos" id="posLabel">—</strong>
           <span class="steps" id="stepLabel"></span>
+          <button type="button" class="routebtn" id="routeBtn" aria-label="Show the whole route">
+            <span class="path" id="pathLabel"></span>
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
         <div class="dpad">
           <button type="button" class="dir dn" data-dir="n" aria-label="Step north">N</button>
@@ -256,9 +271,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <button type="button" class="dir ds" data-dir="s" aria-label="Step south">S</button>
         </div>
       </div>
-      <div class="pathbox">
-        <span class="label">Path</span>
-        <p class="path" id="pathLabel"></p>
+      </div>
+
+      <div class="gameview routeview" id="routeView" hidden>
+        <div class="pc-head">
+          <strong id="routeTitle">Route</strong>
+          <button type="button" id="routeClose">Close</button>
+        </div>
+        <p class="routetext" id="routeText"></p>
+        <p class="hint" id="routeHint" hidden>⇢ marks a longer move.</p>
       </div>
     </div>
 
@@ -331,7 +352,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.7';
+  const APP_VERSION = '0.8';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -440,6 +461,60 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   let hist = [];
   let piecesOpen = false; // the Lair pieces editor is showing on the Game tab
   let fileAsk = null;     // 'json' or 'pdf' while the file name box is showing
+  let routeOpen = false;  // the whole route is showing on the Move tab
+
+  // ---------- Route drawing ----------
+  // Measured in squares. A square is about 52px on a Galaxy S24/S22 Ultra (49px on smaller phones),
+  // so lanes sit about 3px and 9px from the centre line: 2 lanes per direction, 4 at most per stretch.
+  const LANES = [0.06, 0.175];
+  const ARROW_LEN = 0.15, ARROW_HALF = 0.056; // about 8px long, under 3px each side so neighbouring lanes' arrows never touch
+  // Fading by age along the route: 6 moves per level, 4 levels.
+  const FADE = [1, 0.7, 0.45, 0.25], FADE_EVERY = 6;
+
+  const isLong = (p, q) => Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) !== 1;
+
+  // One entry per move, oldest first, with points in square units (centres at x.5).
+  function routeSegments(){
+    const P = S.path, out = [], trips = {}, n = P.length - 1;
+    for (let i = 1; i < P.length; i++) {
+      const [r0, c0] = P[i - 1], [r1, c1] = P[i];
+      const ax = c0 + 0.5, ay = r0 + 0.5, bx = c1 + 0.5, by = r1 + 0.5;
+      const len = Math.hypot(bx - ax, by - ay);
+      const ux = (bx - ax) / len, uy = (by - ay) / len;
+      const px = -uy, py = ux; // the right-hand side of travel, so there-and-back use opposite sides
+      const dirKey = key(r0, c0) + '>' + key(r1, c1);
+      trips[dirKey] = (trips[dirKey] || 0) + 1;
+      const lane = (trips[dirKey] - 1) % LANES.length; // a third trip reuses the inner lane, drawn on top
+      const off = LANES[lane];
+      const a = [ax + px * off, ay + py * off], b = [bx + px * off, by + py * off];
+      const long = isLong(P[i - 1], P[i]);
+      let ctrl = null, mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      if (long) {
+        // Quadratic arc bulging to the right of travel; its midpoint sits `bulge` squares off the chord.
+        const bulge = Math.min(0.6, 0.22 * len) + lane * 0.18;
+        ctrl = [mid[0] + px * bulge * 2, mid[1] + py * bulge * 2];
+        mid = [mid[0] + px * bulge, mid[1] + py * bulge];
+      }
+      const tip = [mid[0] + ux * ARROW_LEN / 2, mid[1] + uy * ARROW_LEN / 2];
+      const base = [mid[0] - ux * ARROW_LEN / 2, mid[1] - uy * ARROW_LEN / 2];
+      const arrow = [tip, [base[0] + px * ARROW_HALF, base[1] + py * ARROW_HALF], [base[0] - px * ARROW_HALF, base[1] - py * ARROW_HALF]];
+      out.push({a, b, ctrl, arrow, long, op: FADE[Math.min(FADE.length - 1, Math.floor((n - i) / FADE_EVERY))]});
+    }
+    return out;
+  }
+
+  // The route in writing: → for a step to a neighbouring square, ⇢ for a longer move.
+  function routeText(from, step, jump){
+    const P = S.path;
+    from = Math.max(0, from || 0);
+    let s = from > 0 ? '… ' : '';
+    for (let i = from; i < P.length; i++) {
+      if (i > from) s += ' ' + (isLong(P[i - 1], P[i]) ? jump : step) + ' ';
+      s += coord(P[i][0], P[i][1]);
+    }
+    return s;
+  }
+  const hasLongMove = () => S.path.some((p, i) => i > 0 && isLong(S.path[i - 1], p));
   let sel = null;        // cell key whose monster power is being edited
   let pwSnapped = false; // one undo step per power-editing session
 
@@ -553,7 +628,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
     }
     $('walls').innerHTML = w;
-    $('trail').setAttribute('points', S.path.map(([r, c]) => (c + 0.5) + ',' + (r + 0.5)).join(' '));
+    const f = v => v.toFixed(3);
+    $('trail').innerHTML = routeSegments().map(s =>
+      '<g opacity="' + s.op + '"><path class="seg' + (s.long ? ' jump' : '') + '" d="M' + f(s.a[0]) + ' ' + f(s.a[1]) +
+      (s.ctrl ? ' Q' + f(s.ctrl[0]) + ' ' + f(s.ctrl[1]) + ' ' : ' L') + f(s.b[0]) + ' ' + f(s.b[1]) + '"/>' +
+      '<polygon class="arr" points="' + s.arrow.map(p => f(p[0]) + ',' + f(p[1])).join(' ') + '"/></g>'
+    ).join('');
 
     const tok = $('token');
     if (here) {
@@ -602,10 +682,29 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     const n = S.path.length;
     $('posLabel').textContent = here ? coord(here[0], here[1]) : '—';
     $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
-    const coords = S.path.map(([r, c]) => coord(r, c));
-    $('pathLabel').textContent = n
-      ? (n > 7 ? '… ' + coords.slice(-7).join(' → ') : coords.join(' → '))
-      : 'Tap your starting space on the map.';
+    // Route button: as many of the latest moves as fit (up to 5 squares).
+    const rb = $('routeBtn'), pl = $('pathLabel');
+    $('moveMain').hidden = routeOpen;
+    $('routeView').hidden = !routeOpen;
+    rb.disabled = n === 0;
+    if (!n) pl.textContent = 'No route yet';
+    else {
+      let shown = Math.min(n, 5);
+      pl.textContent = routeText(n - shown, '→', '⇢');
+      while (shown > 2 && !$('movePanel').hidden && !routeOpen && pl.scrollWidth > pl.clientWidth + 0.5) {
+        shown--;
+        pl.textContent = routeText(n - shown, '→', '⇢');
+      }
+    }
+    if (routeOpen) {
+      const moves = Math.max(0, n - 1);
+      $('routeTitle').textContent = n ? 'Route · ' + moves + ' move' + (moves === 1 ? '' : 's') : 'Route';
+      const rt = $('routeText');
+      const atEnd = rt.scrollTop + rt.clientHeight >= rt.scrollHeight - 4;
+      rt.textContent = n ? routeText(0, '→', '⇢') : 'No moves yet. Tap your starting space on the map.';
+      if (atEnd) rt.scrollTop = rt.scrollHeight; // keep the newest moves in view while you play
+      $('routeHint').hidden = !hasLongMove();
+    }
   }
 
   function wallKey(r, c, dr, dc){
@@ -767,7 +866,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (nb) nb.focus();
     }
   });
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; piecesOpen = false; fileAsk = null; select(null); commit(); }));
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; piecesOpen = false; fileAsk = null; routeOpen = false; select(null); commit(); }));
+  $('routeBtn').addEventListener('click', () => {
+    routeOpen = true;
+    render();
+    const rt = $('routeText');
+    rt.scrollTop = rt.scrollHeight;
+  });
+  $('routeClose').addEventListener('click', () => { routeOpen = false; render(); });
   $('tools').addEventListener('click', e => {
     const b = e.target.closest('.tool');
     if (!b) return;
@@ -1076,13 +1182,28 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       if (liveMonster(cell) && cell.power != null) badge(x + cs - 5, y + cs - 4.4, String(cell.power));
     }
 
-    // Path
-    if (S.path.length > 1) {
-      sd(K.red); doc.setLineWidth(0.6); doc.setLineCap('round'); dash([1.6, 1.2]);
-      const segs = [];
-      for (let i = 1; i < S.path.length; i++) segs.push([(S.path[i][1] - S.path[i - 1][1]) * cs, (S.path[i][0] - S.path[i - 1][0]) * cs]);
-      doc.lines(segs, x0 + S.path[0][1] * cs + cs / 2, y0 + S.path[0][0] * cs + cs / 2, [1, 1], 'S', false);
-      dash(null);
+    // Route: same lanes, arrows, arcs and fading as the app. Fading is mixed with white,
+    // since plain PDF colors have no opacity.
+    const X = p => x0 + p[0] * cs, Y = p => y0 + p[1] * cs;
+    const faded = (c, op) => c.map(v => Math.round(255 - (255 - v) * op));
+    doc.setLineCap('round');
+    for (const s of routeSegments()) {
+      const col = faded(K.red, s.op);
+      sd(col); sf(col); doc.setLineWidth(0.6);
+      const ax = X(s.a), ay = Y(s.a), bx = X(s.b), by = Y(s.b);
+      if (s.ctrl) {
+        // Quadratic arc as a cubic curve, relative to its start point.
+        const qx = X(s.ctrl), qy = Y(s.ctrl);
+        const c1x = ax + (qx - ax) * 2 / 3, c1y = ay + (qy - ay) * 2 / 3;
+        const c2x = bx + (qx - bx) * 2 / 3, c2y = by + (qy - by) * 2 / 3;
+        dash([1.4, 1.1]);
+        doc.lines([[c1x - ax, c1y - ay, c2x - ax, c2y - ay, bx - ax, by - ay]], ax, ay, [1, 1], 'S', false);
+        dash(null);
+      } else {
+        doc.line(ax, ay, bx, by);
+      }
+      const t = s.arrow;
+      doc.triangle(X(t[0]), Y(t[0]), X(t[1]), Y(t[1]), X(t[2]), Y(t[2]), 'F');
     }
 
     // Walls and outer wall
@@ -1111,7 +1232,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     if (n > 1) doc.text((n - 1) + ' move' + (n === 2 ? '' : 's'), 190, y, {align:'right'});
     y += 7;
     const rowsOut = [];
-    if (n) rowsOut.push(['Path', S.path.map(([r, c]) => coord(r, c)).join(' > ')]);
+    // The PDF font has no arrow characters, so steps are ">" and longer moves ">>".
+    rowsOut.push(['Route', n ? routeText(0, '>', '>>') + (hasLongMove() ? '   (>> marks a longer move)' : '') : 'Not started yet']);
     const live = [], traps = [], dead = [], chests = [];
     for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
       const cell = S.cells[key(r, c)]; if (!cell || !cell.feat) continue;
@@ -1129,16 +1251,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       const m = PIECES[t].many;
       return m[0].toUpperCase() + m.slice(1) + ' ' + left(t) + ' of ' + S.limits[t];
     }).join(', ')]);
-    for (const [label, txt] of rowsOut) {
-      if (y > 250) break;
-      font('bold', 9.5); st(K.ink); doc.text(label, 20, y);
-      font('normal', 9.5);
-      const wrapped = doc.splitTextToSize(txt, 145);
-      doc.text(wrapped, 45, y);
-      y += wrapped.length * 3.9 + 2.4;
-    }
-
-    // Legend
+    // Legend and version first (fixed spots on page 1), so the summary can continue on more pages.
     const ly = 266;
     sd(K.tan); doc.setLineWidth(0.3); doc.line(20, ly - 9, 190, ly - 9);
     const letter = ch => (x, yy) => { font('bold', 10); st(K.ink); doc.text(ch, x, yy, {align:'center', baseline:'middle'}); };
@@ -1162,9 +1275,31 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       font('normal', 6.5); st(K.muted);
       doc.text(label.toUpperCase(), x, ly + 6.5, {align:'center'});
     });
-
     font('normal', 7.5); st(K.muted);
     doc.text('Lairs Tracker v' + APP_VERSION, 190, 288, {align:'right'});
+
+    const LINE = 3.9;
+    let bottom = 252; // page 1 keeps room for the legend
+    for (const [label, txt] of rowsOut) {
+      font('normal', 9.5);
+      const wrapped = doc.splitTextToSize(txt, 145);
+      let i = 0, cont = false;
+      while (i < wrapped.length) {
+        if (y > bottom) {
+          doc.addPage();
+          y = 20; bottom = 282; cont = true;
+          font('bold', 11); st(K.ink); doc.text('Lairs map, continued', 20, y);
+          y += 9;
+        }
+        const room = Math.max(1, Math.floor((bottom - y) / LINE) + 1);
+        const chunk = wrapped.slice(i, i + room);
+        font('bold', 9.5); st(K.ink); doc.text(i === 0 ? label : label + (cont ? ' (cont.)' : ''), 20, y);
+        font('normal', 9.5); st(K.ink); doc.text(chunk, 45, y);
+        y += chunk.length * LINE;
+        i += chunk.length;
+      }
+      y += 2.4;
+    }
     return doc.output('blob');
   }
 
