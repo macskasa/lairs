@@ -1,0 +1,157 @@
+# Lairs Tracker
+
+A map tracker for the board game **Lairs** by Kids Table Board Gaming. It replaces the paper 6×6 map sheet: you move your tracker through the lair, draw what you find, and the app keeps the route, the pieces and the rules in check.
+
+**Open it:** https://macskasa.github.io/lairs/
+
+It runs in the browser on phones, tablets and computers, and once installed it works without internet.
+
+> This is an unofficial, fan-made tool. It isn't made or endorsed by Kids Table Board Gaming.
+
+---
+
+## Install it on your phone or tablet
+
+Open the link once while you're online, then:
+
+| Device | How |
+|---|---|
+| Android, Chrome | Menu **⋮ → Add to Home screen** (or **Install app**) |
+| Android, Samsung Internet | Menu **≡ → Add page to → Home screen** |
+| iPhone / iPad, Safari | **Share → Add to Home Screen** |
+
+The app gets its own icon (a 3×3 grid with an L). From then on it opens without internet, including the PDF export.
+
+**Updates** download in the background. Close the app and open it again to use the new version. The version number is shown at the top right.
+
+---
+
+## The screen
+
+- **The map:** rows A–F and columns 1–6, like the paper sheet.
+- **The controls box** has three tabs, **Move**, **Map** and **Game**, plus an **Undo** button that works everywhere.
+- **The gear** at the top right opens **Settings**.
+
+The first time you open the app it shows an example map. Start your own with **Game → New game**.
+
+On tablets and in landscape the map sits on the left at full height and the controls sit on the right.
+
+---
+
+## Moving the tracker (Move tab)
+
+- **Tap a square** on the map, or use the **N / E / S / W** compass.
+- The first square you place the tracker on becomes the **Start (S)**.
+- Every square you move into is marked as **known** automatically.
+
+### Movement rules
+
+- **Walls:** you can't move to a neighbouring square through a wall you've drawn, unless the square you're leaving has an **active trap**. If you later eliminate that trap, the move stays.
+- **Backtracks** (moves to a square that isn't a neighbour) are only allowed if there's a way there through **known** squares, without crossing walls and without an **active trap or monster** on the way or on the target square.
+- **The Exit** can't be your Start.
+
+When a move isn't allowed, a short message explains why.
+
+### The route
+
+- Every move is drawn with an **arrow** in the direction you went.
+- Going over the same stretch again uses a separate **lane**, up to 4 per stretch (2 in each direction).
+- The route **fades** with age: every 6 moves it gets one step lighter (100%, 70%, 45%, 25%).
+- **Backtracks and moves through a wall** are drawn as **dashed arcs**.
+- The **Route** button on the Move tab shows your latest moves. Tap it to see the whole route in writing: `→` is a normal step, `⇢` is a backtrack or a move through a wall.
+
+---
+
+## Drawing the map (Map tab)
+
+Pick a tool, then tap a square.
+
+| Tool | What it does |
+|---|---|
+| **Known** | Marks a square as known (a circle). Known can sit together with any other mark. |
+| **Exit** | Marks the Exit. There is only one: marking a new one moves it. |
+| **Scrounged** | Marks a square you've scrounged (a dot in the corner). |
+| **Wall** | Tap close to the side of a square to add or remove a wall on that side. |
+| **Clear** | Clears a square's marks. Walls stay. |
+| **Trap / Monster / Chest** | Draws that feature. Tap it again to remove it. |
+| **Eliminate** | Fills in a trap, monster or chest that's gone. Tap again to bring it back. |
+| **Power** | Sets a monster's remaining power (0–99), shown in the square's corner. |
+
+**Map rules:**
+- The Exit can't share a square with the Start, a trap, a monster or a chest.
+- **Piece counters:** the Wall, Trap, Monster and Chest buttons show how many are left. By default that's 21 walls and 3 each of traps, monsters and chests. At zero you can't draw more until you remove one. Eliminated pieces still count.
+- **Changes that break the route:** removing a trap, or drawing a wall across an earlier move, could make a move illegal. The app asks first. If you confirm, that move and every move after it are removed and the tracker goes back. One **Undo** brings everything back.
+
+---
+
+## Saving and printing (Game tab)
+
+- **Your game saves itself** on your device as you play.
+- **Save game** stores the game as a `.json` file. You can choose the name; it's filled in with the date and time.
+- **Load game** opens a saved `.json` file.
+- **Export PDF** makes a printable A4 map with the route, a list of what's on the map, the pieces left and the full route in writing.
+- **New game** clears the map. Tap it twice when you have a game in progress.
+
+---
+
+## Settings (gear button)
+
+- **Game progress:** *Lairs* changes as you open its boxes and envelopes, in this order:
+  **Box 0 → Box 1 → Envelope A → Envelope B → Box 2 → Envelope C → Envelope D → Box 3 → Envelope E → Envelope F → Box 4 → Vault**.
+  Tap the last one you've opened. Your progress stays across new games and is printed on PDFs. Rules that depend on your progress will be added in later versions.
+- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games keep these numbers. **Default** goes back to 21 / 3 / 3 / 3.
+- **About:** the version, and links to this page and the release notes.
+
+The phone's Back button returns from Settings to the map.
+
+---
+
+## Privacy
+
+There are no accounts, and your games never leave your device unless you save a file and share it yourself. The first time it opens, the app loads its fonts and its PDF tool from public CDNs (Google Fonts and cdnjs); after that it uses the stored copies.
+
+---
+
+## Release notes
+
+Every version has its own notes in [`release-notes/`](release-notes/), for example [`v0.12.md`](release-notes/v0.12.md).
+
+---
+
+## For developers
+
+The app is a single page with no build step.
+
+| File | What it is |
+|---|---|
+| `index.html` | The whole app: markup, styles and script |
+| `sw.js` | Service worker that stores the app for offline use |
+| `manifest.webmanifest` | App name, colours and icons for installing |
+| `icons/` | App icons (192, 512, maskable 512, Apple touch) |
+| `release-notes/` | One Markdown file per version |
+
+**Running it locally:** open `index.html` in a browser. Offline mode and installing only work when it's served over https, for example from GitHub Pages.
+
+**Deploying:** pushing to `main` publishes it with GitHub Pages.
+
+**Versions:** `APP_VERSION` in `index.html` is `0.x`, where `x` is the number of GitHub Pages deployments. Raise it with every deployment and add `release-notes/v0.x.md` in the same push. If you change `sw.js`, also change its `CACHE` name so devices drop the old copy.
+
+**Where data is kept** (browser storage on the device):
+- `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
+- `lairs-settings-v1`: settings that belong to the device (game progress).
+
+**Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
+
+**Test screens** for each version:
+- **Main targets:** Galaxy S24 Ultra and Galaxy S22 Ultra (384 px wide), as an installed app with gesture and button navigation, and in a Chrome tab.
+- **Also checked:**
+  - iPhone 15 and iPhone SE.
+  - Phones in landscape.
+  - A 3:4 tablet (768×1024) both ways.
+  - A 16:9 screen (1280×720) both ways.
+
+---
+
+## License
+
+The code is licensed under the [Mozilla Public License 2.0](LICENSE). *Lairs* and its artwork belong to Kids Table Board Gaming.
