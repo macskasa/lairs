@@ -475,7 +475,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.13';
+  const APP_VERSION = '0.14';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -649,8 +649,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   // Path entries are [row, col] for a step, [row, col, 'b'] for a backtrack and [row, col, 't'] for a trap teleport.
   const isSpecial = (p, q) => !!q[2] || !isNeighbour(p, q) || wallBetween(p, q);
   const activeTrap = cell => !!cell && cell.feat === 'trap' && !cell.dead;
-  // A backtrack may only pass through, and end on, known squares without an active trap or monster.
-  const blocksBacktrack = cell => !cell || !cell.known || ((cell.feat === 'trap' || cell.feat === 'monster') && !cell.dead);
+  // Backtrack (rulebook): move through any number of known, empty squares into a known square, which may hold anything.
+  // Empty = no feature still there: an active trap, a monster, an unopened chest, the Start and the Exit all interrupt it.
+  const isStartKey = k => S.path.length > 0 && k === key(S.path[0][0], S.path[0][1]);
+  const blocksBacktrack = (cell, k) => !cell || !cell.known || cell.start || cell.exit || isStartKey(k) || (!!cell.feat && !cell.dead);
   function canBacktrack(from, to){
     const goal = key(to[0], to[1]), seen = new Set([key(from[0], from[1])]), queue = [from];
     while (queue.length) {
@@ -658,8 +660,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
         const nr = r + dr, nc = c + dc, nk = key(nr, nc);
         if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || seen.has(nk)) continue;
-        if (S.walls[wallKey(r, c, dr, dc)] || blocksBacktrack(S.cells[nk])) continue;
-        if (nk === goal) return true;
+        if (S.walls[wallKey(r, c, dr, dc)]) continue;
+        if (nk === goal) return true; // the destination only has to be known (checked before)
+        if (blocksBacktrack(S.cells[nk], nk)) continue;
         seen.add(nk);
         queue.push([nr, nc]);
       }
@@ -1027,13 +1030,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           }
         }
       } else {
-        // A backtrack: only along known squares without an active trap or monster, never through a wall.
+        // A backtrack: only through known, empty squares, never through a wall, into any known square.
         // Only if that isn't possible does a trap teleport count.
         const goal = S.cells[key(r, c)];
         let why = '';
         if (!goal || !goal.known) why = tc + ' isn’t known yet, so you can’t backtrack there.';
-        else if (blocksBacktrack(goal)) why = tc + ' has an active ' + goal.feat + ', so you can’t backtrack there.';
-        else if (!canBacktrack(last, to)) why = 'No safe way from ' + fc + ' to ' + tc + ' through known squares.';
+        else if (!canBacktrack(last, to)) why = 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.';
         if (!why) kind = 'b';
         else if (teleport) kind = 't';
         else { toast(trapCould ? eliminatedMsg : why); return; }

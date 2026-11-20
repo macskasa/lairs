@@ -50,7 +50,9 @@ On tablets and in landscape the map sits on the left at full height and the cont
 
 - **Walls:** you can't move through a wall you've drawn.
 - **Traps:** standing on an **active trap**, the tracker can be teleported back to the **Start** square. If you later eliminate that trap, the move stays.
-- **Backtracks** (moves to a square that isn't a neighbour) are only allowed if there's a way there through **known** squares, without crossing walls and without an **active trap or monster** on the way or on the target square.
+- **Backtracks** (moves to a square that isn't a neighbour) follow the rulebook.
+  - **The way:** only through **known, empty** squares, never through a wall. Any feature that's still there stops a backtrack: an active trap, a monster, an unopened chest, the Start or the Exit. Filled-in (eliminated) features count as empty.
+  - **The destination:** any **known** square, even one with a trap or monster.
 - **The Exit** can't be your Start.
 
 When a move isn't allowed, a short message explains why.
