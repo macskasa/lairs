@@ -360,7 +360,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- Solo ---------- */
-/* Unknown squares stay dark; the ones you can reach next get a dashed outline. When the game ends, the whole lair shows. */
+/* Unknown squares stay dark; the ones you could peer or creep into right now get a dashed outline. When the game ends, the whole lair shows. */
 /* Known squares need no circle here: the dark squares already show what's unknown. */
 .board.solo .cell .ring{border-color:transparent}
 .board.solo .cell.fog .box{background:var(--fog);border-color:transparent}
@@ -2493,12 +2493,13 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!on) return;
     const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]);
     const visited = new Set(SO.path.map(p => key(p[0], p[1])));
-    const reach = new Set(); // unknown spaces you can step into next
-    for (const k in SO.known) {
-      const [r, c] = k.split(',').map(Number);
+    // Outlined: the unknown spaces you could peer or creep into right now, i.e. the tracker's neighbours with no wall
+    // between. None while a fight must happen first or a monster's target is being entered.
+    const reach = new Set();
+    if (!over && !(SO.pending && SO.pending.must) && !soPwFor) {
       for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-        const nr = r + dr, nc = c + dc;
-        if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || SO.known[key(nr, nc)] || L.walls[wallKey(r, c, dr, dc)]) continue;
+        const nr = here[0] + dr, nc = here[1] + dc;
+        if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || SO.known[key(nr, nc)] || L.walls[wallKey(here[0], here[1], dr, dc)]) continue;
         reach.add(key(nr, nc));
       }
     }

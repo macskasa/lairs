@@ -106,7 +106,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 **Starting:** **Solo → New solo lair**, then pick Apprentice, Journeyman or Guild Master (the same difficulties as [Make a lair](#make-a-lair)), or play a lair code, for example one a friend shared. The lair uses your **Lair pieces** from Settings. Your solo game is kept separately from your game with a rival, and saves itself.
 
 **The map:**
-- **Dark squares** are unknown. The unknown squares you can reach next have a dashed outline.
+- **Dark squares** are unknown. The unknown squares next to your tracker that you could peer or creep into right now have a dashed outline.
 - **Learning about a space:** the app reveals its walls and what's in it, the way the Builder would describe it, and draws it on the map for you.
 - **Your route** is drawn as in the tracker.
 - **Achievements:** next to the tabs are your chests opened, monsters defeated and traps disarmed.
