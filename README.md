@@ -8,6 +8,8 @@ It runs in the browser on phones, tablets and computers, and once installed it w
 
 > This is an unofficial, fan-made tool. It isn't made or endorsed by Kids Table Board Gaming.
 
+**No spoilers.** *Lairs* changes as you open its boxes and envelopes, and the tracker follows along. It only shows what you've already opened, so this page describes the game as it is from the very first box. More tools and rules appear in the app once you set your game progress in Settings.
+
 ---
 
 ## Install it on your phone or tablet
@@ -46,7 +48,8 @@ On tablets and in landscape the map sits on the left at full height and the cont
 
 ### Movement rules
 
-- **Walls:** you can't move to a neighbouring square through a wall you've drawn, unless the square you're leaving has an **active trap**. If you later eliminate that trap, the move stays.
+- **Walls:** you can't move through a wall you've drawn.
+- **Traps:** standing on an **active trap**, the tracker can be teleported back to the **Start** square. If you later eliminate that trap, the move stays.
 - **Backtracks** (moves to a square that isn't a neighbour) are only allowed if there's a way there through **known** squares, without crossing walls and without an **active trap or monster** on the way or on the target square.
 - **The Exit** can't be your Start.
 
@@ -57,8 +60,8 @@ When a move isn't allowed, a short message explains why.
 - Every move is drawn with an **arrow** in the direction you went.
 - Going over the same stretch again uses a separate **lane**, up to 4 per stretch (2 in each direction).
 - The route **fades** with age: every 6 moves it gets one step lighter (100%, 70%, 45%, 25%).
-- **Backtracks and moves through a wall** are drawn as **dashed arcs**.
-- The **Route** button on the Move tab shows your latest moves. Tap it to see the whole route in writing: `→` is a normal step, `⇢` is a backtrack or a move through a wall.
+- **Backtracks and trap teleports** are drawn as **dashed arcs**.
+- The **Route** button on the Move tab shows your latest moves. Tap it to see the whole route in writing: `→` is a normal step, `⇢` is a backtrack or a trap teleport.
 
 ---
 
@@ -70,7 +73,6 @@ Pick a tool, then tap a square.
 |---|---|
 | **Known** | Marks a square as known (a circle). Known can sit together with any other mark. |
 | **Exit** | Marks the Exit. There is only one: marking a new one moves it. |
-| **Scrounged** | Marks a square you've scrounged (a dot in the corner). |
 | **Wall** | Tap close to the side of a square to add or remove a wall on that side. |
 | **Clear** | Clears a square's marks. Walls stay. |
 | **Trap / Monster / Chest** | Draws that feature. Tap it again to remove it. |
@@ -98,7 +100,11 @@ Pick a tool, then tap a square.
 
 - **Game progress:** *Lairs* changes as you open its boxes and envelopes, in this order:
   **Box 0 → Box 1 → Envelope A → Envelope B → Box 2 → Envelope C → Envelope D → Box 3 → Envelope E → Envelope F → Box 4 → Vault**.
-  Tap the last one you've opened. Your progress stays across new games and is printed on PDFs. Rules that depend on your progress will be added in later versions.
+  - **Setting it:** tap the last one you've opened. The tracker then adds the tools and rules from what you've opened, and never shows anything from a package you haven't.
+  - **Not ready yet:** packages the tracker doesn't support yet show as *coming soon*.
+  - **Keeping it:** your progress stays across new games and is printed on PDFs.
+  - **Changing it mid-game:** you can change it during a game. If the game already uses something from a later package, the app asks first and offers a new game instead.
+  - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
 - **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games keep these numbers. **Default** goes back to 21 / 3 / 3 / 3.
 - **About:** the version, and links to this page and the release notes.
 
@@ -140,7 +146,13 @@ The app is a single page with no build step.
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
 - `lairs-settings-v1`: settings that belong to the device (game progress).
 
-**Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
+**Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `teleports` (move numbers that were trap teleports), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
+
+**Spoiler policy:** the app, this README and the release notes never describe what a later package adds.
+- **In the app:** features from packages the player hasn't opened are hidden, not shown locked, and prompts use general wording only, such as "made by a player who has opened Box 1".
+- **In code:** each feature is tied to the package that brings it in `UNLOCK` in `index.html`. `LAST_READY` is the last package the tracker supports; later ones show as coming soon.
+- **In release notes and commit messages:** describe changes for later packages in general terms.
+- **Heads-up for players:** the source code itself names every feature, so reading `index.html` can spoil later packages.
 
 **Test screens** for each version:
 - **Main targets:** Galaxy S24 Ultra and Galaxy S22 Ultra (384 px wide), as an installed app with gesture and button navigation, and in a Chrome tab.

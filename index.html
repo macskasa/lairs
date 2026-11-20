@@ -103,6 +103,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .step{min-width:0;aspect-ratio:1;max-height:64px;display:grid;place-items:center;padding:0;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted)}
 .step svg{width:80%;height:80%;max-width:40px;max-height:40px}
 .step.todo svg{opacity:.55}
+.step.soon{border-style:dashed}
+.step.soon svg{opacity:.3}
 .step.done{color:var(--ink);background:var(--tint);border-color:var(--wall)}
 .step.now{color:var(--onp);background:var(--pc);border-color:var(--pc)}
 .track-arrow{position:relative;height:12px;margin:0 2px}
@@ -141,7 +143,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .cell .pw{position:absolute;right:2px;bottom:2px;min-width:15px;height:14px;padding:0 3px;border-radius:7px;background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:600;font-size:10px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums}
 
 .trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-/* Route: one line and arrow per move, in square units. Backtracks and moves through a wall are dashed arcs. */
+/* Route: one line and arrow per move, in square units. Backtracks and trap teleports are dashed arcs. */
 .trail .seg{fill:none;stroke:var(--pc);stroke-width:.042;stroke-linecap:round}
 .trail .seg.jump{stroke-dasharray:.1 .08}
 .trail .arr{fill:var(--pc)}
@@ -193,7 +195,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .routeview .hint{flex:none}
 
 /* Map tab */
-.tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.tools{display:flex;flex-direction:column;gap:6px}
+.toolrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
 .tool{min-width:0;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 1px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--display);font-size:10px;font-weight:500;letter-spacing:0;text-transform:uppercase;color:var(--muted)}
 .tool.act{border-style:dashed}
 .tool{min-height:calc(49px + var(--g) * .25 + var(--x) * .4);justify-content:center}
@@ -364,7 +367,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <button type="button" id="routeClose">Close</button>
         </div>
         <p class="routetext" id="routeText"></p>
-        <p class="hint" id="routeHint" hidden>⇢ marks a backtrack or a move through a wall.</p>
+        <p class="hint" id="routeHint" hidden>⇢ marks a backtrack or a trap teleport.</p>
       </div>
     </div>
 
@@ -472,7 +475,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.12';
+  const APP_VERSION = '0.13';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -528,7 +531,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   try { const raw = localStorage.getItem(SETTINGS_KEY); if (raw) SET = Object.assign(SET, JSON.parse(raw)); } catch (e) {}
   if (!STEPS.some(s => s.id === SET.progress)) SET.progress = '0';
   function saveSettings(){ try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(SET)); } catch (e) {} }
-  const progressIndex = () => Math.max(0, STEPS.findIndex(s => s.id === SET.progress));
+  const stepIndex = id => STEPS.findIndex(s => s.id === id);
+  // Packages after this one aren't supported yet: they show as "Coming soon".
+  const LAST_READY = 'A';
+  if (stepIndex(SET.progress) > stepIndex(LAST_READY)) SET.progress = LAST_READY;
+  const progressIndex = () => Math.max(0, stepIndex(SET.progress));
+  // The package each later feature comes with. Players only ever see what they have unlocked:
+  // locked features are hidden and messages never hint at them (no spoilers).
+  const UNLOCK = {scrounge:'1', teleportAnywhere:'A'};
+  const unlocked = f => progressIndex() >= stepIndex(UNLOCK[f]);
+  // The latest package a game uses (as a step index), judged by what is on its map and route.
+  function stepNeeded(cells, path){
+    let need = 0;
+    for (const k in cells) if (cells[k].scr) need = Math.max(need, stepIndex(UNLOCK.scrounge));
+    for (let i = 1; i < path.length; i++) {
+      const q = path[i];
+      if (q[2] === 't' && !(q[0] === path[0][0] && q[1] === path[0][1])) need = Math.max(need, stepIndex(UNLOCK.teleportAnywhere));
+    }
+    return need;
+  }
   const stepName = id => (STEPS.find(s => s.id === id) || STEPS[0]).name;
   // Icon for a step: a box with its number, an envelope with its letter, or the Vault.
   function stepIcon(s){
@@ -551,7 +572,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         '5,2':{known:true, start:true},
         '4,2':{known:true},
         '4,3':{known:true, feat:'trap', dead:true},
-        '3,3':{known:true, scr:true},
+        '3,3':{known:true},
         '2,3':{known:true},
         '3,4':{feat:'monster', power:7},
         '4,1':{feat:'chest'},
@@ -625,7 +646,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   const wallBetween = (p, q) => !!S.walls[wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1])];
   // Drawn as a dashed arc and written with ⇢: a backtrack (not to a neighbouring square),
   // or a move to a neighbour through a wall (only possible from a trap).
-  const isSpecial = (p, q) => !isNeighbour(p, q) || wallBetween(p, q);
+  // Path entries are [row, col] for a step, [row, col, 'b'] for a backtrack and [row, col, 't'] for a trap teleport.
+  const isSpecial = (p, q) => !!q[2] || !isNeighbour(p, q) || wallBetween(p, q);
   const activeTrap = cell => !!cell && cell.feat === 'trap' && !cell.dead;
   // A backtrack may only pass through, and end on, known squares without an active trap or monster.
   const blocksBacktrack = cell => !cell || !cell.known || ((cell.feat === 'trap' || cell.feat === 'monster') && !cell.dead);
@@ -747,7 +769,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     return out;
   }
 
-  // The route in writing: → for a step to a neighbouring square, ⇢ for a backtrack or a move through a wall.
+  // The route in writing: → for a step to a neighbouring square, ⇢ for a backtrack or a trap teleport.
   function routeText(from, step, jump){
     const P = S.path;
     from = Math.max(0, from || 0);
@@ -896,6 +918,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('gamePanel').hidden = S.mode !== 'game';
     $('board').classList.toggle('mapping', S.mode === 'map');
     requestAnimationFrame(afterRender);
+    // Locked tools are hidden, not shown with a lock (no spoilers).
+    const scrTool = document.querySelector('.tool[data-tool="scr"]');
+    if (scrTool) scrTool.hidden = !unlocked('scrounge');
+    if (S.tool === 'scr' && !unlocked('scrounge')) S.tool = 'known';
     document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
     $('toolHint').textContent = HINTS[S.tool];
 
@@ -918,9 +944,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('settings').hidden = !settingsOpen;
     const pi = progressIndex();
     document.querySelectorAll('#track .step').forEach((b, i) => {
-      b.className = 'step ' + (i < pi ? 'done' : i === pi ? 'now' : 'todo');
+      const soon = i > stepIndex(LAST_READY);
+      b.className = 'step ' + (i < pi ? 'done' : i === pi ? 'now' : soon ? 'todo soon' : 'todo');
       b.setAttribute('aria-pressed', String(i <= pi));
-      b.setAttribute('aria-label', STEPS[i].name + (i <= pi ? ', opened' : ''));
+      b.setAttribute('aria-disabled', String(soon));
+      b.setAttribute('aria-label', STEPS[i].name + (i <= pi ? ', opened' : soon ? ', coming soon' : ''));
     });
     const opened = STEPS.slice(0, pi + 1).map(s => s.name);
     $('progressNow').textContent = pi === STEPS.length - 1
@@ -980,27 +1008,39 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     if (last && last[0] === r && last[1] === c) return;
     // The first space becomes the Start, and the Start can't be the Exit.
     if (!last && (S.cells[key(r, c)] || {}).exit) { toast(coord(r, c) + ' is the Exit. Start on another space.'); return; }
+    let kind = null; // null = a step, 'b' = a backtrack, 't' = a trap teleport
     if (last) {
       const to = [r, c], fc = coord(last[0], last[1]), tc = coord(r, c);
+      const from = S.cells[key(last[0], last[1])] || {};
+      const toStart = r === S.path[0][0] && c === S.path[0][1];
+      // Can a trap on this square teleport the tracker there? Only to the Start until it's unlocked to go anywhere.
+      const trapCould = from.feat === 'trap' && (unlocked('teleportAnywhere') || toStart);
+      const teleport = trapCould && !from.dead;
+      const eliminatedMsg = 'The trap on ' + fc + ' is eliminated, so it can’t teleport you.';
       if (isNeighbour(last, to)) {
-        // Through a wall only from an active trap.
-        const from = S.cells[key(last[0], last[1])];
-        if (wallBetween(last, to) && !activeTrap(from)) {
-          toast(from && from.feat === 'trap'
-            ? 'The trap on ' + fc + ' is eliminated, so it can’t take you through the wall.'
-            : 'A wall blocks ' + fc + ' → ' + tc + '. Only an active trap can take you through.');
-          return;
+        if (wallBetween(last, to)) {
+          if (teleport) kind = 't';
+          else {
+            toast(trapCould ? eliminatedMsg
+              : 'A wall blocks ' + fc + ' → ' + tc + '.' + (unlocked('teleportAnywhere') ? ' Only an active trap can take you through.' : ''));
+            return;
+          }
         }
       } else {
         // A backtrack: only along known squares without an active trap or monster, never through a wall.
+        // Only if that isn't possible does a trap teleport count.
         const goal = S.cells[key(r, c)];
-        if (!goal || !goal.known) { toast(tc + ' isn’t known yet, so you can’t backtrack there.'); return; }
-        if (blocksBacktrack(goal)) { toast(tc + ' has an active ' + goal.feat + ', so you can’t backtrack there.'); return; }
-        if (!canBacktrack(last, to)) { toast('No safe way from ' + fc + ' to ' + tc + ' through known squares.'); return; }
+        let why = '';
+        if (!goal || !goal.known) why = tc + ' isn’t known yet, so you can’t backtrack there.';
+        else if (blocksBacktrack(goal)) why = tc + ' has an active ' + goal.feat + ', so you can’t backtrack there.';
+        else if (!canBacktrack(last, to)) why = 'No safe way from ' + fc + ' to ' + tc + ' through known squares.';
+        if (!why) kind = 'b';
+        else if (teleport) kind = 't';
+        else { toast(trapCould ? eliminatedMsg : why); return; }
       }
     }
     snap();
-    S.path.push([r, c]);
+    S.path.push(kind ? [r, c, kind] : [r, c]);
     // The space you move into becomes known automatically (one Undo reverts both).
     const k = key(r, c);
     S.cells[k] = Object.assign({}, S.cells[k], {known: true});
@@ -1013,11 +1053,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     const [dr, dc, name] = DIRS[d];
     const r = last[0] + dr, c = last[1] + dc;
     if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
-    if (S.walls[wallKey(last[0], last[1], dr, dc)] && !activeTrap(S.cells[key(last[0], last[1])])) {
-      toast('You mapped a wall to the ' + name + ' of ' + coord(last[0], last[1]) + '. Only an active trap can take you through.');
-      return;
-    }
-    moveTo(r, c);
+    moveTo(r, c); // walls and traps are checked there, the same as for a tap
   }
 
   // ---------- Keeping the route legal when the map changes ----------
@@ -1025,19 +1061,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   function cutForTrapRemoval(k){
     for (let i = 1; i < S.path.length; i++) {
       const p = S.path[i - 1], q = S.path[i];
-      if (key(p[0], p[1]) === k && isNeighbour(p, q) && wallBetween(p, q)) return i;
+      if (key(p[0], p[1]) === k && q[2] === 't') return i; // a teleport from that trap
     }
     return 0;
   }
-  function cutForNewWall(wk){
+  // A new wall across an earlier step: if the step started on a trap square (even an eliminated trap) and that
+  // trap could have teleported there, it becomes a teleport (convert); otherwise it is broken (cut).
+  function wallEffects(wk){
+    const convert = [];
     for (let i = 1; i < S.path.length; i++) {
       const p = S.path[i - 1], q = S.path[i];
-      if (!isNeighbour(p, q) || wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1]) !== wk) continue;
-      // A trap on the square it started from (even an eliminated one) makes it a move through the wall instead.
-      if ((S.cells[key(p[0], p[1])] || {}).feat !== 'trap') return i;
+      if (q[2] || !isNeighbour(p, q) || wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1]) !== wk) continue;
+      const fromTrap = (S.cells[key(p[0], p[1])] || {}).feat === 'trap';
+      const toStart = q[0] === S.path[0][0] && q[1] === S.path[0][1];
+      if (fromTrap && (unlocked('teleportAnywhere') || toStart)) convert.push(i);
+      else return {cut: i, convert};
     }
-    return 0;
+    return {cut: 0, convert};
   }
+  const markTeleports = list => { for (const i of list) S.path[i] = [S.path[i][0], S.path[i][1], 't']; };
   // Ask first; if confirmed, make the change and remove move i and every move after it (one Undo brings it all back).
   function askCut(o, i, apply){
     const n = S.path.length - 1, p = S.path[i - 1], q = S.path[i];
@@ -1079,15 +1121,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       const wk = wallKey(r, c, d[1], d[2]);
       if (!S.walls[wk] && left('wall') <= 0) { toast(fullMsg('wall')); return; }
       if (!S.walls[wk]) {
-        const cut = cutForNewWall(wk);
-        if (cut) {
+        const fx = wallEffects(wk);
+        if (fx.cut) {
           askCut({title:'Draw this wall?', cause:'A wall between ' + co + ' and ' + coord(nr, nc), keep:'Don’t draw it', go:'Draw and go back'},
-            cut, () => { S.walls[wk] = 1; });
+            fx.cut, () => { S.walls[wk] = 1; markTeleports(fx.convert); });
           return;
         }
+        snap();
+        S.walls[wk] = 1;
+        markTeleports(fx.convert);
+        commit();
+        return;
       }
+      // Removing a wall: teleports to a neighbour across it become normal steps again.
       snap();
-      if (S.walls[wk]) delete S.walls[wk]; else S.walls[wk] = 1;
+      delete S.walls[wk];
+      for (let i = 1; i < S.path.length; i++) {
+        const p = S.path[i - 1], q = S.path[i];
+        if (q[2] === 't' && isNeighbour(p, q) && wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1]) === wk) S.path[i] = [q[0], q[1]];
+      }
       commit();
       return;
     }
@@ -1148,7 +1200,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       }
       if (Object.keys(n).length) S.cells[k] = n; else delete S.cells[k];
     };
-    // Taking a trap off this square (tapping it again, or drawing a monster or chest over it) can break a move through a wall.
+    // Taking a trap off this square (tapping it again, or drawing a monster or chest over it) can break a teleport from it.
     const cut = cur.feat === 'trap' && (t === 'trap' || t === 'monster' || t === 'chest') ? cutForTrapRemoval(k) : 0;
     if (cut) { askCut(trapAsk(co), cut, apply); return; }
     snap();
@@ -1174,10 +1226,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   }
 
   // Build tool buttons
-  $('tools').innerHTML = TOOLS.map(([id, label, act]) =>
+  // Two rows of tools; a hidden (locked) tool leaves no gap, the rest of its row widens.
+  $('tools').innerHTML = [TOOLS.slice(0, 5), TOOLS.slice(5)].map(row => '<div class="toolrow">' + row.map(([id, label, act]) =>
     '<button type="button" class="tool' + (act ? ' act' : '') + '" data-tool="' + id + '" aria-pressed="false">' + sym(id, id === 'kill') + '<span>' + label + '</span>' +
     (PIECES[id] ? '<b class="cnt" aria-hidden="true"></b>' : '') + '</button>'
-  ).join('');
+  ).join('') + '</div>').join('');
 
   // Build the Lair pieces steppers
   $('pcGrid').innerHTML = Object.keys(PIECES).map(t => {
@@ -1290,13 +1343,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       return;
     }
     disarm();
+    startNewGame('New game. Tap your starting space.');
+  });
+  function startNewGame(msg){
     S = {mode:'move', tool:S.tool, example:false, path:[], cells:{}, walls:{}, limits:S.limits};
     hist = [];
     select(null);
     commit();
     window.scrollTo({top:0, behavior:'smooth'});
-    toast('New game. Tap your starting space.');
-  });
+    toast(msg);
+  }
 
   // Lair pieces editor: the starting numbers carry over to new games.
   // Settings page. It adds a history step, so the phone's Back button returns to the map.
@@ -1319,13 +1375,32 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   $('settingsBtn').addEventListener('click', openSettings);
   $('setBack').addEventListener('click', () => closeSettings(false));
   window.addEventListener('popstate', () => closeSettings(true));
+  function setProgress(id){
+    SET.progress = id;
+    saveSettings();
+    render();
+  }
+  const openedMsg = id => stepName(id) + (id === 'V' ? '' : ' opened');
   $('track').addEventListener('click', e => {
     const b = e.target.closest('.step');
     if (!b) return;
-    SET.progress = b.dataset.step;
-    saveSettings();
-    render();
-    toast('Progress saved: ' + stepName(SET.progress) + (SET.progress === 'V' ? '' : ' opened') + '.');
+    const id = b.dataset.step, i = stepIndex(id);
+    if (i > stepIndex(LAST_READY)) { toast('Coming soon.'); return; }
+    if (i === progressIndex()) return;
+    // Changing progress mid-game is fine, unless the current game already uses something from a later package.
+    if (i < stepNeeded(S.cells, S.path)) {
+      const nm = stepName(id);
+      ask({
+        title: 'Go back to ' + nm + '?',
+        text: 'Your current game already uses things from a later package, so going back to ' + nm +
+          ' would change what has happened. You can start a new game at ' + nm + ' instead.',
+        keep: 'Keep my progress', go: 'New game at ' + nm,
+        onGo: () => { setProgress(id); startNewGame('Progress saved: ' + openedMsg(id) + '. New game started.'); }
+      });
+      return;
+    }
+    setProgress(id);
+    toast('Progress saved: ' + openedMsg(id) + '.');
   });
   $('pcGrid').addEventListener('click', e => {
     const b = e.target.closest('.pc-step');
@@ -1388,6 +1463,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       tracker: here ? coord(here[0], here[1]) : null,
       path: S.path.map(([r, c]) => coord(r, c)),
       spaces, walls,
+      teleports: S.path.map((q, i) => q[2] === 't' ? i : 0).filter(Boolean), // move numbers that were trap teleports
       pieces: Object.fromEntries(Object.keys(PIECES).map(t => [FILE_KEYS[t], S.limits[t]]))
     };
   }
@@ -1426,6 +1502,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       const raw = {};
       for (const t in PIECES) raw[t] = o.pieces[FILE_KEYS[t]];
       limits = sanitizeLimits(raw);
+    }
+    // Move kinds: teleports from the file's list (or, in older saves, steps through a wall); other long moves are backtracks.
+    const tel = new Set(Array.isArray(o.teleports) ? o.teleports.filter(i => Number.isInteger(i) && i > 0 && i < path.length) : []);
+    for (let i = 1; i < path.length; i++) {
+      const p = path[i - 1], q = path[i];
+      const throughWall = isNeighbour(p, q) && !!walls[wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1])];
+      if (tel.has(i) || (!Array.isArray(o.teleports) && throughWall)) path[i] = [q[0], q[1], 't'];
+      else if (!isNeighbour(p, q)) path[i] = [q[0], q[1], 'b'];
     }
     return {path, cells, walls, limits, savedAt:o.savedAt};
   }
@@ -1491,13 +1575,28 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       let o = null;
       try { o = fromFile(JSON.parse(rd.result)); } catch (err) {}
       if (!o) { toast('That file is not a Lairs Tracker save.'); return; }
-      snap();
-      S.path = o.path; S.cells = o.cells; S.walls = o.walls; S.example = false;
-      if (o.limits) S.limits = o.limits;
-      select(null);
-      commit();
-      const d = new Date(o.savedAt);
-      toast(isNaN(d) ? 'Save loaded.' : 'Loaded the save from ' + niceDate(d) + '.');
+      const load = () => {
+        snap();
+        S.path = o.path; S.cells = o.cells; S.walls = o.walls; S.example = false;
+        if (o.limits) S.limits = o.limits;
+        select(null);
+        commit();
+        const d = new Date(o.savedAt);
+        toast(isNaN(d) ? 'Save loaded.' : 'Loaded the save from ' + niceDate(d) + '.');
+      };
+      // A save that uses things from a package you haven't opened: ask, in general terms only (no spoilers).
+      const need = stepNeeded(o.cells, o.path);
+      if (need > progressIndex()) {
+        const id = STEPS[need].id, nm = stepName(id);
+        ask({
+          title: 'Set your progress?',
+          text: 'This saved game was made by a player who has opened ' + nm + '. Set your progress to ' + nm + ' and load it?',
+          keep: 'Cancel', go: 'Set and load',
+          onGo: () => { setProgress(id); load(); }
+        });
+        return;
+      }
+      load();
     };
     rd.onerror = () => toast('Could not read that file.');
     rd.readAsText(f);
@@ -1634,8 +1733,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     if (n > 1) doc.text((n - 1) + ' move' + (n === 2 ? '' : 's'), 190, y, {align:'right'});
     y += 7;
     const rowsOut = [];
-    // The PDF font has no arrow characters, so steps are ">" and backtracks or moves through a wall ">>".
-    rowsOut.push(['Route', n ? routeText(0, '>', '>>') + (hasSpecialMove() ? '   (>> marks a backtrack or a move through a wall)' : '') : 'Not started yet']);
+    // The PDF font has no arrow characters, so steps are ">" and backtracks or trap teleports ">>".
+    rowsOut.push(['Route', n ? routeText(0, '>', '>>') + (hasSpecialMove() ? '   (>> marks a backtrack or a trap teleport)' : '') : 'Not started yet']);
     const live = [], traps = [], dead = [], chests = [];
     for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
       const cell = S.cells[key(r, c)]; if (!cell || !cell.feat) continue;
@@ -1661,7 +1760,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       ['Known', (x, yy) => { sd(K.ink); doc.setLineWidth(0.5); doc.circle(x, yy, 2.6, 'S'); }],
       ['Start', letter('S')],
       ['Exit', letter('E')],
-      ['Scrounged', (x, yy) => { sf(K.ink); doc.circle(x, yy, 0.9, 'F'); }],
+      unlocked('scrounge') && ['Scrounged', (x, yy) => { sf(K.ink); doc.circle(x, yy, 0.9, 'F'); }],
       ['Trap', (x, yy) => trap(x, yy, 2.6, false)],
       ['Monster', (x, yy) => monster(x, yy, 2.6, false)],
       ['Chest', (x, yy) => chest(x, yy, 2.6)],
@@ -1669,7 +1768,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       ['Power', (x, yy) => badge(x, yy, '7')],
       ['Wall', (x, yy) => { sd(K.wall); doc.setLineWidth(1.4); doc.setLineCap('round'); doc.line(x, yy - 2.8, x, yy + 2.8); }],
       ['Tracker', (x, yy) => { sf(K.red); doc.circle(x, yy, 2.2, 'F'); sf(K.white); doc.circle(x, yy, 0.7, 'F'); }]
-    ];
+    ].filter(Boolean);
     const stepW = 170 / items.length;
     items.forEach(([label, draw], i) => {
       const x = 20 + stepW * i + stepW / 2;
