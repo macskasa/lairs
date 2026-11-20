@@ -31,6 +31,8 @@
   --tint:#F3E6D5;
   --pc:#B4432C;
   --onp:#FFFFFF;
+  --fog:#D2C0AB;
+  --fogline:#B9A48E;
   --display:"Oswald","Arial Narrow",sans-serif;
   --body:"Barlow",system-ui,-apple-system,sans-serif;
   /* Spare height on tall phones (e.g. Galaxy S2x Ultra), up to 40px, used to enlarge the controls.
@@ -44,12 +46,14 @@
   :root:not([data-theme="light"]){
     --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
     --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
+    --fog:#0F0B09; --fogline:#3A2E26;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
   --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
+  --fog:#0F0B09; --fogline:#3A2E26;
   color-scheme:dark;
 }
 
@@ -355,6 +359,61 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .mk-hint{order:7;margin:0 2px;font-size:13px;line-height:1.4;color:var(--muted)}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
+/* ---------- Solo ---------- */
+/* Unknown squares stay dark; the ones you can reach next get a dashed outline. When the game ends, the whole lair shows. */
+/* Known squares need no circle here: the dark squares already show what's unknown. */
+.board.solo .cell .ring{border-color:transparent}
+.board.solo .cell.fog .box{background:var(--fog);border-color:transparent}
+.board.solo .cell.fog .co{color:var(--fogline)}
+.board.solo .cell.fog .ring{border-color:transparent}
+.board.solo .cell.frontier .box{border:1.5px dashed var(--fogline)}
+.board.solo .cell.fog.shown .ring{opacity:.6}
+.board.solo .cell.fog.shown .co{color:var(--muted)}
+.board.solo .wall.dim{opacity:.45}
+.board.solo.over .cell.fog .box{background:color-mix(in srgb, var(--fog) 55%, var(--paper))}
+.seg.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Achievements next to the tabs: chests opened, monsters defeated, traps disarmed */
+.so-ach{flex:none;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);font-family:var(--display);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.so-ach span{display:flex;align-items:center;gap:3px}
+.so-ach svg{width:17px;height:17px;color:var(--wall)}
+.so-main{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:6px;align-content:start}
+.so-main .where{grid-column:1;grid-row:1;align-self:end}
+.so-main .dpad{grid-column:2;grid-row:1 / span 2;align-self:center}
+.so-main .so-act{grid-column:1;grid-row:2;align-self:start}
+.steps.peering{color:var(--pc);font-weight:600}
+.so-act{width:100%;min-height:42px;padding:6px 10px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.07em;text-transform:uppercase}
+.so-act.quiet{border-color:var(--line);background:var(--bg);color:var(--ink)}
+.so-act:active{filter:brightness(.94)}
+/* The Peer switch sits in the middle of the compass */
+.dir.peer{grid-column:2;grid-row:2;display:grid;place-items:center;padding:0;color:var(--muted);font-size:9px;letter-spacing:.06em;line-height:1}
+.dir.peer svg{width:20px;height:20px;margin-bottom:1px}
+.dir.peer[aria-pressed="true"]{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+.board.solo.peering .cell.frontier .box{border-color:var(--pc);border-style:solid}
+/* Encounter and end of game */
+.so-text{margin:0;font-size:14px;line-height:1.4;color:var(--ink)}
+.so-text small{color:var(--muted);font-size:13px}
+.so-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.so-btns button{min-height:46px;padding:6px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.so-btns button.primary{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+.so-btns button:active{filter:brightness(.94)}
+#soEnc,#soEnd{flex:1}
+#soEncClose{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+.so-end-title{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.1;letter-spacing:.04em;color:var(--pc)}
+#soPw .pw-step{width:42px}
+#soPwInput{flex:none;width:54px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+#soPwDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+/* Solo Game tab */
+.so-lair{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg)}
+.so-lair > span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.so-lair strong{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.06em;color:var(--pc);font-variant-numeric:tabular-nums}
+.so-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* New solo lair page */
+.solonew{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.solonew .mk-desc{min-height:2.8em}
+.sn-start{height:52px;font-size:15px}
+.sn-or{margin:4px 2px -4px;font-size:13.5px;color:var(--muted)}
+.home .pill{flex:none;height:32px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+
 /* ---------- Tablets and landscape (phones in portrait are unchanged) ---------- */
 /* Portrait tablets: a wider column, sized so the map and controls still fit the height. */
 @media (orientation: portrait) and (min-width: 600px){
@@ -415,10 +474,26 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     width:min(calc(100dvh - 54px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), calc(100vw - 440px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))}
 }
 
+/* Short phones in portrait: a smaller title on the start screen, and no question above the choices. */
+@media (orientation: portrait) and (max-height: 720px){
+  .home-hero{gap:6px;padding-bottom:0}
+  .home-hero svg{width:50px;height:50px}
+  .home-hero h1{font-size:28px}
+  .home-q{display:none}
+  .so-keep{display:none}
+  .so-text{font-size:13.5px;line-height:1.33}
+  .so-btns button{min-height:42px}
+  #soEnc{gap:5px}
+}
 /* Phones turned sideways: the start screen keeps the choices and drops their descriptions,
    and the example map's note is left out (the start screen says it's an example). */
 @media (orientation: landscape) and (min-width: 560px) and (max-height: 420px){
   .note{display:none}
+  .mode{padding:10px 12px;gap:8px}
+  .mode-go,.mode-alt{min-height:46px;padding-block:5px}
+  .home-modes{gap:8px}
+  .solonew{gap:8px}
+  .solonew .set-sub{display:none}
   .mode p,.mode-text{display:none}
   .home-hero svg{width:56px;height:56px}
   .home-hero h1{font-size:30px}
@@ -430,7 +505,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 </style>
 </head>
 <body>
-<main class="app">
+<main class="app" id="trackApp">
   <header class="brand">
     <button type="button" class="homebtn" id="homeBtn" aria-label="Start screen" title="Start screen">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2M6 9.6V20h4.6v-5.6h2.8V20H18V9.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -554,6 +629,105 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   </section>
 </main>
 
+<!-- Solo: the app is the Builder. Unknown squares stay dark until you learn about them. -->
+<main class="app" id="soloApp" hidden>
+  <header class="brand">
+    <button type="button" class="homebtn" id="soloHome" aria-label="Start screen" title="Start screen">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2M6 9.6V20h4.6v-5.6h2.8V20H18V9.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <h1>Lairs</h1><span>Solo</span><span class="ver" id="soloVer"></span>
+    <button type="button" class="gear" id="soloSettings" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="3 2.97"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <div class="mapcard">
+    <section class="sheet" aria-label="Solo lair">
+      <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+      <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
+      <div class="board solo" id="soBoard">
+        <div class="cells" id="soCells"></div>
+        <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><g id="soTrail"></g></svg>
+        <div class="walls" id="soWalls" aria-hidden="true"></div>
+        <div class="token" id="soToken" aria-hidden="true" hidden><span></span></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="tray">
+    <div class="trayhead">
+      <div class="seg two" role="tablist" aria-label="Solo">
+        <button type="button" role="tab" data-solo-tab="explore">Explore</button>
+        <button type="button" role="tab" data-solo-tab="game">Game</button>
+      </div>
+      <div class="so-ach" id="soAch" role="status"></div>
+    </div>
+
+    <div class="panel" id="soExplore">
+      <div class="gameview so-main" id="soMain">
+        <div class="where">
+          <span class="label">Tracker at</span>
+          <strong class="pos" id="soPos">—</strong>
+          <span class="steps" id="soSteps"></span>
+        </div>
+        <button type="button" class="so-act" id="soAct" hidden></button>
+        <div class="dpad">
+          <button type="button" class="dir dn" data-sodir="n" aria-label="North">N</button>
+          <button type="button" class="dir dw" data-sodir="w" aria-label="West">W</button>
+          <button type="button" class="dir peer" id="soPeer" aria-pressed="false" aria-label="Peer" title="Peer: look into a neighbouring unknown space">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>PEER
+          </button>
+          <button type="button" class="dir de" data-sodir="e" aria-label="East">E</button>
+          <button type="button" class="dir ds" data-sodir="s" aria-label="South">S</button>
+        </div>
+      </div>
+
+      <div class="gameview" id="soEnc" hidden>
+        <div class="pc-head">
+          <strong id="soEncTitle"></strong>
+          <button type="button" id="soEncClose">Not now</button>
+        </div>
+        <p class="so-text" id="soEncText"></p>
+        <div class="so-btns" id="soEncBtns">
+          <button type="button" id="soLose"></button>
+          <button type="button" class="primary" id="soWin"></button>
+        </div>
+        <form class="power" id="soPw" hidden>
+          <strong>Its target now</strong>
+          <button type="button" class="pw-step" data-sod="-1" aria-label="Lower">−</button>
+          <input id="soPwInput" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="done" placeholder="–" aria-label="The monster's target now">
+          <button type="button" class="pw-step" data-sod="1" aria-label="Raise">+</button>
+          <button type="submit" id="soPwDone">Done</button>
+        </form>
+      </div>
+
+      <div class="gameview" id="soEnd" hidden>
+        <strong class="so-end-title" id="soEndTitle"></strong>
+        <p class="so-text" id="soEndText"></p>
+        <div class="so-btns">
+          <button type="button" id="soAgain">Play it again</button>
+          <button type="button" class="primary" id="soNewEnd">New solo lair</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="soGame" hidden>
+      <div class="gameview">
+        <div class="so-lair">
+          <span><span class="label" id="soLairName">Lair</span><strong id="soLairCode"></strong></span>
+          <button type="button" class="mk-btn small" id="soCopy">Copy</button>
+        </div>
+        <p class="hint" id="soNeed"></p>
+        <div class="so-row">
+          <button type="button" class="mk-btn" id="soGiveUp">Give up</button>
+          <button type="button" class="mk-btn primary" id="soNewGame">New solo lair</button>
+        </div>
+        <p class="hint so-keep">Saves itself as you play. No Undo in solo.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
 <section class="settings" id="settings" hidden aria-labelledby="setTitle">
   <div class="set-head">
     <button type="button" class="set-back" id="setBack">
@@ -616,10 +790,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-    <button type="button" class="mode soon" id="homeSolo" aria-disabled="true">
-      <span class="mode-top"><span class="mode-title">Solo</span><span class="badge">Coming soon</span></span>
-      <span class="mode-text">Explore a lair the app builds for you.</span>
-    </button>
+    <div class="mode">
+      <div class="mode-top"><h2>Solo</h2><button type="button" class="pill" id="homeSoloNew" hidden>New lair</button></div>
+      <p>Explore a lair the app builds for you.</p>
+      <button type="button" class="mode-go" id="homeSolo">
+        <span><b id="soloGoLabel">New solo lair</b><small id="soloStatus">Pick a difficulty</small></span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
   </div>
   <p class="home-foot">An unofficial fan-made tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
 </section>
@@ -674,6 +852,30 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       </div>
     </div>
   </div>
+</section>
+
+<!-- New solo lair: pick a difficulty, or play a lair code -->
+<section class="solonew" id="soloNew" hidden aria-labelledby="snTitle">
+  <div class="set-head">
+    <button type="button" class="set-back" id="snBack">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="snBackLabel">Home</span>
+    </button>
+    <h2 id="snTitle">New solo lair</h2>
+  </div>
+  <p class="set-sub">The app builds a hidden lair and acts as the Builder. It uses your Lair pieces from Settings, and you play with your own cards, dice and treasures.</p>
+  <div class="seg mk-tiers" id="snTiers" role="radiogroup" aria-label="Difficulty">
+    <button type="button" role="radio" data-tier="A">Apprentice</button>
+    <button type="button" role="radio" data-tier="J">Journeyman</button>
+    <button type="button" role="radio" data-tier="G">Guild Master</button>
+  </div>
+  <p class="mk-desc" id="snDesc"></p>
+  <button type="button" class="mk-btn primary sn-start" id="snStart">Start exploring</button>
+  <p class="sn-or">Or play a lair code, for example one a friend shared:</p>
+  <form class="mk-form" id="snForm" autocomplete="off">
+    <input id="snInput" type="text" maxlength="24" spellcheck="false" autocapitalize="characters" autocorrect="off" enterkeyhint="go" placeholder="e.g. J1-7KQ3M" aria-label="Lair code">
+    <button type="submit" class="mk-btn" id="snPlay">Play</button>
+  </form>
 </section>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -1137,7 +1339,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.15';
+  const APP_VERSION = '0.16';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -1292,8 +1494,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // Which screen is showing: 'home' (start screen), 'track' (the map), 'settings' or 'maker' (Make a lair).
   let view = 'home';
   let viewStack = ['home']; // the screens behind the current one, matching the browser history
-  const VIEW_LABEL = {home:'Home', track:'Map', settings:'Settings', maker:'Lair'};
+  const VIEW_LABEL = {home:'Home', track:'Map', settings:'Settings', maker:'Lair', solo:'Solo', soloNew:'New lair'};
   const backLabel = () => VIEW_LABEL[viewStack[viewStack.length - 2] || 'home'];
+  // The solo game (see Solo below), kept separately from the tracker's game.
+  const SOLO_KEY = 'lairs-solo-v1';
+  let SO = null; // {code, lair, known, path, gone, power, ach, peers, pending, strikeAt, peer, over}
+  try { const raw = localStorage.getItem(SOLO_KEY); if (raw) SO = JSON.parse(raw); } catch (e) {}
+  if (SO && (!SO.lair || !Array.isArray(SO.path) || !SO.path.length || !SO.known)) SO = null;
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
   let fileAsk = null;     // 'json' or 'pdf' while the file name box is showing
   let routeOpen = false;  // the whole route is showing on the Move tab
 
@@ -1377,8 +1585,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   // One entry per move, oldest first, in square units (centres at x.5):
   // main = the move's own line ({s, e}) or arc ({s, q, e}); join = the curve into it from the previous move.
-  function routeSegments(){
-    const P = S.path, out = [], trips = {}, n = P.length - 1;
+  function routeSegments(P = S.path, special = isSpecial){
+    const out = [], trips = {}, n = P.length - 1;
     for (let i = 1; i < P.length; i++) {
       const [r0, c0] = P[i - 1], [r1, c1] = P[i];
       const ax = c0 + 0.5, ay = r0 + 0.5, bx = c1 + 0.5, by = r1 + 0.5;
@@ -1389,7 +1597,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       trips[dirKey] = (trips[dirKey] || 0) + 1;
       const lane = (trips[dirKey] - 1) % LANES.length; // a third trip reuses the inner lane, drawn on top
       const off = LANES[lane];
-      const long = isSpecial(P[i - 1], P[i]);
+      const long = special(P[i - 1], P[i]);
       // Arcs bend to the right of travel. If that would leave the map, they bend inward instead, a bit wider so they
       // don't sit on a return trip that bends the same way. If neither side fits, the arc is flattened until it does.
       let side = 1, bulge = 0;
@@ -1436,6 +1644,18 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       out.push({main, join, te, arrow, long, op: FADE[Math.min(FADE.length - 1, Math.floor((n - i) / FADE_EVERY))]});
     }
     return out;
+  }
+
+  // The route as SVG: one line or arc per move, with its arrow and fading.
+  function trailSVG(segs){
+    const pt = p => p[0].toFixed(3) + ' ' + p[1].toFixed(3);
+    return segs.map(s => {
+      const j = s.join, m = s.main;
+      const d = (j ? 'M' + pt(j.E) + ' C' + pt(j.c1) + ' ' + pt(j.c2) + ' ' + pt(j.S) : 'M' + pt(m.s)) +
+        (m.q ? ' Q' + pt(m.q) + ' ' + pt(m.e) : ' L' + pt(m.e));
+      return '<g opacity="' + s.op + '"><path class="seg' + (s.long ? ' jump' : '') + '" d="' + d + '"/>' +
+        '<polygon class="arr" points="' + s.arrow.map(p => p[0].toFixed(3) + ',' + p[1].toFixed(3)).join(' ') + '"/></g>';
+    }).join('');
   }
 
   // The route in writing: → for a step to a neighbouring square, ⇢ for a backtrack or a trap teleport.
@@ -1563,14 +1783,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
     }
     $('walls').innerHTML = w;
-    const pt = p => p[0].toFixed(3) + ' ' + p[1].toFixed(3);
-    $('trail').innerHTML = routeSegments().map(s => {
-      const j = s.join, m = s.main;
-      const d = (j ? 'M' + pt(j.E) + ' C' + pt(j.c1) + ' ' + pt(j.c2) + ' ' + pt(j.S) : 'M' + pt(m.s)) +
-        (m.q ? ' Q' + pt(m.q) + ' ' + pt(m.e) : ' L' + pt(m.e));
-      return '<g opacity="' + s.op + '"><path class="seg' + (s.long ? ' jump' : '') + '" d="' + d + '"/>' +
-        '<polygon class="arr" points="' + s.arrow.map(p => p[0].toFixed(3) + ',' + p[1].toFixed(3)).join(' ') + '"/></g>';
-    }).join('');
+    $('trail').innerHTML = trailSVG(routeSegments());
 
     const tok = $('token');
     if (here) {
@@ -1609,7 +1822,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('gameMain').hidden = !!fileAsk;
 
     // Settings page: shown instead of the map.
-    document.querySelector('.app').hidden = view !== 'track';
+    $('trackApp').hidden = view !== 'track';
+    $('soloApp').hidden = view !== 'solo';
+    $('soloNew').hidden = view !== 'soloNew';
     $('settings').hidden = view !== 'settings';
     $('home').hidden = view !== 'home';
     $('maker').hidden = view !== 'maker';
@@ -1618,6 +1833,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('rivalStatus').textContent = S.example ? 'Showing an example map' : moves === 0 ? 'Ready for a new map'
       : moves === 1 ? 'Game in progress · on the starting space' : 'Game in progress · ' + (moves - 1) + ' move' + (moves === 2 ? '' : 's');
     if (view === 'maker') renderMaker();
+    if (view === 'solo') renderSolo();
+    if (view === 'soloNew') renderSoloNew();
+    const soOn = !!SO && !SO.over;
+    $('soloGoLabel').textContent = soOn ? 'Continue' : 'New solo lair';
+    $('soloStatus').textContent = soOn ? SO.lair.tierName + ' · ' + plural(SO.path.length - 1, 'move', 'moves')
+      : SO && SO.over ? (SO.over.how === 'exit' ? 'Last lair: escaped in ' + plural(SO.over.moves, 'move', 'moves') : 'Last lair: you gave up')
+      : 'Pick a difficulty';
+    $('homeSoloNew').hidden = !soOn;
     const pi = progressIndex();
     document.querySelectorAll('#track .step').forEach((b, i) => {
       const soon = i > stepIndex(LAST_READY);
@@ -1653,7 +1876,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     rb.disabled = n === 0;
     if (!n) pl.textContent = 'No route yet';
     else {
-      const wide = document.querySelector('.app').classList.contains('roomy') || matchMedia(BIG_SCREEN).matches;
+      const wide = $('trackApp').classList.contains('roomy') || matchMedia(BIG_SCREEN).matches;
       let shown = Math.min(n, wide ? 10 : 5);
       pl.textContent = routeText(n - shown, '→', '⇢');
       while (shown > 2 && !$('movePanel').hidden && !routeOpen && pl.scrollWidth > pl.clientWidth + 0.5) {
@@ -1938,8 +2161,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   const BIG_SCREEN = '(min-width: 600px) and (min-height: 600px)';
   const OWN_LAYOUT = '(orientation: landscape) and (min-width: 560px), (orientation: portrait) and (min-width: 600px)';
   function fitLayout(){
-    const app = document.querySelector('.app'), card = document.querySelector('.mapcard'), tray = document.querySelector('.tray');
-    if (view !== 'track') return;
+    if (view !== 'track' && view !== 'solo') return;
+    const app = $(view === 'solo' ? 'soloApp' : 'trackApp'), card = app.querySelector('.mapcard'), tray = app.querySelector('.tray');
     if (matchMedia(OWN_LAYOUT).matches) {
       if (app.classList.contains('roomy')) { app.classList.remove('roomy'); render(); }
       return;
@@ -1984,7 +2207,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (S.tool !== 'monster' && S.tool !== 'power') select(null);
     commit();
   });
-  document.querySelectorAll('.dir').forEach(b => b.addEventListener('click', () => step(b.dataset.dir)));
+  document.querySelectorAll('[data-dir]').forEach(b => b.addEventListener('click', () => step(b.dataset.dir)));
   $('undoBtn').addEventListener('click', undo);
 
   // Power editor
@@ -2064,7 +2287,406 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('setBack').addEventListener('click', back);
   $('homeTrack').addEventListener('click', () => go('track'));
   $('homeBtn').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
-  $('homeSolo').addEventListener('click', () => toast('Coming soon.'));
+  // ---------- Solo: the app is the Builder ----------
+  // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
+  // the app reveals what you learn about, and you tell it how fights and disarms turned out.
+  const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
+  let soTab = 'explore', soEncOpen = false, soPwFor = null;
+  if (SO && SO.pending && !SO.over) soEncOpen = true;
+  const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
+  const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+  // What the lair holds on a space: 'start', 'exit', 'chest', 'trap', 'monster' or null.
+  function soFeat(k){
+    const L = SO.lair, at = p => key(p[0], p[1]) === k;
+    if (at(L.start)) return 'start';
+    if (at(L.exit)) return 'exit';
+    if (L.chests.some(at)) return 'chest';
+    if (L.traps.some(at)) return 'trap';
+    if (L.monsters.some(at)) return 'monster';
+    return null;
+  }
+  // A chest, trap or monster that's still there.
+  const soLive = k => { const f = soFeat(k); return (f === 'chest' || f === 'trap' || f === 'monster') && !SO.gone[k] ? f : null; };
+  const soHere = () => SO.path[SO.path.length - 1];
+  const soWall = (p, q) => !!SO.lair.walls[wallKey(p[0], p[1], q[0] - p[0], q[1] - p[1])];
+  const soSpecial = (p, q) => !!q[2] || !isNeighbour(p, q);
+  const exitMet = () => SO.ach.chests >= 3 || SO.ach.monsters >= 3 || (SO.ach.chests >= 2 && SO.ach.monsters >= 2);
+
+  // The Builder's description of a space: walls first (outer walls go without saying), then what's there.
+  function soDescribe(r, c){
+    const dirs = [];
+    for (const [dr, dc, nm] of [[-1, 0, 'north'], [0, 1, 'east'], [1, 0, 'south'], [0, -1, 'west']]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr > 5 || nc < 0 || nc > 5) continue;
+      if (SO.lair.walls[wallKey(r, c, dr, dc)]) dirs.push(nm);
+    }
+    const walls = !dirs.length ? 'no walls' : (dirs.length === 1 ? 'a wall to the ' : 'walls to the ') + listAnd(dirs);
+    const k = key(r, c), f = soFeat(k), live = soLive(k);
+    const what = live ? 'a ' + FEAT_NAME[live] : f === 'exit' ? 'the Exit' : '';
+    return coord(r, c) + ': ' + walls + (what ? ', and ' + what + '!' : '.');
+  }
+
+  function soloStart(lair){
+    SO = {v: 1, code: lair.code, lair, known: {}, path: [[lair.start[0], lair.start[1]]], gone: {}, power: {},
+      ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, over: null};
+    SO.known[key(lair.start[0], lair.start[1])] = true;
+    soTab = 'explore'; soEncOpen = false; soPwFor = null;
+    saveSolo();
+    toast('You start in ' + soDescribe(lair.start[0], lair.start[1]));
+  }
+
+  // Backtrack (rulebook): through known, empty spaces into any known space.
+  function soCanBacktrack(from, to){
+    const goal = key(to[0], to[1]), seen = new Set([key(from[0], from[1])]), queue = [from];
+    while (queue.length) {
+      const [r, c] = queue.shift();
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const nr = r + dr, nc = c + dc, nk = key(nr, nc);
+        if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || seen.has(nk)) continue;
+        if (SO.lair.walls[wallKey(r, c, dr, dc)]) continue;
+        if (nk === goal) return true;
+        if (!SO.known[nk] || soLive(nk) || soFeat(nk) === 'start' || soFeat(nk) === 'exit') continue;
+        seen.add(nk);
+        queue.push([nr, nc]);
+      }
+    }
+    return false;
+  }
+
+  function soMoveTo(r, c){
+    if (!SO || SO.over) return;
+    const here = soHere(), to = [r, c], k = key(r, c), hk = key(here[0], here[1]);
+    if (here[0] === r && here[1] === c) return;
+    if (SO.pending && SO.pending.must) {
+      toast(SO.pending.kind === 'monster' ? 'First fight the monster on ' + coordK(SO.pending.k) + '.' : 'First disarm the trap on ' + coordK(SO.pending.k) + '.');
+      soEncOpen = true; renderSolo(); return;
+    }
+    if (soPwFor) { toast('First enter the monster’s target.'); return; }
+    if (SO.peer) { soPeerAt(r, c); return; }
+    const fc = coord(here[0], here[1]), tc = coord(r, c);
+    // Right after a trap struck you, its card may move you: to the Start, or anywhere once that's unlocked.
+    const toStart = r === SO.lair.start[0] && c === SO.lair.start[1];
+    const teleport = SO.strikeAt === hk && (unlocked('teleportAnywhere') || toStart);
+    let kind = null;
+    if (isNeighbour(here, to)) {
+      if (soWall(here, to)) { if (teleport) kind = 't'; else { toast('A wall blocks ' + fc + ' → ' + tc + '.'); return; } }
+    } else {
+      let why = '';
+      if (!SO.known[k]) why = tc + ' isn’t known yet, so you can’t backtrack there.';
+      else if (!soCanBacktrack(here, to)) why = 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.';
+      if (!why) kind = 'b';
+      else if (teleport) kind = 't';
+      else { toast(why); return; }
+    }
+    soEnter(r, c, kind);
+  }
+
+  // Move into a space. Unknown spaces are learned about first; then you meet whatever is there.
+  function soEnter(r, c, kind, note){
+    const k = key(r, c), wasKnown = !!SO.known[k];
+    SO.path.push(kind ? [r, c, kind] : [r, c]);
+    SO.known[k] = true;
+    SO.pending = null; SO.strikeAt = null; SO.peer = false; soPwFor = null;
+    const live = soLive(k);
+    if (live === 'monster' || live === 'trap') {
+      SO.pending = wasKnown ? {k, kind: live, must: true} : {k, kind: live, struck: true, said: note || soDescribe(r, c)};
+      if (live === 'trap' && !wasKnown) SO.strikeAt = k;
+      soEncOpen = true;
+    } else soEncOpen = false;
+    saveSolo();
+    renderSolo();
+    if (soEncOpen) { clearTimeout(toastT); $('toast').classList.remove('show'); return; } // the encounter panel says it all
+    if (note) toast(note);
+    else if (!wasKnown) toast(soDescribe(r, c));
+    else if (soFeat(k) === 'exit' && !exitMet()) toast('The Exit. You need 3 chests, 3 monsters, or 2 of each to leave.');
+  }
+
+  // Peer: learn about a neighbouring unknown space, then creep in for free if you like.
+  function soPeerAt(r, c){
+    const here = soHere(), to = [r, c], k = key(r, c), tc = coord(r, c);
+    if (!isNeighbour(here, to)) { toast('You can only peer into a neighbouring space.'); return; }
+    if (soWall(here, to)) { toast('A wall blocks ' + coord(here[0], here[1]) + ' → ' + tc + '.'); return; }
+    if (SO.known[k]) { toast(tc + ' is already known. Peer into an unknown space.'); return; }
+    SO.known[k] = true; SO.peers++; SO.peer = false;
+    const said = soDescribe(r, c), hk = key(here[0], here[1]), onHazard = soLive(hk) === 'monster' || soLive(hk) === 'trap';
+    saveSolo();
+    if (onHazard) { // leaving a hazard's space by peering: you must go in, whatever you see
+      soEnter(r, c, null, said + ' You peered to get away, so you go in.');
+      return;
+    }
+    renderSolo();
+    ask({title: 'Creep into ' + tc + '?', text: said + ' Creeping in after a peer is free.', keep: 'Stay here', go: 'Creep in',
+      onGo: () => soEnter(r, c, null, '')});
+  }
+
+  function soStep(d){
+    if (!SO || SO.over) return;
+    const here = soHere(), [dr, dc, name] = DIRS[d], r = here[0] + dr, c = here[1] + dc;
+    if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
+    soMoveTo(r, c);
+  }
+
+  // Outcomes you report after rolling your own dice.
+  function soOutcome(won){
+    const p = SO.pending || (soLive(key(soHere()[0], soHere()[1])) ? {k: key(soHere()[0], soHere()[1]), kind: soLive(key(soHere()[0], soHere()[1]))} : null);
+    if (!p) return;
+    const co = coordK(p.k);
+    if (p.kind === 'monster') {
+      if (won) {
+        SO.gone[p.k] = 'defeated'; SO.ach.monsters++; SO.pending = null; delete SO.power[p.k]; soEncOpen = false;
+        toast('Monster on ' + co + ' defeated!' + (exitMet() ? ' You have what you need to exit.' : ''));
+      } else {
+        soPwFor = p.k; // it strikes again; ask for its lower target
+        SO.pending = {k: p.k, kind: 'monster', survived: true};
+      }
+    } else {
+      SO.gone[p.k] = won ? 'disarmed' : 'removed';
+      if (won) SO.ach.traps++;
+      else SO.strikeAt = p.k; // its strike may move you
+      SO.pending = null; soEncOpen = false;
+      toast(won ? 'Trap on ' + co + ' disarmed.' : 'The trap hits you: apply its strike. It’s gone now.');
+    }
+    saveSolo();
+    renderSolo();
+    if (soPwFor) setTimeout(() => { const i = $('soPwInput'); i.focus(); i.select(); }, 30);
+  }
+  function soSetPower(v){
+    if (!soPwFor) return;
+    if (v == null || isNaN(v)) delete SO.power[soPwFor];
+    else SO.power[soPwFor] = Math.max(0, Math.min(99, v));
+    const i = $('soPwInput');
+    if (document.activeElement !== i) i.value = SO.power[soPwFor] != null ? SO.power[soPwFor] : '';
+  }
+  function soPowerDone(){
+    if (!soPwFor) return;
+    soPwFor = null; SO.pending = null; soEncOpen = false;
+    saveSolo();
+    $('soPwInput').blur();
+    renderSolo();
+  }
+
+  function soAction(){
+    const here = soHere(), k = key(here[0], here[1]), live = soLive(k);
+    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live}; soEncOpen = true; renderSolo(); return; }
+    if (live === 'chest') {
+      SO.gone[k] = 'opened'; SO.ach.chests++;
+      saveSolo(); renderSolo();
+      toast('Chest opened! Take your treasures.' + (exitMet() ? ' You have what you need to exit.' : ''));
+      return;
+    }
+    if (soFeat(k) === 'exit') {
+      if (!exitMet()) { toast('To exit you need 3 chests, 3 monsters, or 2 of each.'); return; }
+      ask({title: 'Leave the lair?', text: 'You have an exit combination. Leaving ends the game.', keep: 'Keep exploring', go: 'Exit',
+        onGo: () => soFinish('exit')});
+    }
+  }
+  function soFinish(how){
+    SO.over = {how, moves: SO.path.length - 1};
+    SO.pending = null; SO.peer = false; soEncOpen = false; soPwFor = null; soTab = 'explore';
+    saveSolo();
+    render();
+  }
+
+  function renderSolo(){
+    const on = !!SO;
+    if (!on) return;
+    const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]);
+    const visited = new Set(SO.path.map(p => key(p[0], p[1])));
+    const reach = new Set(); // unknown spaces you can step into next
+    for (const k in SO.known) {
+      const [r, c] = k.split(',').map(Number);
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || SO.known[key(nr, nc)] || L.walls[wallKey(r, c, dr, dc)]) continue;
+        reach.add(key(nr, nc));
+      }
+    }
+    let html = '';
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const k = key(r, c), co = coord(r, c), known = !!SO.known[k], show = known || over;
+      const f = soFeat(k), gone = !!SO.gone[k];
+      let center = '';
+      if (show && (f === 'chest' || f === 'trap' || f === 'monster')) center = sym(f, gone);
+      else if (show && (f === 'start' || f === 'exit')) center = '<span class="se-big">' + (f === 'start' ? 'S' : 'E') + '</span>';
+      const parts = [co, known ? 'known' : 'unknown'];
+      if (show && f) parts.push(f === 'start' ? 'the Start' : f === 'exit' ? 'the Exit' : FEAT_NAME[f] + (gone ? ' (' + SO.gone[k] + ')' : ''));
+      if (k === hk) parts.push('your tracker is here');
+      const pw = known && soLive(k) === 'monster' && SO.power[k] != null ? '<span class="pw">' + SO.power[k] + '</span>' : '';
+      const cls = 'cell' + (known ? ' known' : ' fog') + (show && center ? ' marked' : '') + (visited.has(k) ? ' visited' : '') +
+        (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '');
+      html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
+        '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' + pw + '</span></button>';
+    }
+    $('soCells').innerHTML = html;
+    const u = 100 / 6;
+    let w = '';
+    for (const wk in L.walls) {
+      const [t, r, c] = wk.split(',');
+      const a = key(+r, +c), b = t === 'h' ? key(+r + 1, +c) : key(+r, +c + 1);
+      const seen = SO.known[a] || SO.known[b];
+      if (!seen && !over) continue;
+      const dim = !seen ? ' dim' : '';
+      w += t === 'h'
+        ? '<span class="wall h' + dim + '" style="left:' + (+c * u) + '%;top:' + ((+r + 1) * u) + '%;width:' + u + '%"></span>'
+        : '<span class="wall v' + dim + '" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
+    }
+    $('soWalls').innerHTML = w;
+    $('soTrail').innerHTML = trailSVG(routeSegments(SO.path, soSpecial));
+    const tok = $('soToken');
+    tok.hidden = false; tok.style.left = (here[1] * u) + '%'; tok.style.top = (here[0] * u) + '%';
+    $('soBoard').classList.toggle('over', over);
+    $('soBoard').classList.toggle('peering', !!SO.peer && !over);
+
+    // Tabs and achievements
+    document.querySelectorAll('[data-solo-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.soloTab === soTab)));
+    $('soExplore').hidden = soTab !== 'explore';
+    $('soGame').hidden = soTab !== 'game';
+    const icon = t => sym(t, false);
+    $('soAch').innerHTML = '<span title="Chests opened">' + icon('chest') + SO.ach.chests + '</span>' +
+      '<span title="Monsters defeated">' + icon('monster') + SO.ach.monsters + '</span>' +
+      '<span title="Traps disarmed">' + icon('trap') + SO.ach.traps + '</span>';
+    $('soAch').setAttribute('aria-label', plural(SO.ach.chests, 'chest', 'chests') + ' opened, ' + plural(SO.ach.monsters, 'monster', 'monsters') +
+      ' defeated, ' + plural(SO.ach.traps, 'trap', 'traps') + ' disarmed');
+
+    // Explore: the compass view, an encounter, or the end of the game
+    const enc = !over && soEncOpen && (SO.pending || soPwFor);
+    $('soMain').hidden = over || !!enc;
+    $('soEnc').hidden = !enc;
+    $('soEnd').hidden = !over;
+    const moves = SO.path.length - 1;
+    $('soPos').textContent = coord(here[0], here[1]);
+    const st = $('soSteps');
+    st.classList.toggle('peering', !!SO.peer);
+    st.textContent = SO.peer ? 'Peer: tap a neighbouring unknown space.'
+      : plural(moves, 'move', 'moves') + (SO.peers ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
+    $('soPeer').setAttribute('aria-pressed', String(!!SO.peer));
+    document.querySelectorAll('[data-sodir]').forEach(b => b.setAttribute('aria-label', (SO.peer ? 'Peer ' : 'Go ') + DIRS[b.dataset.sodir][2]));
+    const live = soLive(hk), f = soFeat(hk), act = $('soAct');
+    act.hidden = !(live || f === 'exit');
+    act.classList.toggle('quiet', f === 'exit' && !live && !exitMet());
+    act.textContent = live === 'monster' ? 'Fight the monster' : live === 'trap' ? 'Disarm the trap' : live === 'chest' ? 'Open the chest' : 'Exit the lair';
+    if (enc) {
+      const p = SO.pending || {k: soPwFor, kind: 'monster'}, isM = p.kind === 'monster', co = coordK(p.k);
+      const tgt = isM && SO.power[p.k] != null ? ' (target ' + SO.power[p.k] + ')' : '';
+      $('soEncTitle').textContent = (isM ? 'Monster on ' : 'Trap on ') + co + tgt;
+      $('soEncClose').hidden = !!p.must || !!soPwFor;
+      $('soEncBtns').hidden = !!soPwFor;
+      $('soPw').hidden = !soPwFor;
+      $('soWin').textContent = isM ? 'Defeated' : 'Disarmed';
+      $('soLose').textContent = isM ? 'It survived' : 'Failed';
+      let text;
+      if (soPwFor) text = 'It survives and strikes you again: apply its strike. Then enter its target, lowered by your roll.';
+      else if (p.must) text = 'You walked into a known ' + (isM ? 'monster, so you must fight it' : 'trap, so you must disarm it') +
+        ' now. Roll your dice. <small>Rolling no dice counts as a fail.</small>';
+      else if (p.struck) text = (p.said ? p.said.replace(/!$/, '.') + ' ' : '') + 'It strikes you! Apply the strike from your ' + (isM ? 'monster' : 'trap') + ' card. Then ' +
+        (isM ? 'fight it' : 'disarm it') + ', or move out of its space.' + (!isM ? ' <small>If the card moves you, tap where it sends you.</small>' : '');
+      else text = (isM ? 'Fight it' : 'Disarm it') + ', or move out of its space. Roll your dice, then tell the app how it went.';
+      $('soEncText').innerHTML = text;
+      if (soPwFor) { const i = $('soPwInput'); if (document.activeElement !== i) i.value = SO.power[soPwFor] != null ? SO.power[soPwFor] : ''; }
+    }
+    if (over) {
+      const a = SO.ach;
+      $('soEndTitle').textContent = SO.over.how === 'exit' ? 'You escaped!' : 'You gave up';
+      $('soEndText').textContent = plural(SO.over.moves, 'move', 'moves') + (SO.peers ? ', ' + plural(SO.peers, 'peer', 'peers') : '') + ' · ' +
+        plural(a.chests, 'chest', 'chests') + ', ' + plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') +
+        ' disarmed. The whole lair is shown on the map.';
+    }
+
+    // Game tab
+    $('soLairName').textContent = L.tierName + ' lair';
+    $('soLairCode').textContent = L.code;
+    $('soNeed').textContent = over ? 'This game is over.' : exitMet() ? 'You have an exit combination: head for the Exit.'
+      : 'To exit: 3 chests, 3 monsters, or 2 of each. You have ' + plural(SO.ach.chests, 'chest', 'chests') + ' and ' +
+        plural(SO.ach.monsters, 'monster', 'monsters') + '.';
+    $('soGiveUp').disabled = over;
+  }
+
+  // New solo lair page
+  if (!LairGen.TIERS[SET.soloTier]) SET.soloTier = 'J';
+  let snBusy = false;
+  function renderSoloNew(){
+    document.querySelectorAll('#snTiers button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.tier === SET.soloTier)));
+    $('snDesc').textContent = TIER_DESC[SET.soloTier];
+    $('snStart').disabled = $('snPlay').disabled = snBusy;
+    $('snStart').textContent = snBusy ? 'Building the lair…' : 'Start exploring';
+  }
+  async function soloBuild(tier, seed, counts){
+    if (snBusy) return;
+    snBusy = true; renderSoloNew();
+    const lair = await buildLair(tier, seed, counts);
+    snBusy = false;
+    if (lair.error) { renderSoloNew(); toast('That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.'); return; }
+    soloStart(lair);
+    // Show the solo screen in place of this page.
+    if (viewStack[viewStack.length - 2] === 'solo') back();
+    else {
+      viewStack[viewStack.length - 1] = 'solo'; view = 'solo';
+      try { history.replaceState({lairs: 'solo', depth: viewStack.length}, ''); } catch (e) {}
+      render(); window.scrollTo(0, 0);
+    }
+  }
+  const openSoloNew = () => { $('snInput').value = ''; go('soloNew'); };
+  $('homeSolo').addEventListener('click', () => { if (SO && !SO.over) go('solo'); else openSoloNew(); });
+  $('homeSoloNew').addEventListener('click', () => {
+    ask({title: 'Start a new solo lair?', text: 'Your solo game in progress will end.', keep: 'Keep it', go: 'New lair', onGo: openSoloNew});
+  });
+  $('snBack').addEventListener('click', back);
+  $('snTiers').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    SET.soloTier = b.dataset.tier; saveSettings(); renderSoloNew();
+  });
+  $('snStart').addEventListener('click', () => soloBuild(SET.soloTier, LairGen.newSeed(), makerCounts()));
+  $('snForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const p = LairGen.parseCode($('snInput').value);
+    if (p.error === 'version') { toast('That code is from a different version of Make a lair.'); return; }
+    if (p.error) { toast('That isn’t a lair code. It looks like J1-7KQ3M.'); return; }
+    $('snInput').blur();
+    soloBuild(p.tier, p.seed, p.counts);
+  });
+
+  // Solo screen events
+  $('soCells').addEventListener('click', e => { const b = e.target.closest('.cell'); if (b) soMoveTo(+b.dataset.r, +b.dataset.c); });
+  document.querySelectorAll('[data-sodir]').forEach(b => b.addEventListener('click', () => soStep(b.dataset.sodir)));
+  $('soPeer').addEventListener('click', () => {
+    if (!SO || SO.over) return;
+    if (SO.pending && SO.pending.must) { soMoveTo(-1, -1); return; }
+    SO.peer = !SO.peer; saveSolo(); renderSolo();
+  });
+  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; renderSolo(); }));
+  $('soAct').addEventListener('click', soAction);
+  $('soWin').addEventListener('click', () => soOutcome(true));
+  $('soLose').addEventListener('click', () => soOutcome(false));
+  $('soEncClose').addEventListener('click', () => { soEncOpen = false; SO.pending = null; saveSolo(); renderSolo(); });
+  $('soPwInput').addEventListener('input', e => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
+    if (digits !== e.target.value) e.target.value = digits;
+    soSetPower(digits === '' ? null : parseInt(digits, 10));
+  });
+  document.querySelectorAll('[data-sod]').forEach(b => b.addEventListener('click', () => {
+    if (!soPwFor) return;
+    const cur = SO.power[soPwFor], d = +b.dataset.sod;
+    soSetPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
+  }));
+  $('soPw').addEventListener('submit', e => { e.preventDefault(); soPowerDone(); });
+  $('soAgain').addEventListener('click', () => { soloStart(SO.lair); render(); });
+  const newSoloFromGame = () => {
+    if (SO && !SO.over) ask({title: 'Start a new solo lair?', text: 'Your solo game in progress will end.', keep: 'Keep it', go: 'New lair', onGo: openSoloNew});
+    else openSoloNew();
+  };
+  $('soNewEnd').addEventListener('click', openSoloNew);
+  $('soNewGame').addEventListener('click', newSoloFromGame);
+  $('soGiveUp').addEventListener('click', () => ask({title: 'Give up this lair?', text: 'The game ends and the whole lair is shown.',
+    keep: 'Keep exploring', go: 'Give up', onGo: () => soFinish('gaveup')}));
+  $('soCopy').addEventListener('click', () => {
+    const code = SO && SO.code;
+    if (!code) return;
+    try { navigator.clipboard.writeText(code).then(() => toast('Code copied: ' + code), () => toast('Lair code: ' + code)); } catch (e) { toast('Lair code: ' + code); }
+  });
+  $('soloHome').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
+  $('soloSettings').addEventListener('click', openSettings);
 
   // ---------- Make a lair ----------
   // A random legal lair for the Builder to copy onto their Lair board. It never touches your own map.
@@ -2138,7 +2760,6 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (p && !p.error) makeLair(p.tier, p.seed, p.counts);
     else makeLair(MK.tier, LairGen.newSeed(), makerCounts());
   }
-  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
   function renderMaker(){
     const l = mkLair, busy = !!mkWant;
     document.querySelectorAll('#mkTiers button').forEach(b => {
@@ -2685,7 +3306,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
   });
 
-  $('appVer').textContent = $('homeVer').textContent = 'v' + APP_VERSION;
+  $('appVer').textContent = $('homeVer').textContent = $('soloVer').textContent = 'v' + APP_VERSION;
 
   $('cfKeep').addEventListener('click', closeAsk);
   $('cfGo').addEventListener('click', () => { const f = askGo; closeAsk(); if (f) f(); });
@@ -2694,6 +3315,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   document.addEventListener('keydown', e => {
     if (!$('confirmBox').hidden) { if (e.key === 'Escape') closeAsk(); return; }
     if (view === 'settings' || view === 'maker') { if (e.key === 'Escape' && !(e.target && e.target.closest && e.target.closest('input'))) back(); return; }
+    if (view === 'solo') {
+      if (e.target && e.target.closest && e.target.closest('input')) return;
+      const sd = {ArrowUp:'n', ArrowDown:'s', ArrowLeft:'w', ArrowRight:'e'}[e.key];
+      if (sd && soTab === 'explore') { e.preventDefault(); soStep(sd); }
+      return;
+    }
     if (view !== 'track') return;
     if (e.target && e.target.closest && e.target.closest('input')) return;
     const d = {ArrowUp:'n', ArrowDown:'s', ArrowLeft:'w', ArrowRight:'e'}[e.key];

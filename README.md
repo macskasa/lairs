@@ -1,6 +1,6 @@
 # Lairs Tracker
 
-A map tracker for the board game **Lairs** by Kids Table Board Gaming. It replaces the paper 6×6 map sheet: you move your tracker through the lair, draw what you find, and the app keeps the route, the pieces and the rules in check. When there's no time to build a lair, it can also make a random one for your rival.
+A map tracker for the board game **Lairs** by Kids Table Board Gaming. It replaces the paper 6×6 map sheet: you move your tracker through the lair, draw what you find, and the app keeps the route, the pieces and the rules in check. When there's no time to build a lair, it can also make a random one for your rival, or build one for you to explore solo.
 
 **Open it:** https://macskasa.github.io/lairs/
 
@@ -34,7 +34,7 @@ The app gets its own icon (a 3×3 grid with an L). From then on it opens without
 - **With a rival:**
   - **Track my map** opens the tracker with your current game. The button shows how far you've got.
   - **Make a lair** builds a random lair for your rival to explore (see [Make a lair](#make-a-lair)).
-- **Solo:** coming soon.
+- **Solo:** explore a lair the app builds for you (see [Solo](#solo)). The button shows your solo game in progress, or how your last one ended.
 
 **The tracker:**
 - **The map:** rows A–F and columns 1–6, like the paper sheet.
@@ -97,6 +97,37 @@ Pick a tool, then tap a square.
 
 ---
 
+## Solo
+
+Explore a hidden lair on your own. The app builds it and acts as the Builder; you play with your own cards, dice and treasures.
+
+**Starting:** **Solo → New solo lair**, then pick Apprentice, Journeyman or Guild Master (the same difficulties as [Make a lair](#make-a-lair)), or play a lair code, for example one a friend shared. The lair uses your **Lair pieces** from Settings. Your solo game is kept separately from your game with a rival, and saves itself.
+
+**The map:**
+- **Dark squares** are unknown. The unknown squares you can reach next have a dashed outline.
+- **Learning about a space:** the app reveals its walls and what's in it, the way the Builder would describe it, and draws it on the map for you.
+- **Your route** is drawn as in the tracker.
+- **Achievements:** next to the tabs are your chests opened, monsters defeated and traps disarmed.
+
+**Actions** (Explore tab):
+- **Creep:** tap a neighbouring square or use the compass.
+- **Peer:** tap **Peer** in the middle of the compass, then a neighbouring unknown square. You learn about it, then choose whether to creep in for free. If you peer to leave a hazard's space, you must go in.
+- **Backtrack:** tap a known square further away. The rulebook's backtrack rule applies.
+- **When a trap strikes,** its card may move you. Tap where it sends you.
+
+**Encounters:** the app never needs your cards' numbers. You roll your own dice and tell it how it went.
+- **Walking into an unknown monster or trap:** it strikes. Apply the strike from your card, then fight or disarm it, or move out of its space.
+- **Walking into a known one:** you must fight or disarm it at once. Rolling no dice counts as a fail.
+- **Monsters:** **Defeated**, or **It survived**. If it survived, it strikes again and you enter its target lowered by your roll, which is shown on the square.
+- **Traps:** **Disarmed**, or **Failed**. A failed trap hits you and is removed. Either way it's filled in.
+- **Chests:** **Open the chest** and take your treasures.
+
+**Leaving:** at the Exit, **Exit the lair** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab. Either way the whole lair is then shown, and you can play it again or start a new one.
+
+**No Undo in solo:** the app is the Builder, and what you've learned can't be unlearned.
+
+---
+
 ## Saving and printing (Game tab)
 
 - **Your game saves itself** on your device as you play.
@@ -147,7 +178,7 @@ For quick games: instead of designing a lair, the Builder gets a random one and 
   - **Keeping it:** your progress stays across new games and is printed on PDFs.
   - **Changing it mid-game:** you can change it during a game. If the game already uses something from a later package, the app asks first and offers a new game instead.
   - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
-- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games and Make a lair use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
+- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
 - **About:** the version, and links to this page and the release notes.
 
 The phone's Back button returns from Settings to the map.
@@ -188,6 +219,7 @@ The app is a single page with no build step.
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
 - `lairs-settings-v1`: settings that belong to the device (game progress).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
+- `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone and your achievements.
 
 **The lair maker** (`LairGen` in the `lairgen` script):
 - **Same code, same lair:** everything comes from one random sequence seeded by the code. It only uses whole numbers and basic arithmetic, so every browser builds the same lair. It runs in a background worker, built from that script, when the browser allows one.
