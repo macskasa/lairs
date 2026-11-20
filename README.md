@@ -24,7 +24,7 @@ Open the link once while you're online, then:
 
 The app gets its own icon (a 3×3 grid with an L). From then on it opens without internet, including the PDF export.
 
-**Full screen:** the installed app hides the phone's status bar and navigation bar, so the lair gets the whole screen. Swipe in from the top or bottom edge to see them for a moment.
+**Full screen:** the installed app hides the phone's status bar and navigation bar, so the lair gets the whole screen. Swipe in from the top or bottom edge to see them for a moment. The app also turns with your phone when auto-rotate is on, switching to the landscape layout.
 
 **Updates** download in the background. Close the app and open it again to use the new version. The version number is shown at the top right.
 
