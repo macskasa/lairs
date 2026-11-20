@@ -1,6 +1,6 @@
 # Lairs Tracker
 
-A map tracker for the board game **Lairs** by Kids Table Board Gaming. It replaces the paper 6×6 map sheet: you move your tracker through the lair, draw what you find, and the app keeps the route, the pieces and the rules in check.
+A map tracker for the board game **Lairs** by Kids Table Board Gaming. It replaces the paper 6×6 map sheet: you move your tracker through the lair, draw what you find, and the app keeps the route, the pieces and the rules in check. When there's no time to build a lair, it can also make a random one for your rival.
 
 **Open it:** https://macskasa.github.io/lairs/
 
@@ -28,13 +28,22 @@ The app gets its own icon (a 3×3 grid with an L). From then on it opens without
 
 ---
 
-## The screen
+## Getting around
 
+**The start screen** comes first every time you open the app. It asks how you're playing:
+- **With a rival:**
+  - **Track my map** opens the tracker with your current game. The button shows how far you've got.
+  - **Make a lair** builds a random lair for your rival to explore (see [Make a lair](#make-a-lair)).
+- **Solo:** coming soon.
+
+**The tracker:**
 - **The map:** rows A–F and columns 1–6, like the paper sheet.
 - **The controls box** has three tabs, **Move**, **Map** and **Game**, plus an **Undo** button that works everywhere.
-- **The gear** at the top right opens **Settings**.
+- **The house** at the top left goes back to the start screen. **The gear** at the top right opens **Settings**.
 
-The first time you open the app it shows an example map. Start your own with **Game → New game**.
+The phone's Back button always returns to the previous screen.
+
+The first time you open the tracker it shows an example map. Start your own with **Game → New game**.
 
 On tablets and in landscape the map sits on the left at full height and the controls sit on the right.
 
@@ -95,6 +104,37 @@ Pick a tool, then tap a square.
 - **Load game** opens a saved `.json` file.
 - **Export PDF** makes a printable A4 map with the route, a list of what's on the map, the pieces left and the full route in writing.
 - **New game** clears the map. Tap it twice when you have a game in progress.
+- **Make a lair** opens the lair maker (below).
+
+---
+
+## Make a lair
+
+For quick games: instead of designing a lair, the Builder gets a random one and copies it onto their Lair board behind the screen. Open it from the start screen or from **Game → Make a lair**.
+
+**Every lair follows the rulebook's three lair-building rules:**
+- It uses all the pieces from **Settings → Lair pieces**. Up to 3 walls may be left out.
+- Every space can be reached from the Start.
+- Every goal (the Exit and each chest) can be reached without passing two traps or two monsters.
+
+**Three difficulties:**
+
+| | What to expect |
+|---|---|
+| **Apprentice** | An open lair with shortcuts, 3 walls left out. Every goal can be reached without passing a hazard. |
+| **Journeyman** | Fewer shortcuts, 1–2 walls left out. At least one goal sits behind a hazard. |
+| **Guild Master** | Every wall, long corridors, and at least two goals behind a hazard. |
+
+**How lairs of a difficulty stay alike:** the app builds lairs until one scores in that difficulty's range.
+- **The score** comes from a simple simulated explorer that doesn't know the lair. It's roughly how many cubes the explorer spends to collect an exit combination and get out, plus how many hazards stand in the way of the goals.
+- **The ranges** are slices of the scores of plain random lairs, with gaps between them, so the three difficulties don't overlap.
+- **Variety:** walls and pieces are placed at random and the lair is turned or mirrored, so there's no pattern to learn.
+
+**Lair codes:** each lair has a code such as `J1-7KQ3M` (the difficulty, the lair maker's version and five characters).
+- **The same code always builds the same lair**, on any phone. Share it so a friend can explore the same lair, or **Enter code** to build one again.
+- **Different piece counts:** if your Lair pieces aren't the standard 21 / 3 / 3 / 3, the counts are added to the code, for example `J1-7KQ3M-20.3.3.3`.
+
+**Keeping it hidden:** the lair opens covered. Tap it to show it, and **Hide** covers it again. The app remembers the last lair, so you can come back to it.
 
 ---
 
@@ -107,7 +147,7 @@ Pick a tool, then tap a square.
   - **Keeping it:** your progress stays across new games and is printed on PDFs.
   - **Changing it mid-game:** you can change it during a game. If the game already uses something from a later package, the app asks first and offers a new game instead.
   - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
-- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games keep these numbers. **Default** goes back to 21 / 3 / 3 / 3.
+- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games and Make a lair use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
 - **About:** the version, and links to this page and the release notes.
 
 The phone's Back button returns from Settings to the map.
@@ -132,7 +172,7 @@ The app is a single page with no build step.
 
 | File | What it is |
 |---|---|
-| `index.html` | The whole app: markup, styles and script |
+| `index.html` | The whole app: markup, styles and script. The lair maker is its own `<script id="lairgen">` block. |
 | `sw.js` | Service worker that stores the app for offline use |
 | `manifest.webmanifest` | App name, colours and icons for installing |
 | `icons/` | App icons (192, 512, maskable 512, Apple touch) |
@@ -147,6 +187,12 @@ The app is a single page with no build step.
 **Where data is kept** (browser storage on the device):
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
 - `lairs-settings-v1`: settings that belong to the device (game progress).
+- `lairs-maker-v1`: Make a lair's last difficulty and lair code.
+
+**The lair maker** (`LairGen` in the `lairgen` script):
+- **Same code, same lair:** everything comes from one random sequence seeded by the code. It only uses whole numbers and basic arithmetic, so every browser builds the same lair. It runs in a background worker, built from that script, when the browser allows one.
+- **`VERSION`:** raise it whenever a code would build a different lair. Codes from another version are refused with a message.
+- **`PRESETS`:** these hold the difficulty ranges for the standard piece set with 10–25 walls, worked out ahead of time with `bands()`. Re-create them whenever the scoring or the generator changes. Other piece sets are calibrated on the phone the first time (a few seconds).
 
 **Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `teleports` (move numbers that were trap teleports), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
 

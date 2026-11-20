@@ -120,6 +120,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .sheet{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px;width:100%;margin-inline:auto;
   max-width:max(250px, calc(100vh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
   max-width:max(250px, calc(100dvh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+/* While the example map's note shows (up to 64px with its gap), the map and the spare height for the controls make room for it. */
+.app:has(#exampleNote:not([hidden])){
+  --g:clamp(0px, calc(100dvh - 100vw - 350px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 40px)}
+.app:has(#exampleNote:not([hidden])) .sheet{
+  max-width:max(250px, calc(100vh - 386px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(250px, calc(100dvh - 386px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
 .cols{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(6,1fr);padding:0 5px}
 .rows{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,1fr);padding:5px 0}
 .cols span,.rows span{display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px;line-height:1;color:var(--wall)}
@@ -227,7 +233,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .filebtn{min-height:calc(70px + var(--g) * .3 + var(--x) * .5);justify-content:center}
 .gameview{display:flex;flex-direction:column;gap:8px}
 .gamerow{display:flex;align-items:center;gap:8px}
-#newBtn{flex:none;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+#newBtn,#makeBtn{flex:none;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
 #newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
 .autosave{flex:1;min-width:0;font-size:12.5px;line-height:1.3;color:var(--muted)}
 
@@ -268,10 +274,92 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,16px);opacity:0;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;text-align:center;pointer-events:none;transition:opacity .2s, transform .2s;z-index:20}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* Home button in the tracker's header (back to the start screen) */
+.homebtn{flex:none;align-self:center;width:36px;height:36px;margin:-8px 0 -8px -8px;display:grid;place-items:center;border-radius:50%;border:0;background:transparent;color:var(--muted)}
+.homebtn:active{background:var(--tint)}
+
+/* Start screen: choose how you're playing. The choices sit low, near your thumb. */
+.home{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px;
+  min-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))}
+.home-head{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-height:28px}
+.home-head .ver{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.04em;color:var(--muted);opacity:.8;font-variant-numeric:tabular-nums}
+.home-hero{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 6px;text-align:center}
+.home-hero svg{width:72px;height:72px}
+.home-hero h1{margin:0;font-family:var(--display);font-weight:700;font-size:36px;line-height:1;letter-spacing:.09em;text-transform:uppercase;color:var(--wall)}
+.home-hero p{margin:0;font-family:var(--display);font-weight:500;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.home-modes{display:flex;flex-direction:column;gap:12px}
+.home-q{margin:6px 0 0;font-size:15px;color:var(--muted);text-align:center}
+.mode{width:100%;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;text-align:left;color:var(--ink)}
+.mode-top{display:flex;align-items:center;gap:8px}
+.mode h2,.mode-title{display:block;margin:0;flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:20px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase}
+.mode p,.mode-text{display:block;margin:0;font-size:14.5px;line-height:1.4;color:var(--muted)}
+.mode-go,.mode-alt{width:100%;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px 8px 16px;border-radius:12px;text-align:left}
+.mode-go{border:1.5px solid var(--pc);background:var(--pc);color:var(--onp)}
+.mode-alt{border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.mode-go span,.mode-alt span{flex:1;min-width:0}
+.mode-go b,.mode-alt b{display:block;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.07em;text-transform:uppercase}
+.mode-go small,.mode-alt small{display:block;margin-top:1px;font-size:12.5px;line-height:1.3;opacity:.92}
+.mode-alt small{color:var(--muted);opacity:1}
+.mode-go:active{filter:brightness(.94)}
+.mode-alt:active{background:var(--tint)}
+.mode.soon{border-style:dashed}
+.mode.soon .mode-title{color:var(--muted)}
+.badge{flex:none;padding:3px 9px;border-radius:999px;border:1px solid var(--line);font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.home-foot{margin:2px 0 0;text-align:center;font-size:12.5px;line-height:1.4;color:var(--muted)}
+
+/* Make a lair */
+.maker{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+/* On phones the side column dissolves into one column, with the board after the description. */
+.mk-side{display:contents}
+.maker .set-head{order:1}
+.mk-tiers{flex:none;order:2;background:var(--tint)}
+.mk-tiers button{font-size:13px;letter-spacing:.04em;padding:9px 2px;white-space:nowrap}
+.mk-tiers button[aria-checked="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
+.mk-desc{order:3;margin:-2px 2px 0;min-height:2.8em;font-size:13.5px;line-height:1.4;color:var(--muted)}
+.mk-card{order:4;margin-top:0}
+.mk-sheet{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px;width:100%;margin-inline:auto;
+  max-width:max(200px, calc(100vh - 440px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(200px, calc(100dvh - 440px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+/* Short screens: drop the hint line and give the board its space (380px without it). */
+@media (max-height: 760px){
+  .mk-hint{display:none}
+  .mk-sheet{
+    max-width:max(200px, calc(100vh - 380px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    max-width:max(200px, calc(100dvh - 380px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+}
+.lairview .cell .ring{border-color:transparent}
+.lairview .cell.tile .box{background:var(--tint);border-color:var(--wall)}
+.lairview .se-big{font-size:clamp(13px, 3.6vmin, 24px)}
+.lairview.busy .cells,.lairview.busy .walls{opacity:.25;transition:opacity .15s}
+.mk-cover{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;border:0;border-radius:2px;
+  background:repeating-linear-gradient(135deg, var(--tint) 0 12px, var(--paper) 12px 24px);color:var(--ink);text-align:center}
+.mk-cover b{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.08em;text-transform:uppercase}
+.mk-cover small{max-width:24em;font-size:13px;line-height:1.35;color:var(--muted)}
+.mk-cover svg{color:var(--wall)}
+.mk-info{order:5;display:flex;flex-direction:column;gap:6px}
+.mk-code{display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:8px 8px 8px 14px}
+.mk-code > span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mk-code strong{font-family:var(--display);font-weight:700;font-size:23px;line-height:1.1;letter-spacing:.08em;color:var(--pc);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.mk-pieces{margin:0 2px;font-size:13.5px;line-height:1.4;color:var(--muted)}
+.mk-actions{order:6;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:8px}
+.mk-btn{min-width:0;height:46px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.mk-btn.small{height:36px;padding:0 12px;font-size:12.5px}
+.mk-btn.primary{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+.mk-btn:active{background:var(--tint)}
+.mk-btn.primary:active{background:var(--pc);filter:brightness(.94)}
+.mk-btn:disabled{opacity:.6;cursor:progress}
+.mk-form{order:6;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
+.mk-form input{min-width:0;height:46px;padding:0 12px;border-radius:12px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
+.mk-form input::placeholder{color:var(--muted);opacity:.7;letter-spacing:.04em}
+.mk-hint{order:7;margin:0 2px;font-size:13px;line-height:1.4;color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
 /* ---------- Tablets and landscape (phones in portrait are unchanged) ---------- */
 /* Portrait tablets: a wider column, sized so the map and controls still fit the height. */
 @media (orientation: portrait) and (min-width: 600px){
   .app{max-width:clamp(480px, calc(100vh - 400px), 800px);max-width:clamp(480px, calc(100dvh - 400px), 800px)}
+  .app:has(#exampleNote:not([hidden])){max-width:clamp(480px, calc(100vh - 446px), 800px);max-width:clamp(480px, calc(100dvh - 446px), 800px)}
 }
 /* Big screens (tablets either way): bigger controls, and the Route button on its own row. */
 @media (min-width: 600px) and (min-height: 600px){
@@ -299,6 +387,43 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     width:min(calc(100dvh - 54px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), calc(100vw - 401px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))}
 }
 
+/* Start screen and Make a lair on big screens */
+@media (min-width: 600px) and (min-height: 600px){
+  .home{max-width:520px}
+  .home-hero svg{width:88px;height:88px}
+  .home-hero h1{font-size:42px}
+  .maker{max-width:600px}
+  .mk-tiers button{font-size:14.5px}
+}
+/* Landscape: the start screen's title on the left and the choices on the right;
+   Make a lair's board on the left at full height and its controls on the right. */
+@media (orientation: landscape) and (min-width: 560px){
+  .home{max-width:860px;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,1.15fr);grid-template-rows:auto 1fr auto;
+    grid-template-areas:"hero head" "hero modes" "foot modes";column-gap:20px;row-gap:10px;align-items:center}
+  .home-head{grid-area:head}
+  .home-hero{grid-area:hero;margin-top:0}
+  .home-modes{grid-area:modes;align-self:center}
+  .home-foot{grid-area:foot;align-self:end}
+  .home-q{display:none}
+  .maker{max-width:none;display:grid;grid-template-columns:auto minmax(300px, 420px);justify-content:center;align-items:center;align-content:center;column-gap:16px;
+    min-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))}
+  .mk-side{display:flex;flex-direction:column;gap:8px;grid-column:2;grid-row:1;min-width:0}
+  .mk-card{grid-column:1;grid-row:1}
+  .mk-sheet{max-width:none;
+    width:min(calc(100vh - 54px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), calc(100vw - 440px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+    width:min(calc(100dvh - 54px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), calc(100vw - 440px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)))}
+}
+
+/* Phones turned sideways: the start screen keeps the choices and drops their descriptions,
+   and the example map's note is left out (the start screen says it's an example). */
+@media (orientation: landscape) and (min-width: 560px) and (max-height: 420px){
+  .note{display:none}
+  .mode p,.mode-text{display:none}
+  .home-hero svg{width:56px;height:56px}
+  .home-hero h1{font-size:30px}
+}
+
 @media (prefers-reduced-motion: reduce){
   .token,.toast,.dir,.cell .box{transition:none}
 }
@@ -306,7 +431,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 </head>
 <body>
 <main class="app">
-  <header class="brand"><h1>Lairs</h1><span>Map tracker</span><span class="ver" id="appVer"></span>
+  <header class="brand">
+    <button type="button" class="homebtn" id="homeBtn" aria-label="Start screen" title="Start screen">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3.5 11.2L12 4l8.5 7.2M6 9.6V20h4.6v-5.6h2.8V20H18V9.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <h1>Lairs</h1><span>Map tracker</span><span class="ver" id="appVer"></span>
     <button type="button" class="gear" id="settingsBtn" aria-label="Settings" title="Settings">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="3 2.97"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></svg>
     </button>
@@ -404,7 +533,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       <input type="file" id="loadInput" accept=".json,application/json" hidden>
       <div class="gamerow">
         <button type="button" id="newBtn">New game</button>
-        <span class="autosave">Your game saves itself as you play. Game progress and lair pieces are in Settings.</span>
+        <button type="button" id="makeBtn">Make a lair</button>
+        <span class="autosave">Your game saves itself as you play.</span>
       </div>
       </div>
 
@@ -428,7 +558,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   <div class="set-head">
     <button type="button" class="set-back" id="setBack">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Map
+      <span id="setBackLabel">Map</span>
     </button>
     <h2 id="setTitle">Settings</h2>
   </div>
@@ -459,6 +589,93 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   </section>
 </section>
 
+<!-- Start screen: how are you playing? -->
+<section class="home" id="home" hidden aria-labelledby="homeTitle">
+  <div class="home-head">
+    <span class="ver" id="homeVer"></span>
+    <button type="button" class="gear" id="homeSettings" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="3 2.97"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div class="home-hero">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="7" style="fill:var(--paper);stroke:var(--wall)" stroke-width="2.5"/><path d="M17 4v40M31 4v40M4 17h40M4 31h40" style="stroke:var(--line)" stroke-width="1.6"/><path d="M10 10v28h28" fill="none" style="stroke:var(--pc)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1 id="homeTitle">Lairs</h1>
+    <p>Map tracker</p>
+  </div>
+  <div class="home-modes">
+    <p class="home-q">How are you playing?</p>
+    <div class="mode">
+      <div class="mode-top"><h2>With a rival</h2></div>
+      <p>Map your rival’s lair as you explore it.</p>
+      <button type="button" class="mode-go" id="homeTrack">
+        <span><b>Track my map</b><small id="rivalStatus"></small></span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="mode-alt" id="homeMake">
+        <span><b>Make a lair</b><small>No time to build? Get a random lair for your rival.</small></span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <button type="button" class="mode soon" id="homeSolo" aria-disabled="true">
+      <span class="mode-top"><span class="mode-title">Solo</span><span class="badge">Coming soon</span></span>
+      <span class="mode-text">Explore a lair the app builds for you.</span>
+    </button>
+  </div>
+  <p class="home-foot">An unofficial fan-made tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
+</section>
+
+<!-- Make a lair: a random legal lair for the Builder to copy onto their Lair board -->
+<section class="maker" id="maker" hidden aria-labelledby="mkTitle">
+  <div class="mk-side">
+  <div class="set-head">
+    <button type="button" class="set-back" id="mkBack">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="mkBackLabel">Home</span>
+    </button>
+    <h2 id="mkTitle">Make a lair</h2>
+  </div>
+  <div class="seg mk-tiers" id="mkTiers" role="radiogroup" aria-label="Difficulty">
+    <button type="button" role="radio" data-tier="A">Apprentice</button>
+    <button type="button" role="radio" data-tier="J">Journeyman</button>
+    <button type="button" role="radio" data-tier="G">Guild Master</button>
+  </div>
+  <p class="mk-desc" id="mkDesc"></p>
+  <div class="mk-info">
+    <div class="mk-code">
+      <span><span class="label">Lair code</span><strong id="mkCode">…</strong></span>
+      <button type="button" class="mk-btn small" id="mkCopy">Copy</button>
+    </div>
+    <p class="mk-pieces" id="mkPieces"></p>
+  </div>
+  <div class="mk-actions" id="mkActions">
+    <button type="button" class="mk-btn" id="mkHide">Hide</button>
+    <button type="button" class="mk-btn" id="mkEnter">Enter code</button>
+    <button type="button" class="mk-btn primary" id="mkNew">New lair</button>
+  </div>
+  <form class="mk-form" id="mkForm" hidden autocomplete="off">
+    <input id="mkInput" type="text" maxlength="24" spellcheck="false" autocapitalize="characters" autocorrect="off" enterkeyhint="go" placeholder="e.g. J1-7KQ3M" aria-label="Lair code">
+    <button type="button" class="mk-btn" id="mkCancel">Cancel</button>
+    <button type="submit" class="mk-btn primary" id="mkBuild">Build</button>
+  </form>
+  <p class="mk-hint">Copy it onto your Lair board behind your screen. The same code always builds the same lair, so you can share it.</p>
+  </div>
+  <div class="mapcard mk-card">
+    <div class="mk-sheet">
+      <div class="cols" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+      <div class="rows" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
+      <div class="board lairview" id="mkBoard" role="img" aria-label="Lair">
+        <div class="cells" id="mkCells" aria-hidden="true"></div>
+        <div class="walls" id="mkWalls" aria-hidden="true"></div>
+        <button type="button" class="mk-cover" id="mkCover">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <b>Tap to show</b>
+          <small>Only the Builder should see this lair.</small>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div class="cbox" id="confirmBox" hidden role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfText">
@@ -472,10 +689,455 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   </div>
 </div>
 
+<script id="lairgen">
+/* ---------- Lair maker ----------
+   Builds random lairs that follow the rulebook's three lair-building rules, from a short code.
+   The same code always gives the same lair: everything comes from one seeded random sequence, and only
+   whole numbers and basic arithmetic are used, so every browser and phone gets the same result.
+   Change VERSION whenever the result for a code would change. */
+const LairGen = (() => {
+  const VERSION = 1;
+  const ALPHA = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; // Crockford base32: no I, L, O or U
+  const MAX_WALLS = 25; // 60 inner sides, of which a 6x6 lair needs at least 35 open to reach every space
+  const DEFAULT = {wall:21, trap:3, monster:3, chest:3};
+  // wallsLess: how many walls below the lair pieces setting this tier uses (a range).
+  // style: how the maze is carved and which extra openings are made (see build()).
+  const TIERS = {
+    A: {name:'Apprentice', wallsLess:[3, 3], maze:'prim'},
+    J: {name:'Journeyman', wallsLess:[1, 2], maze:'kruskal'},
+    G: {name:'Guild Master', wallsLess:[0, 0], maze:'dfs'}
+  };
+  // Difficulty bands, as percentiles of the score of plain random legal lairs (calibrated per piece set).
+  const BANDS = {A:[5, 30], J:[40, 65], G:[75, 97]};
+  const SIM_RUNS = 48;
+  const MAX_TRIES = 600;
+
+  // The 60 inner sides: [cell a, cell b, wall key as used by the map ('h,r,c' below r,c; 'v,r,c' right of r,c)].
+  const EDGES = [];
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+    if (r < 5) EDGES.push([r * 6 + c, (r + 1) * 6 + c, 'h,' + r + ',' + c]);
+    if (c < 5) EDGES.push([r * 6 + c, r * 6 + c + 1, 'v,' + r + ',' + c]);
+  }
+  const NB = Array.from({length: 36}, () => []); // per cell: [neighbour, side index]
+  EDGES.forEach(([a, b], e) => { NB[a].push([b, e]); NB[b].push([a, e]); });
+  const EDGE_OF = {};
+  EDGES.forEach(([a, b], e) => { EDGE_OF[a + ',' + b] = e; EDGE_OF[b + ',' + a] = e; });
+
+  // ---- Seeded random numbers (cyrb128 hash + sfc32 generator) ----
+  function hash(str){
+    let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
+    for (let i = 0, k; i < str.length; i++) {
+      k = str.charCodeAt(i);
+      h1 = h2 ^ Math.imul(h1 ^ k, 597399067); h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
+      h3 = h4 ^ Math.imul(h3 ^ k, 951274213); h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
+    }
+    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067); h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
+    h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213); h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+    h1 ^= (h2 ^ h3 ^ h4); h2 ^= h1; h3 ^= h1; h4 ^= h1;
+    return [h1 >>> 0, h2 >>> 0, h3 >>> 0, h4 >>> 0];
+  }
+  function makeRng(str){
+    let [a, b, c, d] = hash(str);
+    const next = () => {
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
+      let t = (a + b) | 0;
+      a = b ^ (b >>> 9); b = (c + (c << 3)) | 0; c = (c << 21) | (c >>> 11);
+      d = (d + 1) | 0; t = (t + d) | 0; c = (c + t) | 0;
+      return t >>> 0;
+    };
+    for (let i = 0; i < 15; i++) next();
+    const R = {
+      int: n => next() % n,
+      shuffle(arr){ for (let i = arr.length - 1; i > 0; i--) { const j = next() % (i + 1); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; },
+      // Picks one item; weights are whole numbers.
+      weighted(items, weights){
+        let total = 0;
+        for (const w of weights) total += w;
+        let x = next() % total;
+        for (let i = 0; i < items.length; i++) { if (x < weights[i]) return items[i]; x -= weights[i]; }
+        return items[items.length - 1];
+      }
+    };
+    return R;
+  }
+
+  // ---- Grid helpers ----
+  function bfs(open, src){
+    const d = new Array(36).fill(-1), q = [src];
+    d[src] = 0;
+    for (let i = 0; i < q.length; i++) {
+      const x = q[i];
+      for (const [y, e] of NB[x]) if (open[e] && d[y] < 0) { d[y] = d[x] + 1; q.push(y); }
+    }
+    return d;
+  }
+  const allPairs = open => Array.from({length: 36}, (_, i) => bfs(open, i));
+  const degree = (open, x) => NB[x].reduce((n, [, e]) => n + (open[e] ? 1 : 0), 0);
+
+  // ---- Carving: a spanning tree (every space reachable), then extra openings down to the wall count ----
+  function carve(style, R){
+    const open = new Uint8Array(60);
+    if (style === 'dfs') { // long winding corridors
+      const seen = new Uint8Array(36), stack = [R.int(36)];
+      seen[stack[0]] = 1;
+      while (stack.length) {
+        const x = stack[stack.length - 1];
+        const opts = R.shuffle(NB[x].filter(([y]) => !seen[y]));
+        if (!opts.length) { stack.pop(); continue; }
+        const [y, e] = opts[0];
+        open[e] = 1; seen[y] = 1; stack.push(y);
+      }
+    } else if (style === 'prim') { // many short branches
+      const seen = new Uint8Array(36), first = R.int(36), front = [];
+      seen[first] = 1;
+      for (const [, e] of NB[first]) front.push(e);
+      while (front.length) {
+        const i = R.int(front.length), e = front[i];
+        front[i] = front[front.length - 1]; front.pop();
+        const [a, b] = EDGES[e];
+        const y = seen[a] ? (seen[b] ? -1 : b) : a;
+        if (y < 0) continue;
+        open[e] = 1; seen[y] = 1;
+        for (const [z, e2] of NB[y]) if (!seen[z]) front.push(e2);
+      }
+    } else { // kruskal: a mix of both
+      const parent = Array.from({length: 36}, (_, i) => i);
+      const find = x => { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };
+      for (const e of R.shuffle(EDGES.map((_, i) => i))) {
+        const [a, b] = EDGES[e], ra = find(a), rb = find(b);
+        if (ra !== rb) { parent[ra] = rb; open[e] = 1; }
+      }
+    }
+    return open;
+  }
+  // loops: 'shortcut' prefers openings that join far-apart spaces (an easier, more open lair),
+  // 'small' prefers small loops that keep the long corridors, 'any' is in between.
+  function addOpenings(open, need, loops, R){
+    for (let k = 0; k < need; k++) {
+      const D = allPairs(open), cand = [], w = [];
+      EDGES.forEach(([a, b], e) => {
+        if (open[e]) return;
+        const d = D[a][b];
+        cand.push(e);
+        w.push(loops === 'shortcut' ? d * d : loops === 'small' ? (d <= 3 ? 6 : 1) : d);
+      });
+      if (!cand.length) return;
+      open[R.weighted(cand, w)] = 1;
+    }
+  }
+
+  // ---- Placing the pieces ----
+  // feat[cell]: 'S' Start, 'E' Exit, 'C' chest, 'T' trap, 'M' monster, or null.
+  function place(open, counts, tier, R){
+    const D = allPairs(open), feat = new Array(36).fill(null);
+    const deg = Array.from({length: 36}, (_, x) => degree(open, x));
+    const pick = weightFn => {
+      const cand = [], w = [];
+      for (let x = 0; x < 36; x++) if (!feat[x]) { cand.push(x); w.push(weightFn(x)); }
+      return cand.length ? R.weighted(cand, w) : -1;
+    };
+    const start = R.int(36);
+    feat[start] = 'S';
+    const dS = D[start];
+    let maxd = 1;
+    for (const v of dS) if (v > maxd) maxd = v;
+    const q = x => Math.floor(10 * dS[x] / maxd); // 0 (next to the Start) .. 10 (farthest)
+    const exitW = {
+      A: x => (q(x) >= 3 && q(x) <= 7 ? 5 : 1),
+      J: x => (q(x) >= 5 && q(x) <= 9 ? 5 : 1),
+      G: x => (q(x) >= 7 ? 5 : 1),
+      N: () => 1
+    }[tier];
+    const exit = pick(exitW);
+    feat[exit] = 'E';
+    const chestW = {
+      A: x => (q(x) <= 6 ? 3 : 1),
+      J: () => 1,
+      G: x => (deg[x] === 1 ? 3 : 1) * (q(x) >= 4 ? 2 : 1),
+      N: () => 1
+    }[tier];
+    const goals = [exit];
+    for (let i = 0; i < counts.chest; i++) { const x = pick(chestW); if (x < 0) return null; feat[x] = 'C'; goals.push(x); }
+    // How many goals have a shortest route from the Start through this space.
+    const onPath = x => goals.reduce((n, g) => n + (dS[x] + D[x][g] === dS[g] ? 1 : 0), 0);
+    const hazW = {
+      A: x => (onPath(x) ? 1 : deg[x] === 1 ? 6 : 3),
+      J: x => 1 + onPath(x),
+      G: x => 1 + 3 * onPath(x) + (deg[x] >= 3 ? 2 : 0),
+      N: () => 1
+    }[tier];
+    // Traps and monsters take turns, so neither kind gets all the best spots.
+    let t = counts.trap, m = counts.monster, turn = R.int(2);
+    while (t + m > 0) {
+      const kind = (turn === 0 && t > 0) || m === 0 ? 'T' : 'M';
+      const x = pick(hazW);
+      if (x < 0) return null;
+      feat[x] = kind;
+      if (kind === 'T') t--; else m--;
+      turn = 1 - turn;
+    }
+    return {start, exit, feat};
+  }
+
+  // ---- The rules ----
+  // From the Start, explore (space, traps passed 0/1, monsters passed 0/1). For each space: the fewest
+  // hazards on a legal way there (0-2, or -1 if there's none), and the length of the shortest legal way.
+  function perilMap(open, feat, start){
+    const dist = new Array(144).fill(-1), q = [start * 4];
+    dist[start * 4] = 0;
+    for (let i = 0; i < q.length; i++) {
+      const s = q[i], x = s >> 2, t = (s >> 1) & 1, m = s & 1;
+      for (const [y, e] of NB[x]) {
+        if (!open[e]) continue;
+        let t2 = t, m2 = m;
+        if (feat[y] === 'T') { if (t) continue; t2 = 1; }
+        if (feat[y] === 'M') { if (m) continue; m2 = 1; }
+        const s2 = y * 4 + t2 * 2 + m2;
+        if (dist[s2] < 0) { dist[s2] = dist[s] + 1; q.push(s2); }
+      }
+    }
+    const haz = new Array(36).fill(-1), len = new Array(36).fill(-1);
+    for (let x = 0; x < 36; x++) for (let k = 0; k < 4; k++) {
+      const d = dist[x * 4 + k];
+      if (d < 0) continue;
+      const h = (k >> 1) + (k & 1);
+      if (haz[x] < 0 || h < haz[x]) haz[x] = h;
+      if (len[x] < 0 || d < len[x]) len[x] = d;
+    }
+    return {haz, len};
+  }
+  // Use (almost) everything is met by construction; no unreachable spaces by carving a spanning tree.
+  function legal(open, P){
+    const pm = perilMap(open, P.feat, P.start);
+    const goals = [];
+    for (let x = 0; x < 36; x++) if (P.feat[x] === 'E' || P.feat[x] === 'C') goals.push(x);
+    for (const g of goals) if (pm.haz[g] < 0) return null;
+    return {pm, goals};
+  }
+  function tierOk(tier, pm, goals){
+    const gated = goals.filter(g => pm.haz[g] >= 1).length;
+    if (tier === 'A') return gated === 0;
+    if (tier === 'J') return gated >= 1;
+    if (tier === 'G') return gated >= 2;
+    return true;
+  }
+
+  // ---- Difficulty ----
+  // A simple explorer that doesn't know the lair: it explores the nearest unknown space, opens chests,
+  // fights monsters when it needs them, and leaves once it has an exit combination
+  // (3 chests, 3 monsters, or 2 of each). Costs are rough cube counts: a step 1, a backtrack 2,
+  // stumbling into an unknown hazard 2 more, fighting a monster 4, disarming a trap 3.
+  function simulate(open, feat, start, R){
+    const live = feat.slice(), known = new Uint8Array(36);
+    let pos = start, cost = 0, ch = 0, mo = 0;
+    known[start] = 1;
+    const met = () => ch >= 3 || mo >= 3 || (ch >= 2 && mo >= 2);
+    const enterCost = y => !known[y] ? 1 : live[y] === 'M' ? 5 : live[y] === 'T' ? 4 : 1;
+    const resolve = (y, wasKnown) => {
+      if (live[y] === 'M') { cost += (wasKnown ? 0 : 2) + 4; live[y] = null; mo++; }
+      else if (live[y] === 'T') { cost += (wasKnown ? 0 : 2) + 3; live[y] = null; }
+      else if (live[y] === 'C') { live[y] = null; ch++; }
+    };
+    for (let guard = 0; guard < 200 && cost < 300; guard++) {
+      // Cheapest way from here to every space it can reach or see (Dijkstra over known spaces).
+      const best = new Array(36).fill(Infinity), prev = new Array(36).fill(-1), done = new Uint8Array(36);
+      best[pos] = 0;
+      for (;;) {
+        let x = -1;
+        for (let i = 0; i < 36; i++) if (!done[i] && best[i] < Infinity && (x < 0 || best[i] < best[x])) x = i;
+        if (x < 0) break;
+        done[x] = 1;
+        if (!known[x]) continue; // unknown spaces are targets, not stepping stones
+        for (const [y, e] of R.shuffle(NB[x].slice())) {
+          if (!open[e] || done[y]) continue;
+          const c = best[x] + enterCost(y);
+          if (c < best[y]) { best[y] = c; prev[y] = x; }
+        }
+      }
+      // Choose a target.
+      const exitAt = feat.indexOf('E');
+      let targets = [];
+      if (met() && known[exitAt]) targets = [exitAt];
+      else {
+        for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'C' && best[x] < Infinity) targets.push(x);
+        if (!targets.length && ch >= 2 && mo < 2) for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'M' && best[x] < Infinity) targets.push(x);
+        if (!targets.length) for (let x = 0; x < 36; x++) if (!known[x] && best[x] < Infinity) targets.push(x);
+        if (!targets.length) for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'M' && best[x] < Infinity) targets.push(x);
+        if (!targets.length && known[exitAt]) targets = [exitAt];
+      }
+      if (!targets.length) break;
+      let low = Infinity;
+      for (const x of targets) if (best[x] < low) low = best[x];
+      const near = targets.filter(x => best[x] === low);
+      const goal = near[R.int(near.length)];
+      if (goal === pos) break; // standing on the Exit without an exit combination, nothing left to do
+      // The route there.
+      const route = [];
+      for (let x = goal; x !== pos; x = prev[x]) route.push(x);
+      route.reverse();
+      // A backtrack: 3+ steps through known, empty spaces into a known space costs 2 instead of a step each.
+      const emptyKnown = x => known[x] && !live[x] && feat[x] !== 'S' && feat[x] !== 'E';
+      if (route.length >= 3 && known[goal] && route.slice(0, -1).every(emptyKnown)) {
+        cost += 2; pos = goal; resolve(goal, true);
+      } else {
+        const y = route[0], wasKnown = !!known[y];
+        cost += 1; pos = y; known[y] = 1; resolve(y, wasKnown);
+      }
+      if (pos === exitAt && met()) return cost;
+    }
+    return cost + 40; // didn't get out: counts as very hard
+  }
+  // The score depends only on the lair: the explorer's random choices come from the lair's own layout.
+  function score(open, P, pm, goals){
+    const R = makeRng('score|' + Array.from(open).join('') + '|' + P.feat.map(f => f || '.').join(''));
+    let sim = 0;
+    for (let i = 0; i < SIM_RUNS; i++) sim += simulate(open, P.feat, P.start, R);
+    let gated = 0;
+    for (const g of goals) gated += pm.haz[g];
+    // Average explorer cost, plus 2 for every hazard the safest way to a goal can't avoid.
+    return Math.round(10 * sim / SIM_RUNS) / 10 + 2 * gated;
+  }
+
+  // ---- One candidate lair ----
+  function build(tier, counts, R){
+    const style = tier === 'N' ? 'kruskal' : TIERS[tier].maze;
+    const loops = {A:'shortcut', J:'any', G:'small', N:'any'}[tier];
+    const maxW = Math.min(counts.wall, MAX_WALLS);
+    const less = tier === 'N' ? [0, 3] : TIERS[tier].wallsLess;
+    const walls = Math.max(0, maxW - less[0] - R.int(less[1] - less[0] + 1));
+    const open = carve(style, R);
+    addOpenings(open, MAX_WALLS - walls, loops, R);
+    const P = place(open, counts, tier, R);
+    if (!P) return null;
+    const L = legal(open, P);
+    if (!L || !tierOk(tier, L.pm, L.goals)) return null;
+    return {open, P, L, walls};
+  }
+
+  // ---- Calibration: the score spread of plain random legal lairs for a piece set ----
+  const calCache = {};
+  // More than 25 walls builds the same lairs as 25, so they share a calibration.
+  const calId = c => countsId(Object.assign({}, c, {wall: Math.min(c.wall, MAX_WALLS)}));
+  function bands(counts){
+    const id = calId(counts);
+    if (calCache[id]) return calCache[id];
+    if (PRESETS[id]) {
+      const p = PRESETS[id], out = {};
+      Object.keys(BANDS).forEach((t, i) => { out[t] = [p[2 * i], p[2 * i + 1]]; });
+      return (calCache[id] = out);
+    }
+    const R = makeRng('lairs-calibrate|' + VERSION + '|' + id), scores = [];
+    for (let i = 0; i < 4000 && scores.length < 160; i++) {
+      const b = build('N', counts, R);
+      if (b) scores.push(score(b.open, b.P, b.L.pm, b.L.goals));
+    }
+    scores.sort((a, b) => a - b);
+    const at = p => scores.length ? scores[Math.min(scores.length - 1, Math.floor(p * scores.length / 100))] : 0;
+    const out = {};
+    for (const t in BANDS) out[t] = [at(BANDS[t][0]), at(BANDS[t][1])];
+    return (calCache[id] = out);
+  }
+  // Calibrations worked out ahead of time (with bands() itself) for common piece sets, so phones skip the wait:
+  // 'walls.traps.monsters.chests': [A low, A high, J low, J high, G low, G high].
+  const PRESETS = {
+    '10.3.3.3':[46.1,49.4,51.5,53.9,55.1,63],
+    '11.3.3.3':[45.8,50,51.7,54.7,56.5,65.2],
+    '12.3.3.3':[45.8,51.4,52.3,56.1,57.6,64.4],
+    '13.3.3.3':[45.3,50.1,50.8,54.4,56.4,65.1],
+    '14.3.3.3':[46.4,49.9,51.7,55.3,57.2,66.7],
+    '15.3.3.3':[44.5,51.1,52.7,57.2,59.1,66.5],
+    '16.3.3.3':[46,51.8,52.9,58.5,61,68.8],
+    '17.3.3.3':[45.3,52,54.1,58.6,60.7,71.9],
+    '18.3.3.3':[45.8,53.9,55.5,60.3,63.1,69.4],
+    '19.3.3.3':[46.1,54.3,55.7,60.4,62.9,73.8],
+    '20.3.3.3':[46.3,52.6,55,61.3,63.9,74.1],
+    '21.3.3.3':[46.9,55,57,60.9,64.2,74.9],
+    '22.3.3.3':[46.8,56.3,58.7,64.8,66.9,78.1],
+    '23.3.3.3':[46.7,57.1,59.7,66.6,69.5,78.5],
+    '24.3.3.3':[50,57.4,60,69.1,71.6,83.1],
+    '25.3.3.3':[48.9,60.3,62.6,69.9,72.1,82.6]
+  };
+  const needsCalibration = counts => !PRESETS[calId(counts)] && !calCache[calId(counts)];
+
+  // ---- Codes ----
+  const countsId = c => c.wall + '.' + c.trap + '.' + c.monster + '.' + c.chest;
+  const isDefault = c => countsId(c) === countsId(DEFAULT);
+  function newSeed(){
+    const buf = new Uint32Array(5);
+    (globalThis.crypto || {getRandomValues: a => a.map(() => Math.floor(Math.random() * 4294967296))}).getRandomValues(buf);
+    return Array.from(buf, v => ALPHA[v % 32]).join('');
+  }
+  function makeCode(tier, seed, counts){
+    return tier + VERSION + '-' + seed + (isDefault(counts) ? '' : '-' + countsId(counts));
+  }
+  // Accepts small typing slips: spaces, lower case, O for 0, I or L for 1.
+  function parseCode(text){
+    const s = String(text || '').toUpperCase().replace(/\s+/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
+    const m = /^([AJG])(\d{1,2})-?([0-9A-HJKMNP-TV-Z]{5})(?:-(\d{1,2})\.(\d{1,2})\.(\d{1,2})\.(\d{1,2}))?$/.exec(s);
+    if (!m) return {error:'bad'};
+    if (+m[2] !== VERSION) return {error:'version'};
+    const counts = m[4] ? {wall:+m[4], trap:+m[5], monster:+m[6], chest:+m[7]} : Object.assign({}, DEFAULT);
+    return {tier:m[1], seed:m[3], counts};
+  }
+
+  // ---- Turning it around: one of 8 rotations/mirrors, so no corner is favoured ----
+  function transform(x, t){
+    let r = Math.floor(x / 6), c = x % 6;
+    if (t & 4) { const k = r; r = c; c = k; }
+    if (t & 1) r = 5 - r;
+    if (t & 2) c = 5 - c;
+    return r * 6 + c;
+  }
+
+  function generate(tier, seed, counts){
+    counts = Object.assign({}, DEFAULT, counts || {});
+    const pieces = 2 + counts.chest + counts.trap + counts.monster;
+    if (pieces > 36) return {error:'pieces'};
+    const B = bands(counts)[tier];
+    const R = makeRng('lairs|' + VERSION + '|' + tier + '|' + seed + '|' + countsId(counts));
+    let fallback = null, fallbackGap = Infinity;
+    for (let i = 0; i < MAX_TRIES; i++) {
+      const b = build(tier, counts, R);
+      if (!b) continue;
+      const sc = score(b.open, b.P, b.L.pm, b.L.goals);
+      const gap = sc < B[0] ? B[0] - sc : sc > B[1] ? sc - B[1] : 0;
+      if (gap < fallbackGap) { fallback = Object.assign(b, {score: sc}); fallbackGap = gap; }
+      if (!gap) break;
+    }
+    if (!fallback) return {error:'pieces'};
+    const {open, P, walls} = fallback;
+    const t = R.int(8), at = x => { const y = transform(x, t); return [Math.floor(y / 6), y % 6]; };
+    const lair = {
+      code: makeCode(tier, seed, counts), tier, tierName: TIERS[tier].name, counts,
+      walls: {}, wallCount: walls, start: at(P.start), exit: at(P.exit), chests: [], traps: [], monsters: [],
+      score: fallback.score, inBand: fallbackGap === 0, capped: counts.wall > MAX_WALLS
+    };
+    EDGES.forEach(([a, b], e) => {
+      if (open[e]) return;
+      const ta = transform(a, t), tb = transform(b, t);
+      lair.walls[EDGES[EDGE_OF[ta + ',' + tb]][2]] = 1;
+    });
+    for (let x = 0; x < 36; x++) {
+      if (P.feat[x] === 'C') lair.chests.push(at(x));
+      if (P.feat[x] === 'T') lair.traps.push(at(x));
+      if (P.feat[x] === 'M') lair.monsters.push(at(x));
+    }
+    return lair;
+  }
+
+  return {
+    VERSION, TIERS, DEFAULT, MAX_WALLS, newSeed, makeCode, parseCode, generate, bands, needsCalibration,
+    // For tests
+    _: {makeRng, build, score, perilMap, legal, simulate, EDGES, NB, transform, countsId}
+  };
+})();
+if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Node
+</script>
+
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.14';
+  const APP_VERSION = '0.15';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -627,7 +1289,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   }
 
   let hist = [];
-  let settingsOpen = false; // the Settings page is showing instead of the map
+  // Which screen is showing: 'home' (start screen), 'track' (the map), 'settings' or 'maker' (Make a lair).
+  let view = 'home';
+  let viewStack = ['home']; // the screens behind the current one, matching the browser history
+  const VIEW_LABEL = {home:'Home', track:'Map', settings:'Settings', maker:'Lair'};
+  const backLabel = () => VIEW_LABEL[viewStack[viewStack.length - 2] || 'home'];
   let fileAsk = null;     // 'json' or 'pdf' while the file name box is showing
   let routeOpen = false;  // the whole route is showing on the Move tab
 
@@ -943,8 +1609,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     $('gameMain').hidden = !!fileAsk;
 
     // Settings page: shown instead of the map.
-    document.querySelector('.app').hidden = settingsOpen;
-    $('settings').hidden = !settingsOpen;
+    document.querySelector('.app').hidden = view !== 'track';
+    $('settings').hidden = view !== 'settings';
+    $('home').hidden = view !== 'home';
+    $('maker').hidden = view !== 'maker';
+    $('setBackLabel').textContent = $('mkBackLabel').textContent = backLabel();
+    const moves = S.path.length;
+    $('rivalStatus').textContent = S.example ? 'Showing an example map' : moves === 0 ? 'Ready for a new map'
+      : moves === 1 ? 'Game in progress · on the starting space' : 'Game in progress · ' + (moves - 1) + ' move' + (moves === 2 ? '' : 's');
+    if (view === 'maker') renderMaker();
     const pi = progressIndex();
     document.querySelectorAll('#track .step').forEach((b, i) => {
       const soon = i > stepIndex(LAST_READY);
@@ -1251,8 +1924,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   // Shrink a tool label slightly if it would be cut off (e.g. "Scrounged" on a narrow screen).
   function fitToolLabels(){
-    if (S.mode !== 'map' && !settingsOpen) return;
-    document.querySelectorAll(settingsOpen ? '.pc-name' : '.tool span').forEach(s => {
+    if (S.mode !== 'map' && view !== 'settings') return;
+    document.querySelectorAll(view === 'settings' ? '.pc-name' : '.tool span').forEach(s => {
       s.classList.remove('tight');
       if (s.scrollWidth > s.clientWidth + 0.5) s.classList.add('tight');
     });
@@ -1266,7 +1939,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   const OWN_LAYOUT = '(orientation: landscape) and (min-width: 560px), (orientation: portrait) and (min-width: 600px)';
   function fitLayout(){
     const app = document.querySelector('.app'), card = document.querySelector('.mapcard'), tray = document.querySelector('.tray');
-    if (settingsOpen) return;
+    if (view !== 'track') return;
     if (matchMedia(OWN_LAYOUT).matches) {
       if (app.classList.contains('roomy')) { app.classList.remove('roomy'); render(); }
       return;
@@ -1357,26 +2030,204 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   }
 
   // Lair pieces editor: the starting numbers carry over to new games.
-  // Settings page. It adds a history step, so the phone's Back button returns to the map.
-  function openSettings(){
-    if (settingsOpen) return;
-    settingsOpen = true;
+  // Screens. Each one adds a history step, so the phone's Back button returns to the previous screen.
+  // The start screen always comes first when the app opens.
+  function go(v){
+    if (view === v) return;
     select(null);
-    try { history.pushState({lairsSettings: true}, ''); } catch (e) {}
+    fileAsk = null;
+    viewStack.push(v);
+    view = v;
+    try { history.pushState({lairs: v, depth: viewStack.length}, ''); } catch (e) {}
     render();
     window.scrollTo(0, 0);
-    $('setBack').focus();
+    const first = {settings:'setBack', maker:'mkBack'}[v];
+    if (first) $(first).focus({preventScroll: true});
   }
-  function closeSettings(fromHistory){
-    if (!settingsOpen) return;
-    settingsOpen = false;
+  function back(){
+    if (viewStack.length > 1) { try { history.back(); return; } catch (e) {} }
+    viewStack = ['home']; view = 'home'; render();
+  }
+  window.addEventListener('popstate', e => {
+    const st = e.state || {}, depth = Math.max(1, st.depth || 1), v = VIEW_LABEL[st.lairs] ? st.lairs : 'home';
+    viewStack = viewStack.slice(0, depth);
+    while (viewStack.length < depth) viewStack.push(v);
+    viewStack[depth - 1] = v;
+    view = v;
+    select(null);
     render();
-    $('settingsBtn').focus();
-    if (!fromHistory && history.state && history.state.lairsSettings) { try { history.back(); } catch (e) {} }
-  }
+  });
+  try { history.replaceState({lairs: 'home', depth: 1}, ''); } catch (e) {}
+  const openSettings = () => go('settings');
   $('settingsBtn').addEventListener('click', openSettings);
-  $('setBack').addEventListener('click', () => closeSettings(false));
-  window.addEventListener('popstate', () => closeSettings(true));
+  $('homeSettings').addEventListener('click', openSettings);
+  $('setBack').addEventListener('click', back);
+  $('homeTrack').addEventListener('click', () => go('track'));
+  $('homeBtn').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
+  $('homeSolo').addEventListener('click', () => toast('Coming soon.'));
+
+  // ---------- Make a lair ----------
+  // A random legal lair for the Builder to copy onto their Lair board. It never touches your own map.
+  const MAKER_KEY = 'lairs-maker-v1';
+  let MK = {tier:'J', code:null};
+  try { const raw = localStorage.getItem(MAKER_KEY); if (raw) MK = Object.assign(MK, JSON.parse(raw)); } catch (e) {}
+  if (!LairGen.TIERS[MK.tier]) MK.tier = 'J';
+  const saveMaker = () => { try { localStorage.setItem(MAKER_KEY, JSON.stringify(MK)); } catch (e) {} };
+  const TIER_DESC = {
+    A: 'An open lair with shortcuts. Every goal can be reached without passing a hazard.',
+    J: 'Fewer shortcuts. At least one goal sits behind a hazard.',
+    G: 'Every wall, long corridors, and at least two goals behind a hazard.'
+  };
+  let mkLair = null, mkShown = false, mkWant = null, mkSlow = false;
+  const mkCalibrated = new Set();
+  const makerCounts = () => ({wall:S.limits.wall, trap:S.limits.trap, monster:S.limits.monster, chest:S.limits.chest});
+
+  // Building runs in a background worker so the screen stays responsive; without one, it runs here.
+  let lairWorker = null, workerBroken = false, jobSeq = 0;
+  const jobs = {};
+  function startWorker(){
+    if (lairWorker || workerBroken) return;
+    try {
+      const src = $('lairgen').textContent +
+        '\nself.onmessage = e => { const d = e.data; self.postMessage({id: d.id, lair: LairGen.generate(d.tier, d.seed, d.counts)}); };';
+      lairWorker = new Worker(URL.createObjectURL(new Blob([src], {type: 'text/javascript'})));
+      lairWorker.onmessage = e => { const j = jobs[e.data.id]; delete jobs[e.data.id]; if (j) j.done(e.data.lair); };
+      lairWorker.onerror = ev => {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        workerBroken = true;
+        try { lairWorker.terminate(); } catch (e) {}
+        lairWorker = null;
+        for (const id in jobs) { const j = jobs[id]; delete jobs[id]; runHere(j); }
+      };
+    } catch (e) { workerBroken = true; lairWorker = null; }
+  }
+  const runHere = j => setTimeout(() => j.done(LairGen.generate(j.tier, j.seed, j.counts)), 30);
+  function buildLair(tier, seed, counts){
+    return new Promise(done => {
+      startWorker();
+      const j = {tier, seed, counts, done};
+      if (lairWorker) { const id = ++jobSeq; jobs[id] = j; lairWorker.postMessage({id, tier, seed, counts}); }
+      else runHere(j);
+    });
+  }
+  async function makeLair(tier, seed, counts){
+    const code = LairGen.makeCode(tier, seed, counts), countsKey = JSON.stringify(counts);
+    mkWant = code;
+    MK.tier = tier;
+    mkSlow = LairGen.needsCalibration(counts) && !mkCalibrated.has(countsKey);
+    renderMaker();
+    const lair = await buildLair(tier, seed, counts);
+    if (mkWant !== code) return; // a newer lair was asked for meanwhile
+    mkWant = null;
+    mkCalibrated.add(countsKey);
+    if (lair.error) {
+      toast('That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.');
+      renderMaker();
+      return;
+    }
+    mkLair = lair;
+    MK.code = lair.code;
+    saveMaker();
+    renderMaker();
+  }
+  function openMaker(){
+    mkShown = false;
+    go('maker');
+    if (mkLair || mkWant) return;
+    const p = MK.code ? LairGen.parseCode(MK.code) : null;
+    if (p && !p.error) makeLair(p.tier, p.seed, p.counts);
+    else makeLair(MK.tier, LairGen.newSeed(), makerCounts());
+  }
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+  function renderMaker(){
+    const l = mkLair, busy = !!mkWant;
+    document.querySelectorAll('#mkTiers button').forEach(b => {
+      const on = b.dataset.tier === MK.tier;
+      b.setAttribute('aria-checked', String(on));
+    });
+    $('mkDesc').textContent = TIER_DESC[MK.tier];
+    $('mkBoard').classList.toggle('busy', busy);
+    $('mkCover').hidden = mkShown;
+    $('mkHide').textContent = mkShown ? 'Hide' : 'Show';
+    $('mkCode').textContent = busy ? 'Building…' : l ? l.code : '—';
+    $('mkCopy').disabled = busy || !l;
+    $('mkNew').disabled = busy;
+    if (busy && mkSlow) $('mkPieces').textContent = 'First lair with these pieces: this takes a few seconds.';
+    else if (l) {
+      const c = l.counts, left = c.wall - l.wallCount;
+      $('mkPieces').textContent = plural(l.wallCount, 'wall', 'walls') + (left > 0 ? ' (leave ' + left + ' out)' : '') + ' · ' +
+        plural(c.trap, 'trap', 'traps') + ' · ' + plural(c.monster, 'monster', 'monsters') + ' · ' + plural(c.chest, 'chest', 'chests') +
+        ' · Start · Exit' + (l.capped ? '. A 6×6 lair can’t use more than ' + LairGen.MAX_WALLS + ' walls and still reach every space.' : '');
+    } else $('mkPieces').textContent = '';
+    if (!l) { $('mkCells').innerHTML = ''; $('mkWalls').innerHTML = ''; return; }
+    if ($('mkBoard').dataset.code === l.code) return; // already drawn
+    $('mkBoard').dataset.code = l.code;
+    const at = {}, put = (p, t) => { at[key(p[0], p[1])] = t; };
+    put(l.start, 'start'); put(l.exit, 'exit');
+    l.chests.forEach(p => put(p, 'chest')); l.traps.forEach(p => put(p, 'trap')); l.monsters.forEach(p => put(p, 'monster'));
+    let html = '';
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const t = at[key(r, c)];
+      const center = !t ? '' : t === 'start' ? '<span class="se-big">S</span>' : t === 'exit' ? '<span class="se-big">E</span>' : sym(t, false);
+      html += '<span class="cell' + (t ? ' marked' : '') + (t === 'start' || t === 'exit' ? ' tile' : '') + '"><span class="box"><span class="co">' +
+        coord(r, c) + '</span><span class="ring">' + center + '</span></span></span>';
+    }
+    $('mkCells').innerHTML = html;
+    const u = 100 / 6;
+    let w = '';
+    for (const k in l.walls) {
+      const [t, r, c] = k.split(',');
+      w += t === 'h'
+        ? '<span class="wall h" style="left:' + (+c * u) + '%;top:' + ((+r + 1) * u) + '%;width:' + u + '%"></span>'
+        : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
+    }
+    $('mkWalls').innerHTML = w;
+    const list = ps => ps.map(p => coord(p[0], p[1])).join(', ');
+    $('mkBoard').setAttribute('aria-label', l.tierName + ' lair ' + l.code + ': Start ' + coord(l.start[0], l.start[1]) + ', Exit ' +
+      coord(l.exit[0], l.exit[1]) + ', chests ' + list(l.chests) + ', traps ' + list(l.traps) + ', monsters ' + list(l.monsters) +
+      ', ' + plural(l.wallCount, 'wall', 'walls') + ': ' + Object.keys(l.walls).map(k => {
+        const [t, r, c] = k.split(','); return t === 'h' ? coord(+r, +c) + '–' + coord(+r + 1, +c) : coord(+r, +c) + '–' + coord(+r, +c + 1);
+      }).join(', ') + '.');
+  }
+  $('homeMake').addEventListener('click', openMaker);
+  $('makeBtn').addEventListener('click', openMaker);
+  $('mkBack').addEventListener('click', back);
+  $('mkTiers').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || (b.dataset.tier === MK.tier && !mkWant && mkLair && mkLair.tier === MK.tier)) return;
+    makeLair(b.dataset.tier, LairGen.newSeed(), makerCounts());
+  });
+  $('mkNew').addEventListener('click', () => makeLair(MK.tier, LairGen.newSeed(), makerCounts()));
+  $('mkCover').addEventListener('click', () => { mkShown = true; renderMaker(); });
+  $('mkHide').addEventListener('click', () => { mkShown = !mkShown; renderMaker(); });
+  $('mkCopy').addEventListener('click', () => {
+    if (!mkLair) return;
+    const code = mkLair.code;
+    const fallback = () => {
+      const r = document.createRange();
+      r.selectNodeContents($('mkCode'));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      toast('Code selected. Copy it from here.');
+    };
+    try { navigator.clipboard.writeText(code).then(() => toast('Code copied: ' + code), fallback); } catch (e) { fallback(); }
+  });
+  const showCodeForm = on => {
+    $('mkForm').hidden = !on;
+    $('mkActions').hidden = on;
+    if (on) { $('mkInput').value = ''; $('mkInput').focus(); }
+  };
+  $('mkEnter').addEventListener('click', () => showCodeForm(true));
+  $('mkCancel').addEventListener('click', () => showCodeForm(false));
+  $('mkInput').addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); showCodeForm(false); } });
+  $('mkForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const p = LairGen.parseCode($('mkInput').value);
+    if (p.error === 'version') { toast('That code is from a different version of Make a lair.'); return; }
+    if (p.error) { toast('That isn’t a lair code. It looks like J1-7KQ3M.'); return; }
+    $('mkInput').blur();
+    showCodeForm(false);
+    makeLair(p.tier, p.seed, p.counts);
+  });
   function setProgress(id){
     SET.progress = id;
     saveSettings();
@@ -1834,7 +2685,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     }
   });
 
-  $('appVer').textContent = 'v' + APP_VERSION;
+  $('appVer').textContent = $('homeVer').textContent = 'v' + APP_VERSION;
 
   $('cfKeep').addEventListener('click', closeAsk);
   $('cfGo').addEventListener('click', () => { const f = askGo; closeAsk(); if (f) f(); });
@@ -1842,7 +2693,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   document.addEventListener('keydown', e => {
     if (!$('confirmBox').hidden) { if (e.key === 'Escape') closeAsk(); return; }
-    if (settingsOpen) { if (e.key === 'Escape') closeSettings(false); return; }
+    if (view === 'settings' || view === 'maker') { if (e.key === 'Escape' && !(e.target && e.target.closest && e.target.closest('input'))) back(); return; }
+    if (view !== 'track') return;
     if (e.target && e.target.closest && e.target.closest('input')) return;
     const d = {ArrowUp:'n', ArrowDown:'s', ArrowLeft:'w', ArrowRight:'e'}[e.key];
     if (d && S.mode === 'move') { e.preventDefault(); step(d); }
