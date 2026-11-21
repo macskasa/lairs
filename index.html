@@ -1362,8 +1362,9 @@ const LairGen = (() => {
   // Simulated explorers that don't know the lair, playing by the cube rules: 6 cubes (4 basic, Quickness, Perception)
   // start Fresh; a creep costs 1, a hustle 2 for up to 3 steps (it stops at any non-empty space), a backtrack the
   // Quickness cube. A check buys dice at 1 cube each (faces 1,2,2,3,3,4) against a target of 6 for monsters and 5 for
-  // traps; strikes fatigue 2 cubes. Each turn starts with Spent → Fresh, then Fatigued → Spent. Par is the median
-  // number of turns of 48 explorers, so the same lair always gets the same par.
+  // traps; strikes fatigue 2 cubes. Each turn starts with Spent → Fresh, then Fatigued → Spent. Par is what the fastest
+  // quarter of 48 explorers needed (the 12th best of 48), since a thinking player does about that well. The runs are
+  // seeded from the lair, so the same lair always gets the same par.
   const DIE = [1, 2, 2, 3, 3, 4];
   const PAR_RUNS = 48, PAR_CAP = 40;
   function simTurns(open, feat, start, R){
@@ -1459,7 +1460,7 @@ const LairGen = (() => {
     const runs = [];
     for (let i = 0; i < PAR_RUNS; i++) runs.push(simTurns(open, feat, at(lair.start), R));
     runs.sort((a, b) => a - b);
-    return runs[PAR_RUNS >> 1];
+    return runs[PAR_RUNS >> 2]; // the 25th percentile: the fastest quarter
   }
 
   // ---- One candidate lair ----
@@ -3064,7 +3065,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // ---- The end and the score ----
   const soExitPoints = t => t <= SO.par ? 4 : t === SO.par + 1 ? 2 : 0;
   const soMonsterPoints = m => m >= 3 ? 4 : m === 2 ? 2 : 0; // 2 monsters score 2, 3 score 4
-  const BEST_KEY = 'lairs-solo-best-v1';
+  const BEST_KEY = 'lairs-solo-best-v2'; // v2: par became the fastest quarter (v0.21), so older bests aren't comparable
   function soFinish(how){
     SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};
     soTr = 0;

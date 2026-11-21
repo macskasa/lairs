@@ -141,7 +141,7 @@ Tap any square and a menu opens beside it: what you know about the square, then 
 **Turns and par:**
 - **Your turn ends** when you have no Fresh cubes left, or when you tap **End turn**. If you're standing on a chest or at the Exit with an exit combination, the app waits, as those cost nothing to use.
 - **Each new turn** moves Spent cubes to Fresh, then Fatigued cubes to Spent. Conserved and Fresh cubes stay where they are.
-- **Par** is shown next to the turn. It's the median number of turns that 48 simulated explorers, who don't know the lair, needed to get out. They play by the cube rules with the real dice (faces 1, 2, 2, 3, 3, 4). The same lair always has the same par.
+- **Par** is shown next to the turn. 48 simulated explorers, who don't know the lair, play it, and par is what the fastest quarter of them needed to get out. They play by the cube rules with the real dice (faces 1, 2, 2, 3, 3, 4). The same lair always has the same par.
 
 **Encounters:** the app never needs your cards' numbers. You roll your own dice and tell it how it went.
 - **Walking into an unknown monster or trap:** it strikes.
@@ -268,12 +268,12 @@ The app is a single page with no build step.
 - `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, and the Fat fingers switch (`bigCubes`).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
 - `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone, your cubes, turn and achievements.
-- `lairs-solo-best-v1`: your best solo score for each lair code.
+- `lairs-solo-best-v2`: your best solo score for each lair code. (v1 held bests scored against the older par.)
 
 **The lair maker** (`LairGen` in the `lairgen` script):
 - **Same code, same lair:** everything comes from one random sequence seeded by the code. It only uses whole numbers and basic arithmetic, so every browser builds the same lair. It runs in a background worker, built from that script, when the browser allows one.
 - **`VERSION`:** raise it whenever a code would build a different lair. Codes from another version are refused with a message.
-- **Par:** `par(lair)` runs 48 turn-based simulated explorers (cube rules, dice 1, 2, 2, 3, 3, 4, monster target 6, trap target 5, strikes fatigue 2) and takes the median. It's stored with each lair and worked out again for older saves.
+- **Par:** `par(lair)` runs 48 turn-based simulated explorers (cube rules, dice 1, 2, 2, 3, 3, 4, monster target 6, trap target 5, strikes fatigue 2) and takes the 25th percentile (the 12th best of 48), the pace of a thinking player. It's stored with each lair and worked out again for older saves.
 - **`PRESETS`:** these hold the difficulty ranges for the standard piece set with 10–25 walls, worked out ahead of time with `bands()`. Re-create them whenever the scoring or the generator changes. Other piece sets are calibrated on the phone the first time (a few seconds).
 
 **Solo save file** (`.json`): `format: "lairs-solo"`, `version`, `appVersion`, `gameProgress`, `savedAt` and `solo`: the lair itself (so it loads even if Make a lair changes), its `code`, `known` spaces, the `path` (moves as `[row, col]`, with `'b'` for a backtrack or `'t'` for a trap teleport), what's `gone`, monsters' lowered targets (`power`), achievements (`ach`), `peers`, `cubes` (kind and basket), `turn`, `par`, any `hustle` in progress, any encounter still to settle (`pending`, with its stage) and `over` when the game has ended.
