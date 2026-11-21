@@ -2950,7 +2950,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   // ---- The end and the score ----
   const soExitPoints = t => t <= SO.par ? 4 : t === SO.par + 1 ? 2 : 0;
-  const soMonsterPoints = m => m >= 3 ? 6 : m === 2 ? 2 : 0;
+  const soMonsterPoints = m => m >= 3 ? 4 : m === 2 ? 2 : 0; // 2 monsters score 2, 3 score 4
   const BEST_KEY = 'lairs-solo-best-v1';
   function soFinish(how){
     SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};

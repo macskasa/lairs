@@ -150,7 +150,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 
 **Leaving and your score:**
 - **Leaving:** at the Exit, **Exit** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab.
-- **Your score:** your treasure total (you enter it from your cards at the end), plus monsters (the 2nd is worth 2, the 3rd 4 more), plus exit points. Par works like a rival who exits on that turn:
+- **Your score:** your treasure total (you enter it from your cards at the end), plus monsters (2 points for 2 monsters, 4 for 3), plus exit points. Par works like a rival who exits on that turn:
 
 | When you exit | Exit points |
 |---|---|
