@@ -235,7 +235,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .power{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
 .power strong{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pw-step{flex:none;width:42px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-size:22px;font-weight:600;line-height:1;color:var(--ink)}
-#pwInput{flex:none;width:54px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+/* The number between − and +3. It's not a text box, so the keyboard never opens. */
+.pw-val{flex:none;display:grid;place-items:center;width:54px;height:42px;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pw-val.wide{width:62px}
+.pw-step.plus3{font-size:17px;letter-spacing:-.02em}
+.pw-step:disabled{opacity:.4}
 #pwDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
 
 /* Game tab */
@@ -396,7 +400,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .bk.target{border-color:var(--pc);border-style:dashed}
 .bk-name{font-family:var(--display);font-weight:500;font-size:9.5px;line-height:1.1;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bk-cubes{display:flex;flex-wrap:wrap;align-content:flex-start;gap:3px;min-height:35px}
-.cube{flex:none;width:16px;height:16px;padding:0;border-radius:4px;border:1.5px solid var(--wall);background:var(--cube-b);display:grid;place-items:center;color:#3B2A22}
+.cube{position:relative;flex:none;width:16px;height:16px;padding:0;border-radius:4px;border:1.5px solid var(--wall);background:var(--cube-b);display:grid;place-items:center;color:#3B2A22}
 .cube.k-q{background:var(--cube-q);border-color:var(--cube-qe)}
 .cube.k-p{background:var(--cube-p);border-color:var(--cube-pe)}
 .cube svg{width:11px;height:11px}
@@ -428,13 +432,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-choose span{min-width:0;font-size:13.5px;font-weight:600;line-height:1.25}
 .so-choose .so-act{padding:3px 12px}
 .so-mat.choosing .cube{opacity:.3}
+/* Buying dice: the cubes that pay are outlined; ×2 on a Conserved cube that pays twice */
+.so-mat.buying .cube{opacity:.3}
+.so-mat.buying .cube.can-pay{opacity:1}
+.so-mat.buying .cube.paying{outline:2px solid var(--pc);outline-offset:1px}
+.cube .n{position:absolute;right:-7px;top:-8px;min-width:15px;height:14px;padding:0 2px;border-radius:7px;background:var(--pc);color:var(--onp);font:700 9.5px/14px var(--display);font-style:normal;text-align:center;pointer-events:none}
 .so-mat.choosing .cube.pickable{opacity:1;outline:2px solid var(--pc);outline-offset:1px}
 .so-row3 .so-act{font-size:12px;letter-spacing:.03em}
 .so-face{display:flex;align-items:center;gap:6px}
 .so-face .pw-step{flex:none;width:38px;height:42px}
 .so-dice{flex:none;min-width:52px;text-align:center;font-family:var(--display);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
 .so-face .so-act{flex:1}
-#soTrInput{flex:none;width:62px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
 #soTrDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
 /* Settings switch */
 .switch-row{display:flex;align-items:center;gap:12px;cursor:pointer}
@@ -457,7 +465,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 #soEncClose{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
 .so-end-title{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.1;letter-spacing:.04em;color:var(--pc)}
 #soPw .pw-step{width:42px}
-#soPwInput{flex:none;width:54px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
 #soPwDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
 /* Solo Game tab */
 .so-lair{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg)}
@@ -666,9 +673,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <p class="hint" id="toolHint"></p>
         <form class="power" id="powerEd" hidden>
           <strong id="pwCell">Power</strong>
-          <button type="button" class="pw-step" data-d="-1" aria-label="Lower power">−</button>
-          <input id="pwInput" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="done" placeholder="–">
-          <button type="button" class="pw-step" data-d="1" aria-label="Raise power">+</button>
+          <button type="button" class="pw-step" data-d="-1" aria-label="Lower power by 1">−</button>
+          <output class="pw-val" id="pwVal" aria-live="polite">–</output>
+          <button type="button" class="pw-step plus3" data-d="3" aria-label="Raise power by 3">+3</button>
           <button type="submit" id="pwDone">Done</button>
         </form>
       </div>
@@ -801,9 +808,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         </div>
         <form class="power" id="soPw" hidden>
           <strong>Its target now</strong>
-          <button type="button" class="pw-step" data-sod="-1" aria-label="Lower">−</button>
-          <input id="soPwInput" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="done" placeholder="–" aria-label="The monster's target now">
-          <button type="button" class="pw-step" data-sod="1" aria-label="Raise">+</button>
+          <button type="button" class="pw-step" data-sod="-1" aria-label="Lower the target by 1">−</button>
+          <output class="pw-val" id="soPwVal" aria-live="polite" aria-label="The monster's target now">–</output>
+          <button type="button" class="pw-step plus3" data-sod="3" aria-label="Raise the target by 3">+3</button>
           <button type="submit" id="soPwDone">Done</button>
         </form>
       </div>
@@ -812,10 +819,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <strong class="so-end-title" id="soEndTitle"></strong>
         <p class="so-text" id="soEndText"></p>
         <form class="power" id="soTreasure">
-          <strong>Treasure score</strong>
-          <button type="button" class="pw-step" data-sot="-1" aria-label="Lower">−</button>
-          <input id="soTrInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" placeholder="0" aria-label="Your treasure score">
-          <button type="button" class="pw-step" data-sot="1" aria-label="Raise">+</button>
+          <strong>Treasures</strong>
+          <button type="button" class="pw-step" data-sot="-1" aria-label="Lower the treasure score by 1">−</button>
+          <output class="pw-val wide" id="soTrVal" aria-live="polite" aria-label="Your treasure score">0</output>
+          <button type="button" class="pw-step plus3" data-sot="3" aria-label="Raise the treasure score by 3">+3</button>
           <button type="submit" id="soTrDone">Done</button>
         </form>
         <div class="so-btns" id="soEndBtns">
@@ -2123,10 +2130,11 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('toolHint').hidden = !!sel;
     $('powerEd').hidden = !sel;
     if (sel) {
-      const cell = S.cells[sel], inp = $('pwInput');
+      const cell = S.cells[sel];
       $('pwCell').textContent = coordK(sel) + ' power';
-      inp.setAttribute('aria-label', 'Power for the monster on ' + coordK(sel));
-      if (document.activeElement !== inp) inp.value = cell.power != null ? cell.power : '';
+      $('pwVal').setAttribute('aria-label', 'Power for the monster on ' + coordK(sel));
+      $('pwVal').textContent = cell.power != null ? cell.power : '–';
+      $('powerEd').querySelector('[data-d="-1"]').disabled = !cell.power;
     }
 
     const n = S.path.length;
@@ -2490,21 +2498,15 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('undoBtn').addEventListener('click', undo);
 
   // Power editor
-  $('pwInput').addEventListener('input', e => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
-    if (digits !== e.target.value) e.target.value = digits;
-    setPower(digits === '' ? null : parseInt(digits, 10));
-  });
-  document.querySelectorAll('.pw-step').forEach(b => b.addEventListener('click', () => {
+  // − lowers by 1, +3 raises by 3 (an empty value starts at 3). Only this editor's own buttons.
+  const stepValue = (cur, d, max) => cur == null ? (d > 0 ? d : null) : Math.max(0, Math.min(max, cur + d));
+  document.querySelectorAll('#powerEd [data-d]').forEach(b => b.addEventListener('click', () => {
     const cell = sel && S.cells[sel];
     if (!cell) return;
-    const d = +b.dataset.d;
-    const cur = cell.power;
-    setPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
+    setPower(stepValue(cell.power, +b.dataset.d, 99));
   }));
   $('powerEd').addEventListener('submit', e => {
     e.preventDefault();
-    $('pwInput').blur();
     select(null);
     render();
   });
@@ -2576,7 +2578,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
   // the app reveals what you learn about, keeps your cubes and turns, and you tell it how fights and disarms went.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soDice = 2, soCardsOpen = false, soChoose = null;
+  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soCardsOpen = false, soChoose = null;
+  let soPay = null; // the cubes paying for a fight's dice (see payNext), or null for the app's usual choice
+  let soTr = 0; // the treasure score being entered at the end
   const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
   const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
@@ -2784,7 +2788,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (live === 'monster' || live === 'trap') {
       SO.pending = wasKnown ? {k, kind: live, stage: 'face', must: true} : {k, kind: live, stage: 'strike', said: note};
       if (live === 'trap' && !wasKnown) SO.strikeAt = k;
-      soDice = Math.min(2, uses());
+      soPay = null;
     }
     saveSolo();
     renderSolo();
@@ -2889,9 +2893,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const p = SO.pending;
     if (!p) return;
     soChoose = null;
-    if (p.stage === 'strike') { p.stage = 'face'; soDice = Math.min(soDice || 2, uses()); }
+    if (p.stage === 'strike') { p.stage = 'face'; soPay = null; }
     else if (p.stage === 'hit') {
-      if (p.kind === 'monster') { p.stage = 'target'; setTimeout(() => { const i = $('soPwInput'); i.focus(); i.select(); }, 30); }
+      if (p.kind === 'monster') p.stage = 'target';
       else SO.pending = null;
     }
     saveSolo(); renderSolo();
@@ -2900,8 +2904,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   function soFight(){
     const p = SO.pending;
     if (!p || p.stage !== 'face') return;
-    const n = Math.max(0, Math.min(soDice, uses()));
-    spend(n);
+    const pay = payValid(), n = pay.length;
+    pay.forEach(i => { const c = SO.cubes[i]; c.at = c.at === 'C' ? 'F' : 'S'; });
+    soPay = null;
     if (n === 0) { soOutcome(false, true); return; } // no dice: the check fails
     p.stage = 'rolled'; p.dice = n;
     saveSolo(); renderSolo();
@@ -2928,16 +2933,38 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!p || p.stage !== 'target') return;
     if (v == null || isNaN(v)) delete SO.power[p.k];
     else SO.power[p.k] = Math.max(0, Math.min(99, v));
-    const i = $('soPwInput');
-    if (document.activeElement !== i) i.value = SO.power[p.k] != null ? SO.power[p.k] : '';
+    saveSolo(); renderSolo();
   }
   function soPowerDone(){
     if (!SO.pending || SO.pending.stage !== 'target') return;
     SO.pending = null;
     saveSolo();
-    $('soPwInput').blur();
     renderSolo();
     soAfter();
+  }
+  // Buying dice: each die is one use of a cube. soPay lists the cubes that pay, in order; a Conserved cube can be listed
+  // twice (once from Conserved, once from Fresh). −/+ take the app's usual order (Conserved first, Quickness last);
+  // tapping a cube on the mat adds it or drops it.
+  const payCap = c => c.at === 'C' ? 2 : c.at === 'F' ? 1 : 0;
+  function payNext(pay){
+    const at = SO.cubes.map(c => c.at);
+    pay.forEach(i => { at[i] = at[i] === 'C' ? 'F' : 'S'; });
+    const first = w => SO.cubes.map((c, i) => i).filter(i => at[i] === w).sort((a, b) => ORDER[SO.cubes[a].k] - ORDER[SO.cubes[b].k])[0];
+    const c = first('C');
+    if (c != null) return c;
+    const f = first('F');
+    return f != null ? f : null;
+  }
+  function payAuto(n){ const pay = []; for (let i = 0; i < n; i++) { const j = payNext(pay); if (j == null) break; pay.push(j); } return pay; }
+  function payValid(){ // drops listings a cube can no longer cover (if it was moved meanwhile)
+    const used = {};
+    return (soPay || []).filter(i => { used[i] = (used[i] || 0) + 1; return !!SO.cubes[i] && used[i] <= payCap(SO.cubes[i]); });
+  }
+  function soPayTap(i){
+    const c = SO.cubes[i], cap = payCap(c), pay = payValid(), n = pay.filter(j => j === i).length;
+    if (!cap) { toast('A ' + BASKET[c.at].toLowerCase() + ' cube can’t pay for a die.'); return; }
+    soPay = n < cap ? pay.concat(i) : pay.filter(j => j !== i);
+    renderSolo();
   }
   // Applying a strike: one tap per cube the card asks for. After Fatigue or Spend you pick the cube on the mat,
   // or tap Any to let the app choose the one that hurts least.
@@ -2953,7 +2980,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   function soAction(){
     const here = soHere(), k = key(here[0], here[1]), live = soLive(k);
-    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live, stage: 'face'}; soDice = Math.min(2, uses()); soPick = null; saveSolo(); renderSolo(); return; }
+    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live, stage: 'face'}; soPay = null; soPick = null; saveSolo(); renderSolo(); return; }
     if (live === 'chest') {
       SO.gone[k] = 'opened'; SO.ach.chests++;
       saveSolo(); renderSolo();
@@ -2975,10 +3002,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   const BEST_KEY = 'lairs-solo-best-v1';
   function soFinish(how){
     SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};
+    soTr = 0;
     SO.pending = null; SO.peer = false; SO.hustle = null; SO.look = false; soPick = null; soCubeSel = null; soCardsOpen = false; soChoose = null; soTab = 'explore';
     saveSolo();
     render();
-    setTimeout(() => { const i = $('soTrInput'); if (i && !i.closest('[hidden]')) i.focus(); }, 60);
   }
   function soScore(){
     const o = SO.over, exit = o.how === 'exit' ? soExitPoints(o.turn) : 0, mon = soMonsterPoints(SO.ach.monsters);
@@ -2986,8 +3013,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   }
   function soTreasureDone(){
     if (!SO || !SO.over || SO.over.treasure != null) return;
-    const v = parseInt($('soTrInput').value, 10);
-    SO.over.treasure = isNaN(v) ? 0 : Math.max(0, Math.min(999, v));
+    SO.over.treasure = Math.max(0, Math.min(999, soTr));
     const sc = soScore();
     let best = {};
     try { best = JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch (e) {}
@@ -2997,7 +3023,6 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       best[SO.code] = {score: sc.total, turn: SO.over.turn, cards: SO.cardUses || 0};
       try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch (e) {}
     }
-    $('soTrInput').blur();
     saveSolo(); renderSolo();
   }
 
@@ -3010,23 +3035,30 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   function renderMat(){
     const striking = SO.pending && (SO.pending.stage === 'strike' || SO.pending.stage === 'hit');
     if (!striking) soChoose = null;
+    const buying = soPay != null, paid = {};
+    if (buying) soPay.forEach(i => { paid[i] = (paid[i] || 0) + 1; });
+    const payWords = (c, i) => !buying ? '' : paid[i] ? '. Pays for ' + plural(paid[i], 'die', 'dice') : payCap(c) ? '. Tap to pay for a die with it' : '';
     let html = '';
     for (const at of ['C', 'F', 'S', 'T']) {
       const here = SO.cubes.map((c, i) => [c, i]).filter(([c]) => c.at === at).sort((a, b) => ORDER[a[0].k] - ORDER[b[0].k]);
       let cubes = here.map(([c, i]) => '<button type="button" class="cube k-' + c.k + (soCubeSel === i ? ' sel' : '') +
-        (soChoose && canTake(soChoose, c) ? ' pickable' : '') + '" data-i="' + i + '" aria-label="' +
-        CUBE_NAME[c.k] + ', ' + BASKET[at].toLowerCase() + (soChoose && canTake(soChoose, c) ? '. Tap to ' + (soChoose === 'fatigue' ? 'fatigue' : 'spend') + ' it' : '') + '">' + CUBE_SVG[c.k] + '</button>').join('');
+        (soChoose && canTake(soChoose, c) ? ' pickable' : '') + (buying && payCap(c) ? ' can-pay' : '') + (paid[i] ? ' paying' : '') + '" data-i="' + i + '" aria-label="' +
+        CUBE_NAME[c.k] + ', ' + BASKET[at].toLowerCase() + (soChoose && canTake(soChoose, c) ? '. Tap to ' + (soChoose === 'fatigue' ? 'fatigue' : 'spend') + ' it' : '') + payWords(c, i) + '">' +
+        CUBE_SVG[c.k] + (paid[i] > 1 ? '<i class="n" aria-hidden="true">×' + paid[i] + '</i>' : '') + '</button>').join('');
       if (at === 'C') for (let n = here.length; n < 3; n++) cubes += '<span class="slot" aria-hidden="true"></span>';
       const target = soCubeSel != null && SO.cubes[soCubeSel].at !== at && !(at === 'C' && here.length >= 3);
       html += '<div class="bk' + (target ? ' target' : '') + '" data-at="' + at + '"><span class="bk-name">' + BASKET[at] + '</span><span class="bk-cubes">' + cubes + '</span></div>';
     }
     $('soMat').innerHTML = html;
     $('soMat').classList.toggle('choosing', !!soChoose);
+    $('soMat').classList.toggle('buying', buying);
   }
   function renderSolo(){
     $('soloApp').classList.toggle('big-cubes', !!SET.bigCubes);
     if (!SO) return;
     const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]), p = SO.pending;
+    if (!over && p && p.stage === 'face') soPay = soPay == null ? payAuto(Math.min(2, uses())) : payValid();
+    else soPay = null;
     const visited = new Set(SO.path.map(q => key(q[0], q[1])));
     // Outlined: the unknown spaces you could peer or creep into right now, i.e. the tracker's neighbours with no wall
     // between. None while an encounter needs settling first.
@@ -3144,8 +3176,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       let text;
       if (p.stage === 'strike') text = (p.said ? p.said.replace(/!$/, '.') + ' ' : '') + 'It strikes you! Apply the strike from your ' + what +
         ' card, then tap Done.' + (!isM ? ' <small>If the card moves you, tap Done, then tap where it sends you.</small>' : '');
-      else if (p.stage === 'face') text = (p.must ? 'You walked into a known ' + what + ', so you must ' + (isM ? 'fight it' : 'disarm it') + ' now. '
-        : (isM ? 'Fight it' : 'Disarm it') + ', or move out of its space. ') + 'Dice cost a cube each. <small>No dice is a fail.</small>';
+      else if (p.stage === 'face') text = (p.must ? 'You must ' + (isM ? 'fight it' : 'disarm it') + ' now. '
+        : (isM ? 'Fight it' : 'Disarm it') + ', or move out of its space. ') + 'Each die costs a cube. Tap cubes to choose which.';
       else if (p.stage === 'rolled') text = 'Roll your ' + plural(p.dice, 'die', 'dice') + '. Did you beat its target?';
       else if (p.stage === 'hit') text = (p.noDice ? 'With no dice, the check fails. ' : '') + (isM ? 'It survives and strikes you again: apply its strike, then tap Done.'
         : 'It hits you: apply its strike, then tap Done. The trap is gone.' + ' <small>If the card moves you, tap Done, then tap where it sends you.</small>');
@@ -3159,15 +3191,17 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       $('soEncBtns').hidden = p.stage !== 'rolled';
       $('soPw').hidden = p.stage !== 'target';
       $('soEncClose').hidden = !!p.must;
-      const most = uses();
-      soDice = Math.max(0, Math.min(soDice, most));
-      $('soDiceN').textContent = plural(soDice, 'die', 'dice');
-      $('soDiceMinus').disabled = soDice <= 0;
-      $('soDicePlus').disabled = soDice >= most;
-      $('soFight').textContent = (isM ? 'Fight' : 'Disarm') + (soDice ? '' : ': fail');
+      const nd = (soPay || []).length;
+      $('soDiceN').textContent = plural(nd, 'die', 'dice');
+      $('soDiceMinus').disabled = nd <= 0;
+      $('soDicePlus').disabled = payNext(soPay || []) == null;
+      $('soFight').textContent = (isM ? 'Fight' : 'Disarm') + (nd ? '' : ': fail');
       $('soWin').textContent = isM ? 'Defeated' : 'Disarmed';
       $('soLose').textContent = isM ? 'It survived' : 'Failed';
-      if (p.stage === 'target') { const i = $('soPwInput'); if (document.activeElement !== i) i.value = SO.power[p.k] != null ? SO.power[p.k] : ''; }
+      if (p.stage === 'target') {
+        $('soPwVal').textContent = SO.power[p.k] != null ? SO.power[p.k] : '–';
+        $('soPw').querySelector('[data-sod="-1"]').disabled = !SO.power[p.k];
+      }
     }
     if (over) {
       const o = SO.over, a = SO.ach;
@@ -3176,6 +3210,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') + ' disarmed' +
         (SO.cardUses ? ' · ' + plural(SO.cardUses, 'card action', 'card actions') : '') + '.';
       $('soTreasure').hidden = o.treasure != null;
+      $('soTrVal').textContent = soTr;
+      $('soTreasure').querySelector('[data-sot="-1"]').disabled = !soTr;
       $('soEndBtns').hidden = o.treasure == null;
       if (o.treasure == null) $('soEndText').textContent = facts + ' Now enter your treasure score from your cards.';
       else {
@@ -3256,6 +3292,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       soPenalty(soChoose, SO.cubes[+cubeBtn.dataset.i]);
       return;
     }
+    if (p && p.stage === 'face') { if (cubeBtn) soPayTap(+cubeBtn.dataset.i); return; }
     if (soCubeSel != null && bk && bk.dataset.at !== SO.cubes[soCubeSel].at) {
       const c = SO.cubes[soCubeSel], to = bk.dataset.at;
       if (to === 'C' && cubesAt('C').length >= 3) { toast('The Conserved slots are full.'); return; }
@@ -3284,28 +3321,23 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       keep: 'Cancel', go: 'Reveal', onGo: soBuilderReveal});
   });
   $('soStrikeDone').addEventListener('click', soStrikeDone);
-  $('soDiceMinus').addEventListener('click', () => { soDice = Math.max(0, soDice - 1); renderSolo(); });
-  $('soDicePlus').addEventListener('click', () => { soDice = Math.min(uses(), soDice + 1); renderSolo(); });
+  $('soDiceMinus').addEventListener('click', () => { soPay = payValid().slice(0, -1); renderSolo(); });
+  $('soDicePlus').addEventListener('click', () => { const pay = payValid(), j = payNext(pay); if (j != null) { soPay = pay.concat(j); renderSolo(); } });
   $('soFight').addEventListener('click', soFight);
   $('soWin').addEventListener('click', () => soOutcome(true));
   $('soLose').addEventListener('click', () => soOutcome(false));
   $('soEncClose').addEventListener('click', () => { if (SO.pending && !SO.pending.must) { SO.pending = null; saveSolo(); renderSolo(); soAfter(); } });
-  $('soPwInput').addEventListener('input', e => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
-    if (digits !== e.target.value) e.target.value = digits;
-    soSetPower(digits === '' ? null : parseInt(digits, 10));
-  });
+  // The monster's target: it starts at its last known target (lower it with −), or empty (+3 starts at 3).
   document.querySelectorAll('[data-sod]').forEach(b => b.addEventListener('click', () => {
     const p = SO.pending;
     if (!p || p.stage !== 'target') return;
-    const cur = SO.power[p.k], d = +b.dataset.sod;
-    soSetPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
+    soSetPower(stepValue(SO.power[p.k], +b.dataset.sod, 99));
   }));
   $('soPw').addEventListener('submit', e => { e.preventDefault(); soPowerDone(); });
-  $('soTrInput').addEventListener('input', e => { const d = e.target.value.replace(/\D/g, '').slice(0, 3); if (d !== e.target.value) e.target.value = d; });
   document.querySelectorAll('[data-sot]').forEach(b => b.addEventListener('click', () => {
-    const i = $('soTrInput'), v = parseInt(i.value, 10) || 0;
-    i.value = Math.max(0, Math.min(999, v + +b.dataset.sot));
+    soTr = stepValue(soTr, +b.dataset.sot, 999) || 0;
+    $('soTrVal').textContent = soTr;
+    $('soTreasure').querySelector('[data-sot="-1"]').disabled = !soTr;
   }));
   $('soTreasure').addEventListener('submit', e => { e.preventDefault(); soTreasureDone(); });
   $('soAgain').addEventListener('click', () => { soloStart(SO.lair); render(); });

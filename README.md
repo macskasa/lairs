@@ -91,7 +91,7 @@ Pick a tool, then tap a square.
 | **Clear** | Clears a square's marks. Walls stay. |
 | **Trap / Monster / Chest** | Draws that feature. Tap it again to remove it. |
 | **Eliminate** | Fills in a trap, monster or chest that's gone. Tap again to bring it back. |
-| **Power** | Sets a monster's remaining power (0–99), shown in the square's corner. |
+| **Power** | Sets a monster's remaining power (0–99), shown in the square's corner. Use **−** (down 1) and **+3** (up 3); there's no text box, so the keyboard stays closed. |
 
 **Map rules:**
 - The Exit can't share a square with the Start, a trap, a monster or a chest.
@@ -145,13 +145,14 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
   2. Fight or disarm it, or move out of its space.
 - **Walking into a known one:** you must fight or disarm it at once.
 - **Fighting or disarming:** buy dice at a cube each, roll them, and tap the outcome. Buying no dice is a fail.
-- **Monsters:** **Defeated**, or **It survived**. If it survived, it strikes again (apply it as above) and you enter its target lowered by your roll, which is shown on the square.
+  - **Which cubes pay:** the cubes that will pay are outlined on the mat. **−** and **+** change the number of dice in the usual order (Conserved first, Quickness last). Tap a cube to add it or drop it. A Conserved cube can pay for two dice: tap it twice (it shows ×2).
+- **Monsters:** **Defeated**, or **It survived**. If it survived, it strikes again (apply it as above) and you enter its target lowered by your roll, which is shown on the square. It starts at the last target the app knows, so you lower it with **−**; **+3** raises it by 3 (from empty, it starts at 3).
 - **Traps:** **Disarmed**, or **Failed**. A failed trap hits you and is removed. Either way it's filled in.
 - **Chests:** **Open** and take your treasures.
 
 **Leaving and your score:**
 - **Leaving:** at the Exit, **Exit** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab.
-- **Your score:** your treasure total (you enter it from your cards at the end), plus monsters (2 points for 2 monsters, 4 for 3), plus exit points. Par works like a rival who exits on that turn:
+- **Your score:** your treasure total (you enter it from your cards at the end, with **−** and **+3**), plus monsters (2 points for 2 monsters, 4 for 3), plus exit points. Par works like a rival who exits on that turn:
 
 | When you exit | Exit points |
 |---|---|
