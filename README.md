@@ -145,7 +145,7 @@ Tap any square and a menu opens beside it: what you know about the square, then 
 
 **Encounters:** the app never needs your cards' numbers. You roll your own dice and tell it how it went.
 - **Walking into an unknown monster or trap:** it strikes.
-  1. Apply the strike from your card: tap **Fatigue a cube** or **Spend a cube**, then tap the cube on the mat (the ones that qualify are outlined), or **Any** to let the app pick the one that hurts least. Repeat for each cube the card asks for, then tap **Done**.
+  1. Apply the strike from your card: tap **Fatigue a cube** or **Spend a cube**, then tap as many cubes on the mat as the card asks for (the ones that qualify are outlined). **Any** lets the app pick one, the one that hurts least. **Back** switches between Fatigue and Spend, and **Done** finishes the strike.
   2. Fight or disarm it, or move out of its space.
 - **Walking into a known one:** you must fight or disarm it at once.
 - **Fighting or disarming:** buy dice at a cube each, roll them, and tap the outcome. Buying no dice is a fail.

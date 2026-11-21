@@ -438,9 +438,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .board.solo .cell.picked .box{border:2px solid var(--pc);box-shadow:inset 0 0 0 2px var(--pc)}
 .so-row3{display:grid;grid-template-columns:1fr 1fr auto;gap:6px}
 .so-row3 .primary{padding:3px 12px}
-.so-choose{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px}
+.so-choose{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:6px}
 .so-choose span{min-width:0;font-size:13.5px;font-weight:600;line-height:1.25}
-.so-choose .so-act{padding:3px 12px}
+.so-choose .so-act{padding:3px 10px}
 .so-mat.choosing .cube{opacity:.3}
 /* Buying dice: the cubes that pay are outlined; ×2 on a Conserved cube that pays twice */
 .so-mat.buying .cube{opacity:.3}
@@ -797,6 +797,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <span id="soChooseText"></span>
           <button type="button" class="so-act" id="soChooseAny">Any</button>
           <button type="button" class="so-act" id="soChooseBack">Back</button>
+          <button type="button" class="so-act primary" id="soChooseDone">Done</button>
         </div>
         <div class="so-face" id="soFaceRow">
           <button type="button" class="pw-step" id="soDiceMinus" aria-label="Fewer dice">−</button>
@@ -2578,7 +2579,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
   // the app reveals what you learn about, keeps your cubes and turns, and you tell it how fights and disarms went.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soFileAsk = false, soCubeSel = null, soCardsOpen = false, soChoose = null;
+  let soTab = 'explore', soFileAsk = false, soCubeSel = null, soCardsOpen = false, soChoose = null, soChosen = 0;
   let soMenu = null, soMenuRows = []; // the map menu: {r, c, pay: the row being paid for, or -1}, and its rows
   let soPay = null; // the cubes paying for a fight's dice (see payNext), or null for the app's usual choice
   let soTr = 0; // the treasure score being entered at the end
@@ -3028,16 +3029,17 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     soPay = n < cap ? pay.concat(i) : pay.filter(j => j !== i);
     renderSolo();
   }
-  // Applying a strike: one tap per cube the card asks for. After Fatigue or Spend you pick the cube on the mat,
-  // or tap Any to let the app choose the one that hurts least.
+  // Applying a strike: tap Fatigue or Spend, then tap as many cubes on the mat as the card asks for (or Any, once per
+  // cube, to let the app choose the one that hurts least). Done finishes the strike; Back switches to the other one.
   const canTake = (kind, c) => kind === 'fatigue' ? c.at !== 'T' : c.at === 'F' || c.at === 'C';
   function soPenalty(kind, cube){
     if (cube && !canTake(kind, cube)) { toast('That cube can’t be ' + (kind === 'fatigue' ? 'fatigued' : 'spent') + '. Tap another.'); return; }
-    soChoose = null;
     const c = kind === 'fatigue' ? fatigueOne(cube) : cube ? (cube.at = cube.at === 'C' ? 'F' : 'S', cube) : spendPenalty();
-    if (!c) { renderSolo(); toast(kind === 'fatigue' ? 'Every cube is already fatigued.' : 'No cube left to spend: fatigue one instead.'); return; }
+    if (!c) { soChoose = null; renderSolo(); toast(kind === 'fatigue' ? 'Every cube is already fatigued.' : 'No cube left to spend: fatigue one instead.'); return; }
+    soChosen++;
+    if (!SO.cubes.some(x => canTake(kind, x))) soChoose = null; // nothing more to take: back to the strike buttons
     saveSolo(); renderSolo();
-    toast((kind === 'fatigue' ? 'Fatigued' : 'Spent') + ' your ' + CUBE_NAME[c.k] + '.');
+    if (!cube) toast((kind === 'fatigue' ? 'Fatigued' : 'Spent') + ' your ' + CUBE_NAME[c.k] + '.');
   }
 
   function soAction(){
@@ -3234,7 +3236,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const striking = p.stage === 'strike' || p.stage === 'hit';
       $('soStrikeRow').hidden = !striking || !!soChoose;
       $('soChooseRow').hidden = !striking || !soChoose;
-      if (soChoose) $('soChooseText').textContent = (soChoose === 'fatigue' ? 'Fatigue' : 'Spend') + ' which cube? Tap it on the mat.';
+      if (soChoose) $('soChooseText').textContent = (soChoose === 'fatigue' ? 'Fatigue' : 'Spend') + ': tap cubes' + (soChosen ? ' · ' + soChosen + ' done' : '');
       $('soFaceRow').hidden = p.stage !== 'face';
       $('soEncBtns').hidden = p.stage !== 'rolled';
       $('soPw').hidden = p.stage !== 'target';
@@ -3364,10 +3366,11 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (cubeBtn) { const i = +cubeBtn.dataset.i; soCubeSel = soCubeSel === i ? null : i; soMenuClose(); renderSolo(); return; }
     if (soCubeSel != null) { soCubeSel = null; renderSolo(); }
   });
-  $('soFatigue').addEventListener('click', () => { soChoose = 'fatigue'; renderSolo(); });
-  $('soSpendP').addEventListener('click', () => { soChoose = 'spend'; renderSolo(); });
+  $('soFatigue').addEventListener('click', () => { soChoose = 'fatigue'; soChosen = 0; renderSolo(); });
+  $('soSpendP').addEventListener('click', () => { soChoose = 'spend'; soChosen = 0; renderSolo(); });
   $('soChooseAny').addEventListener('click', () => { if (soChoose) soPenalty(soChoose); });
   $('soChooseBack').addEventListener('click', () => { soChoose = null; renderSolo(); });
+  $('soChooseDone').addEventListener('click', () => { soChoose = null; soStrikeDone(); });
   $('soCards').addEventListener('click', soCardsTap);
   $('soCardBack').addEventListener('click', () => { soCardsOpen = false; renderSolo(); });
   $('soCardReveal').addEventListener('click', () => {
