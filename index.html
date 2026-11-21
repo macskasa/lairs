@@ -33,6 +33,7 @@
   --onp:#FFFFFF;
   --fog:#D2C0AB;
   --fogline:#B9A48E;
+  --cube-b:#FFFFFF; --cube-q:#E9B63B; --cube-qe:#A47812; --cube-p:#72B283; --cube-pe:#3C7A4C;
   --display:"Oswald","Arial Narrow",sans-serif;
   --body:"Barlow",system-ui,-apple-system,sans-serif;
   /* Spare height on tall phones (e.g. Galaxy S2x Ultra), up to 40px, used to enlarge the controls.
@@ -47,6 +48,7 @@
     --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
     --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
     --fog:#0F0B09; --fogline:#3A2E26;
+    --cube-b:#E6D6C3; --cube-q:#D9A632; --cube-qe:#F2CF7A; --cube-p:#5E9E70; --cube-pe:#A5D9B1;
     color-scheme:dark;
   }
 }
@@ -54,6 +56,7 @@
   --bg:#17120F; --paper:#221B17; --ink:#EEDFCD; --muted:#A8907F; --line:#4D3C30;
   --wall:#C49882; --tint:#2E251F; --pc:#E8775A; --onp:#1B130F;
   --fog:#0F0B09; --fogline:#3A2E26;
+  --cube-b:#E6D6C3; --cube-q:#D9A632; --cube-qe:#F2CF7A; --cube-p:#5E9E70; --cube-pe:#A5D9B1;
   color-scheme:dark;
 }
 
@@ -273,6 +276,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .cbox-card strong{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.2}
 .cbox-card p{margin:0;font-size:15px;line-height:1.45;color:var(--ink)}
 .cbox-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.cbox-btns.three{grid-template-columns:1fr 1fr 1fr}
 .cbox-btns button{min-height:46px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 #cfGo{border-color:var(--pc);background:var(--pc);color:var(--onp)}
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,16px);opacity:0;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;text-align:center;pointer-events:none;transition:opacity .2s, transform .2s;z-index:20}
@@ -376,18 +380,56 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-ach{flex:none;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);font-family:var(--display);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .so-ach span{display:flex;align-items:center;gap:3px}
 .so-ach svg{width:17px;height:17px;color:var(--wall)}
-.so-main{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:6px;align-content:start}
-.so-main .where{grid-column:1;grid-row:1;align-self:end}
-.so-main .dpad{grid-column:2;grid-row:1 / span 2;align-self:center}
-.so-main .so-act{grid-column:1;grid-row:2;align-self:start}
-.steps.peering{color:var(--pc);font-weight:600}
-.so-act{width:100%;min-height:42px;padding:6px 10px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.07em;text-transform:uppercase}
-.so-act.quiet{border-color:var(--line);background:var(--bg);color:var(--ink)}
+/* Cube mat: Conserved (3 slots), Fresh, Spent and Fatigued. Basic cubes are plain, Quickness yellow with a bolt,
+   Perception green with an eye. Tap a cube, then a basket, to move it by hand. */
+.so-mat{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px}
+.bk{min-width:0;display:flex;flex-direction:column;gap:3px;padding:4px 5px 5px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer}
+.bk.target{border-color:var(--pc);border-style:dashed}
+.bk-name{font-family:var(--display);font-weight:500;font-size:9.5px;line-height:1.1;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-cubes{display:flex;flex-wrap:wrap;align-content:flex-start;gap:3px;min-height:35px}
+.cube{flex:none;width:16px;height:16px;padding:0;border-radius:4px;border:1.5px solid var(--wall);background:var(--cube-b);display:grid;place-items:center;color:#3B2A22}
+.cube.k-q{background:var(--cube-q);border-color:var(--cube-qe)}
+.cube.k-p{background:var(--cube-p);border-color:var(--cube-pe)}
+.cube svg{width:11px;height:11px}
+.cube.sel{outline:2px solid var(--pc);outline-offset:1px}
+.slot{flex:none;width:16px;height:16px;border-radius:4px;border:1.5px dashed var(--line)}
+.bk[data-at="T"] .cube{opacity:.55}
+.so-main{gap:8px}
+.so-info{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;column-gap:12px}
+.so-info .where{gap:2px}
+.so-info .pos{font-size:34px}
+.so-info .steps{margin:0;align-self:center;font-size:12.5px;line-height:1.3}
+.so-turn{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.so-turn strong{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.so-turn span:last-child{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.so-turn .over{color:var(--pc);font-weight:600}
+.so-acts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+.so-act{min-width:0;min-height:42px;padding:4px 6px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.so-act.primary{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+.so-act[aria-pressed="true"]{border-color:var(--pc);background:var(--paper);color:var(--pc);box-shadow:inset 0 0 0 1.5px var(--pc)}
 .so-act:active{filter:brightness(.94)}
-/* The Peer switch sits in the middle of the compass */
-.dir.peer{grid-column:2;grid-row:2;display:grid;place-items:center;padding:0;color:var(--muted);font-size:9px;letter-spacing:.06em;line-height:1}
-.dir.peer svg{width:20px;height:20px;margin-bottom:1px}
-.dir.peer[aria-pressed="true"]{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+.so-act:disabled{opacity:.45;cursor:default}
+.so-confirm{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px}
+.so-confirm span{min-width:0;font-size:13.5px;font-weight:600;line-height:1.25}
+.so-confirm .so-act{padding:4px 12px}
+.board.solo .cell.picked .box{border:2px solid var(--pc);box-shadow:inset 0 0 0 2px var(--pc)}
+.so-row3{display:grid;grid-template-columns:1fr 1fr auto;gap:6px}
+.so-row3 .so-act{font-size:12px;letter-spacing:.03em}
+.so-face{display:flex;align-items:center;gap:6px}
+.so-face .pw-step{flex:none;width:38px;height:42px}
+.so-dice{flex:none;min-width:52px;text-align:center;font-family:var(--display);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.so-face .so-act{flex:1}
+#soTrInput{flex:none;width:62px;height:42px;text-align:center;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+#soTrDone{flex:none;height:42px;padding:0 14px;border-radius:10px;border:1.5px solid var(--pc);background:var(--pc);color:var(--onp);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+/* Settings switch */
+.switch-row{display:flex;align-items:center;gap:12px;cursor:pointer}
+.switch-row > span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.switch-row b{font-weight:600;font-size:14.5px}
+.switch-row small{font-size:13px;line-height:1.35;color:var(--muted)}
+.switch-row input{appearance:none;-webkit-appearance:none;flex:none;width:46px;height:28px;margin:0;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .15s}
+.switch-row input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--paper);box-shadow:0 1px 3px rgb(0 0 0 / .25);transition:left .15s}
+.switch-row input:checked{background:var(--pc)}
+.switch-row input:checked::after{left:21px}
 .board.solo.peering .cell.frontier .box{border-color:var(--pc);border-style:solid}
 /* Encounter and end of game */
 .so-text{margin:0;font-size:14px;line-height:1.4;color:var(--ink)}
@@ -488,6 +530,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   .so-text{font-size:13.5px;line-height:1.33}
   .so-btns button{min-height:42px}
   #soEnc{gap:5px}
+  .so-info .pos{font-size:28px}
+  .so-turn strong{font-size:26px}
+  .so-act{min-height:38px}
+  .cube,.slot{width:14px;height:14px}
+  .cube svg{width:10px;height:10px}
+  .bk-cubes{min-height:31px}
+  .so-main{gap:6px}
+}
+@media (orientation: portrait) and (max-height: 680px){
+  .so-info .label{display:none}
 }
 /* Phones turned sideways: the start screen keeps the choices and drops their descriptions,
    and the example map's note is left out (the start screen says it's an example). */
@@ -668,30 +720,41 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     </div>
 
     <div class="panel" id="soExplore">
+      <div class="so-mat" id="soMat" role="group" aria-label="Cube mat"></div>
+
       <div class="gameview so-main" id="soMain">
-        <div class="where">
-          <span class="label">Tracker at</span>
-          <strong class="pos" id="soPos">—</strong>
-          <span class="steps" id="soSteps"></span>
+        <div class="so-info">
+          <div class="where"><span class="label">Tracker at</span><strong class="pos" id="soPos">—</strong></div>
+          <p class="steps" id="soSteps"></p>
+          <div class="so-turn"><span class="label">Turn</span><strong id="soTurn">1</strong><span id="soPar"></span></div>
         </div>
-        <button type="button" class="so-act" id="soAct" hidden></button>
-        <div class="dpad">
-          <button type="button" class="dir dn" data-sodir="n" aria-label="North">N</button>
-          <button type="button" class="dir dw" data-sodir="w" aria-label="West">W</button>
-          <button type="button" class="dir peer" id="soPeer" aria-pressed="false" aria-label="Peer" title="Peer: look into a neighbouring unknown space">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>PEER
-          </button>
-          <button type="button" class="dir de" data-sodir="e" aria-label="East">E</button>
-          <button type="button" class="dir ds" data-sodir="s" aria-label="South">S</button>
+        <div class="so-acts" id="soActs">
+          <button type="button" class="so-act primary" id="soAct" hidden></button>
+          <button type="button" class="so-act" id="soPeer" aria-pressed="false">Peer</button>
+          <button type="button" class="so-act" id="soHustle" aria-pressed="false">Hustle</button>
+          <button type="button" class="so-act" id="soEndTurn">End turn</button>
+        </div>
+        <div class="so-confirm" id="soConfirm" hidden>
+          <span id="soConfirmText"></span>
+          <button type="button" class="so-act" id="soConfirmNo">Cancel</button>
+          <button type="button" class="so-act primary" id="soConfirmGo">Go</button>
         </div>
       </div>
 
       <div class="gameview" id="soEnc" hidden>
-        <div class="pc-head">
-          <strong id="soEncTitle"></strong>
-          <button type="button" id="soEncClose">Not now</button>
-        </div>
         <p class="so-text" id="soEncText"></p>
+        <div class="so-row3" id="soStrikeRow">
+          <button type="button" class="so-act" id="soFatigue">Fatigue a cube</button>
+          <button type="button" class="so-act" id="soSpendP">Spend a cube</button>
+          <button type="button" class="so-act primary" id="soStrikeDone">Done</button>
+        </div>
+        <div class="so-face" id="soFaceRow">
+          <button type="button" class="pw-step" id="soDiceMinus" aria-label="Fewer dice">−</button>
+          <span class="so-dice" id="soDiceN">2 dice</span>
+          <button type="button" class="pw-step" id="soDicePlus" aria-label="More dice">+</button>
+          <button type="button" class="so-act primary" id="soFight">Fight</button>
+          <button type="button" class="so-act" id="soEncClose">Not now</button>
+        </div>
         <div class="so-btns" id="soEncBtns">
           <button type="button" id="soLose"></button>
           <button type="button" class="primary" id="soWin"></button>
@@ -708,7 +771,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       <div class="gameview" id="soEnd" hidden>
         <strong class="so-end-title" id="soEndTitle"></strong>
         <p class="so-text" id="soEndText"></p>
-        <div class="so-btns">
+        <form class="power" id="soTreasure">
+          <strong>Treasure score</strong>
+          <button type="button" class="pw-step" data-sot="-1" aria-label="Lower">−</button>
+          <input id="soTrInput" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done" placeholder="0" aria-label="Your treasure score">
+          <button type="button" class="pw-step" data-sot="1" aria-label="Raise">+</button>
+          <button type="submit" id="soTrDone">Done</button>
+        </form>
+        <div class="so-btns" id="soEndBtns">
           <button type="button" id="soAgain">Play it again</button>
           <button type="button" class="primary" id="soNewEnd">New solo lair</button>
         </div>
@@ -773,6 +843,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     <p class="set-sub">How many of each piece the lair has. New games keep these numbers.</p>
     <div class="pc-grid" id="pcGrid"></div>
     <p class="hint">Eliminated pieces still count.</p>
+  </section>
+
+  <section class="set-card" aria-labelledby="soloSetTitle">
+    <h3 id="soloSetTitle">Solo</h3>
+    <label class="switch-row">
+      <span><b>Confirm moves on the map</b><small>Tap a square to select it, then confirm, or tap it again. Handy on small screens.</small></span>
+      <input type="checkbox" id="setConfirm" role="switch">
+    </label>
   </section>
 
   <section class="set-card about" aria-labelledby="aboutTitle">
@@ -903,8 +981,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   <div class="cbox-card">
     <strong id="cfTitle"></strong>
     <p id="cfText"></p>
-    <div class="cbox-btns">
+    <div class="cbox-btns" id="cfBtns">
       <button type="button" id="cfKeep"></button>
+      <button type="button" id="cfAlt" hidden></button>
       <button type="button" id="cfGo"></button>
     </div>
   </div>
@@ -1219,6 +1298,111 @@ const LairGen = (() => {
     return Math.round(10 * sim / SIM_RUNS) / 10 + 2 * gated;
   }
 
+
+  // ---- Par: how many turns a lair should take ----
+  // Simulated explorers that don't know the lair, playing by the cube rules: 6 cubes (4 basic, Quickness, Perception)
+  // start Fresh; a creep costs 1, a hustle 2 for up to 3 steps (it stops at any non-empty space), a backtrack the
+  // Quickness cube. A check buys dice at 1 cube each (faces 1,2,2,3,3,4) against a target of 6 for monsters and 5 for
+  // traps; strikes fatigue 2 cubes. Each turn starts with Spent → Fresh, then Fatigued → Spent. Par is the median
+  // number of turns of 48 explorers, so the same lair always gets the same par.
+  const DIE = [1, 2, 2, 3, 3, 4];
+  const PAR_RUNS = 48, PAR_CAP = 40;
+  function simTurns(open, feat, start, R){
+    const live = feat.slice(), known = new Uint8Array(36), tgt = {};
+    let pos = start, ch = 0, mo = 0, turn = 1;
+    let oF = 5, oS = 0, oT = 0, q = 'F'; // the other 5 cubes by basket, and where the Quickness cube is
+    known[start] = 1;
+    const exitAt = feat.indexOf('E');
+    const fresh = () => oF + (q === 'F' ? 1 : 0);
+    const met = () => ch >= 3 || mo >= 3 || (ch >= 2 && mo >= 2);
+    const payAny = n => { while (n > 0 && oF > 0) { oF--; oS++; n--; } if (n > 0 && q === 'F') { q = 'S'; n--; } };
+    const fatigue = n => {
+      for (; n > 0; n--) {
+        if (oS > 0) { oS--; oT++; } else if (q === 'S') q = 'T'; else if (oF > 0) { oF--; oT++; } else if (q === 'F') q = 'T';
+      }
+    };
+    const endTurn = () => { turn++; oF += oS; oS = oT; oT = 0; q = q === 'S' ? 'F' : q === 'T' ? 'S' : q; };
+    const roll = n => { let t = 0; for (let i = 0; i < n; i++) t += DIE[R.int(6)]; return t; };
+    const check = y => {
+      const kind = live[y], t = tgt[y] != null ? tgt[y] : kind === 'M' ? 6 : 5;
+      const n = Math.min(fresh(), t <= 2 ? 1 : t <= 4 ? 2 : 3);
+      payAny(n);
+      const got = roll(n);
+      if (got >= t) { live[y] = null; if (kind === 'M') mo++; }
+      else { fatigue(2); if (kind === 'M') tgt[y] = t - got; else live[y] = null; }
+    };
+    // Enter a space; returns false if that stops a hustle (anything that isn't empty).
+    const enter = y => {
+      const wasKnown = known[y];
+      known[y] = 1; pos = y;
+      if (live[y] === 'C') { live[y] = null; ch++; return false; }
+      if (live[y] === 'M' || live[y] === 'T') {
+        if (!wasKnown) fatigue(2); else check(y);
+        while (live[y] && fresh() > 0) check(y);
+        return false;
+      }
+      return !feat[y];
+    };
+    const emptyKnown = x => known[x] && !live[x] && feat[x] !== 'S' && feat[x] !== 'E';
+    for (let guard = 0; guard < 600 && turn <= PAR_CAP; guard++) {
+      if (fresh() === 0) { endTurn(); continue; }
+      if (live[pos] === 'M' || live[pos] === 'T') { check(pos); continue; }
+      const best = new Array(36).fill(Infinity), prev = new Array(36).fill(-1), done = new Uint8Array(36);
+      best[pos] = 0;
+      for (;;) {
+        let x = -1;
+        for (let i = 0; i < 36; i++) if (!done[i] && best[i] < Infinity && (x < 0 || best[i] < best[x])) x = i;
+        if (x < 0) break;
+        done[x] = 1;
+        if (!known[x]) continue;
+        for (const [y, e] of R.shuffle(NB[x].slice())) {
+          if (!open[e] || done[y]) continue;
+          const c = best[x] + (!known[y] ? 1 : live[y] === 'M' ? 5 : live[y] === 'T' ? 4 : 1);
+          if (c < best[y]) { best[y] = c; prev[y] = x; }
+        }
+      }
+      let targets = [];
+      if (met() && known[exitAt]) targets = [exitAt];
+      else {
+        for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'C' && best[x] < Infinity) targets.push(x);
+        if (!targets.length && ch >= 2 && mo < 2) for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'M' && best[x] < Infinity) targets.push(x);
+        if (!targets.length) for (let x = 0; x < 36; x++) if (!known[x] && best[x] < Infinity) targets.push(x);
+        if (!targets.length) for (let x = 0; x < 36; x++) if (known[x] && live[x] === 'M' && best[x] < Infinity) targets.push(x);
+        if (!targets.length && known[exitAt]) targets = [exitAt];
+      }
+      if (!targets.length) break;
+      let low = Infinity;
+      for (const x of targets) if (best[x] < low) low = best[x];
+      const near = targets.filter(x => best[x] === low), goal = near[R.int(near.length)];
+      if (goal === pos) break;
+      const route = [];
+      for (let x = goal; x !== pos; x = prev[x]) route.push(x);
+      route.reverse();
+      if (route.length >= 3 && known[goal] && q === 'F' && route.slice(0, -1).every(emptyKnown)) { q = 'S'; enter(goal); }
+      else if (route.length >= 2 && fresh() >= 2) {
+        payAny(2);
+        for (let i = 0; i < 3 && i < route.length; i++) if (!enter(route[i])) break;
+      } else { payAny(1); enter(route[0]); }
+      if (pos === exitAt && met()) return turn;
+    }
+    return PAR_CAP;
+  }
+  // Par for a finished lair (as generate() returns it).
+  function par(lair){
+    const open = new Uint8Array(60).fill(1);
+    EDGES.forEach(([, , k], e) => { if (lair.walls[k]) open[e] = 0; });
+    const feat = new Array(36).fill(null), at = p => p[0] * 6 + p[1];
+    feat[at(lair.start)] = 'S'; feat[at(lair.exit)] = 'E';
+    lair.chests.forEach(p => { feat[at(p)] = 'C'; });
+    lair.traps.forEach(p => { feat[at(p)] = 'T'; });
+    lair.monsters.forEach(p => { feat[at(p)] = 'M'; });
+    const R = makeRng('par|' + Array.from(open).join('') + '|' + feat.map(f => f || '.').join(''));
+    const runs = [];
+    for (let i = 0; i < PAR_RUNS; i++) runs.push(simTurns(open, feat, at(lair.start), R));
+    runs.sort((a, b) => a - b);
+    return runs[PAR_RUNS >> 1];
+  }
+
   // ---- One candidate lair ----
   function build(tier, counts, R){
     const style = tier === 'N' ? 'kruskal' : TIERS[tier].maze;
@@ -1343,11 +1527,12 @@ const LairGen = (() => {
       if (P.feat[x] === 'T') lair.traps.push(at(x));
       if (P.feat[x] === 'M') lair.monsters.push(at(x));
     }
+    lair.par = par(lair);
     return lair;
   }
 
   return {
-    VERSION, TIERS, DEFAULT, MAX_WALLS, newSeed, makeCode, parseCode, generate, bands, needsCalibration,
+    VERSION, TIERS, DEFAULT, MAX_WALLS, newSeed, makeCode, parseCode, generate, bands, needsCalibration, par,
     // For tests
     _: {makeRng, build, score, perilMap, legal, simulate, EDGES, NB, transform, countsId}
   };
@@ -1358,7 +1543,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.16';
+  const APP_VERSION = '0.17';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -2012,17 +2197,27 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   }
   const trapAsk = co => ({title:'Remove the trap on ' + co + '?', cause:'Removing the trap on ' + co, keep:'Keep the trap', go:'Remove and go back'});
 
-  let askGo = null;
+  // A confirm box: Keep (cancel) and Go, plus an optional third choice (alt). onKeep runs when it's dismissed.
+  let askGo = null, askAlt = null, askKeep = null;
   function ask(o){
     $('cfTitle').textContent = o.title;
     $('cfText').textContent = o.text;
     $('cfKeep').textContent = o.keep;
     $('cfGo').textContent = o.go;
-    askGo = o.onGo;
+    $('cfAlt').hidden = !o.alt;
+    $('cfBtns').classList.toggle('three', !!o.alt);
+    if (o.alt) $('cfAlt').textContent = o.alt.label;
+    askGo = o.onGo; askAlt = o.alt ? o.alt.onGo : null; askKeep = o.onKeep || null;
     $('confirmBox').hidden = false;
     $('cfKeep').focus();
   }
-  function closeAsk(){ $('confirmBox').hidden = true; askGo = null; }
+  function closeAsk(){
+    $('confirmBox').hidden = true;
+    const k = askKeep;
+    askGo = askAlt = askKeep = null;
+    if (k) k();
+  }
+  function askChoose(f){ askKeep = null; closeAsk(); if (f) f(); }
 
   function mark(r, c, e, btn){
     const k = key(r, c), t = S.tool, co = coord(r, c);
@@ -2308,10 +2503,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('homeBtn').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
   // ---------- Solo: the app is the Builder ----------
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
-  // the app reveals what you learn about, and you tell it how fights and disarms turned out.
+  // the app reveals what you learn about, keeps your cubes and turns, and you tell it how fights and disarms went.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soEncOpen = false, soPwFor = null, soFileAsk = false;
-  if (SO && SO.pending && !SO.over) soEncOpen = true;
+  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soDice = 2;
   const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
   const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
@@ -2346,13 +2540,87 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     return coord(r, c) + ': ' + walls + (what ? ', and ' + what + '!' : '.');
   }
 
+  // ---- Cubes: 4 basic, Quickness and Perception, in Conserved (C, 3 slots), Fresh (F), Spent (S) or Fatigued (T) ----
+  const CUBE_NAME = {b:'basic cube', q:'Quickness cube', p:'Perception cube'};
+  const BASKET = {C:'Conserved', F:'Fresh', S:'Spent', T:'Fatigued'};
+  const ORDER = {b:0, p:1, q:2}; // basic cubes go first; Quickness last, as it's the only way to backtrack
+  function newCubes(){ return ['b', 'b', 'b', 'b', 'q', 'p'].map(k => ({k, at:'F'})); }
+  const cubesAt = at => SO.cubes.filter(c => c.at === at);
+  const firstAt = (at, k) => SO.cubes.filter(c => c.at === at && (!k || c.k === k)).sort((a, b) => ORDER[a.k] - ORDER[b.k])[0];
+  // How many single-cube payments you can still make: a Conserved cube can be spent twice (into Fresh, then into Spent).
+  const uses = () => cubesAt('F').length + 2 * cubesAt('C').length;
+  const hasCube = k => !!(firstAt('C', k) || firstAt('F', k));
+  // Pay one cube (of kind k if given). Conserved cubes go first, so their second use is never lost.
+  function spendOne(k){
+    const c = firstAt('C', k) || firstAt('F', k);
+    if (!c) return false;
+    c.at = c.at === 'C' ? 'F' : 'S';
+    return true;
+  }
+  const spend = n => { for (let i = 0; i < n; i++) if (!spendOne()) return false; return true; };
+  // A strike's "fatigue a cube": the one you tap, or the one that hurts least (Spent, then Fresh, then Conserved).
+  function fatigueOne(c){
+    if (!c) c = firstAt('S') || firstAt('F') || firstAt('C');
+    if (!c || c.at === 'T') return null;
+    c.at = 'T';
+    return c;
+  }
+  // A strike's "spend a cube": a Fresh one (or a Conserved one into Fresh).
+  function spendPenalty(){
+    const c = firstAt('F') || firstAt('C');
+    if (!c) return null;
+    c.at = c.at === 'C' ? 'F' : 'S';
+    return c;
+  }
+  // Older saves (and new games) get everything a solo game needs.
+  function soNormalize(g){
+    if (!Array.isArray(g.cubes) || g.cubes.length !== 6) g.cubes = newCubes();
+    if (!g.turn) g.turn = 1;
+    if (!g.lair.par) g.lair.par = LairGen.par(g.lair);
+    g.par = g.lair.par;
+    if (!g.gone) g.gone = {};
+    if (!g.power) g.power = {};
+    if (!g.ach) g.ach = {chests: 0, monsters: 0, traps: 0};
+    g.peers = g.peers || 0;
+    g.hustle = g.hustle || null;
+    g.parNoted = !!g.parNoted;
+    if (g.pending && !g.pending.stage) g.pending.stage = g.pending.struck ? 'strike' : 'face';
+    return g;
+  }
+  if (SO) soNormalize(SO);
+
   function soloStart(lair){
-    SO = {v: 1, code: lair.code, lair, known: {}, path: [[lair.start[0], lair.start[1]]], gone: {}, power: {},
-      ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, over: null};
+    SO = soNormalize({v: 2, code: lair.code, lair, known: {}, path: [[lair.start[0], lair.start[1]]], gone: {}, power: {},
+      ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, hustle: null, over: null,
+      cubes: newCubes(), turn: 1});
     SO.known[key(lair.start[0], lair.start[1])] = true;
-    soTab = 'explore'; soEncOpen = false; soPwFor = null;
+    soTab = 'explore'; soPick = null; soCubeSel = null;
     saveSolo();
-    toast('You start in ' + soDescribe(lair.start[0], lair.start[1]));
+    toast('You start in ' + soDescribe(lair.start[0], lair.start[1]) + ' Par: ' + plural(SO.par, 'turn', 'turns') + '.');
+  }
+
+  // ---- Turns ----
+  // A new turn: Spent cubes become Fresh, then Fatigued cubes become Spent. Conserved and Fresh cubes stay.
+  function soNextTurn(){
+    for (const c of SO.cubes) if (c.at === 'S') c.at = 'F';
+    for (const c of SO.cubes) if (c.at === 'T') c.at = 'S';
+    SO.turn++;
+    SO.hustle = null; SO.peer = false; SO.strikeAt = null; soPick = null; soCubeSel = null;
+    saveSolo();
+    renderSolo();
+    toast('Turn ' + SO.turn + '. Your cubes are refreshed.');
+    if (SO.turn === SO.par + 2 && !SO.parNoted) {
+      SO.parNoted = true; saveSolo();
+      ask({title: 'Past par', text: 'Exiting now scores no exit points, but your treasures and monsters still count. You can keep exploring or give up.',
+        keep: 'Keep exploring', go: 'Give up', onGo: () => soFinish('gaveup')});
+    }
+  }
+  // With no Fresh cubes left the turn ends, unless something free is waiting: a chest to open or the Exit to use.
+  function soAfter(){
+    if (!SO || SO.over || SO.pending || SO.hustle || cubesAt('F').length) return;
+    const k = key(soHere()[0], soHere()[1]);
+    if (soLive(k) === 'chest' || (soFeat(k) === 'exit' && exitMet())) return;
+    soNextTurn();
   }
 
   // Backtrack (rulebook): through known, empty spaces into any known space.
@@ -2373,149 +2641,281 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     return false;
   }
 
-  function soMoveTo(r, c){
-    if (!SO || SO.over) return;
+  // ---- Moves ----
+  // What a tap on a square would do: {label, cost, go} to carry it out, {error} if it isn't possible, or {none}.
+  function soPlan(r, c){
     const here = soHere(), to = [r, c], k = key(r, c), hk = key(here[0], here[1]);
-    if (here[0] === r && here[1] === c) return;
-    if (SO.pending && SO.pending.must) {
-      toast(SO.pending.kind === 'monster' ? 'First fight the monster on ' + coordK(SO.pending.k) + '.' : 'First disarm the trap on ' + coordK(SO.pending.k) + '.');
-      soEncOpen = true; renderSolo(); return;
+    const fc = coord(here[0], here[1]), tc = coord(r, c), p = SO.pending;
+    if (here[0] === r && here[1] === c) return {none: true};
+    if (p && p.must) return {error: p.kind === 'monster' ? 'First fight the monster on ' + coordK(p.k) + '.' : 'First disarm the trap on ' + coordK(p.k) + '.'};
+    if (p && p.stage !== 'face') return {error: 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'};
+    const near = isNeighbour(here, to), wall = near && soWall(here, to);
+    if (SO.peer) {
+      if (!near) return {error: 'You can only peer into a neighbouring space.'};
+      if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
+      if (SO.known[k]) return {error: tc + ' is already known. Peer into an unknown space.'};
+      const perc = hasCube('p');
+      if (!perc && uses() < 2) return {error: 'Peering costs 2 cubes or your Perception cube.'};
+      return {label: 'Peer into ' + tc, cost: perc ? 'Perception cube' : '2 cubes', go: () => { if (perc) spendOne('p'); else spend(2); soPeerAt(r, c); }};
     }
-    if (soPwFor) { toast('First enter the monster’s target.'); return; }
-    if (SO.peer) { soPeerAt(r, c); return; }
-    const fc = coord(here[0], here[1]), tc = coord(r, c);
-    // Right after a trap struck you, its card may move you: to the Start, or anywhere once that's unlocked.
+    if (SO.hustle) {
+      if (!near) return {error: 'You’re hustling: move to a neighbouring space, or stop the hustle.'};
+      if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
+      return {label: 'Hustle into ' + tc, cost: SO.hustle.left + ' left', go: () => soEnter(r, c, null, {hustle: true})};
+    }
+    if (near && !wall) {
+      if (!uses()) return {error: 'No cubes left. End your turn.'};
+      return {label: 'Creep into ' + tc, cost: '1 cube', go: () => { spend(1); soEnter(r, c, null); }};
+    }
+    // Right after a trap struck you, its card may move you: to the Start, or anywhere once that's unlocked. That's free.
     const toStart = r === SO.lair.start[0] && c === SO.lair.start[1];
-    const teleport = SO.strikeAt === hk && (unlocked('teleportAnywhere') || toStart);
-    let kind = null;
-    if (isNeighbour(here, to)) {
-      if (soWall(here, to)) { if (teleport) kind = 't'; else { toast('A wall blocks ' + fc + ' → ' + tc + '.'); return; } }
-    } else {
-      let why = '';
-      if (!SO.known[k]) why = tc + ' isn’t known yet, so you can’t backtrack there.';
-      else if (!soCanBacktrack(here, to)) why = 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.';
-      if (!why) kind = 'b';
-      else if (teleport) kind = 't';
-      else { toast(why); return; }
+    if (SO.strikeAt === hk && (unlocked('teleportAnywhere') || toStart)) {
+      return {label: 'Go to ' + tc, cost: 'the trap moves you', go: () => soEnter(r, c, 't')};
     }
-    soEnter(r, c, kind);
+    if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
+    if (!SO.known[k]) return {error: tc + ' isn’t known yet, so you can’t backtrack there.'};
+    if (!soCanBacktrack(here, to)) return {error: 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.'};
+    if (!hasCube('q')) return {error: 'Backtracking needs your Quickness cube.'};
+    return {label: 'Backtrack to ' + tc, cost: 'Quickness cube', go: () => { spendOne('q'); soEnter(r, c, 'b'); }};
+  }
+  // A tap on the map. With "Confirm moves on the map" on, the first tap selects; the second (or Go) carries it out.
+  function soTap(r, c, direct){
+    if (!SO || SO.over) return;
+    soCubeSel = null;
+    const plan = soPlan(r, c);
+    if (plan.none) return;
+    if (plan.error) { soPick = null; renderSolo(); toast(plan.error); return; }
+    if (SET.confirmMoves && !direct && !(soPick && soPick.r === r && soPick.c === c)) { soPick = {r, c}; renderSolo(); return; }
+    soPick = null;
+    plan.go();
   }
 
   // Move into a space. Unknown spaces are learned about first; then you meet whatever is there.
-  function soEnter(r, c, kind, note){
+  function soEnter(r, c, kind, opt = {}){
     const k = key(r, c), wasKnown = !!SO.known[k];
     SO.path.push(kind ? [r, c, kind] : [r, c]);
     SO.known[k] = true;
-    SO.pending = null; SO.strikeAt = null; SO.peer = false; soPwFor = null;
-    const live = soLive(k);
+    SO.pending = null; SO.strikeAt = null; SO.peer = false; soPick = null;
+    const live = soLive(k), f = soFeat(k);
+    let note = opt.note != null ? opt.note : wasKnown ? '' : soDescribe(r, c);
+    if (SO.hustle) {
+      if (!opt.hustle) SO.hustle = null;
+      else if (live || f === 'start' || f === 'exit') { SO.hustle = null; note = (note ? note + ' ' : '') + 'That ends your hustle.'; }
+      else if (--SO.hustle.left <= 0) { SO.hustle = null; note = (note ? note + ' ' : '') + 'Your hustle is over.'; }
+    }
     if (live === 'monster' || live === 'trap') {
-      SO.pending = wasKnown ? {k, kind: live, must: true} : {k, kind: live, struck: true, said: note || soDescribe(r, c)};
+      SO.pending = wasKnown ? {k, kind: live, stage: 'face', must: true} : {k, kind: live, stage: 'strike', said: note};
       if (live === 'trap' && !wasKnown) SO.strikeAt = k;
-      soEncOpen = true;
-    } else soEncOpen = false;
+      soDice = Math.min(2, uses());
+    }
     saveSolo();
     renderSolo();
-    if (soEncOpen) { clearTimeout(toastT); $('toast').classList.remove('show'); return; } // the encounter panel says it all
+    if (SO.pending) { clearTimeout(toastT); $('toast').classList.remove('show'); return; } // the encounter panel says it all
     if (note) toast(note);
-    else if (!wasKnown) toast(soDescribe(r, c));
-    else if (soFeat(k) === 'exit' && !exitMet()) toast('The Exit. You need 3 chests, 3 monsters, or 2 of each to leave.');
+    else if (f === 'exit' && !exitMet()) toast('The Exit. You need 3 chests, 3 monsters, or 2 of each to leave.');
+    soAfter();
   }
 
-  // Peer: learn about a neighbouring unknown space, then creep in for free if you like.
+  // Peer (already paid for): learn about a neighbouring unknown space, then creep in for free if you like.
   function soPeerAt(r, c){
-    const here = soHere(), to = [r, c], k = key(r, c), tc = coord(r, c);
-    if (!isNeighbour(here, to)) { toast('You can only peer into a neighbouring space.'); return; }
-    if (soWall(here, to)) { toast('A wall blocks ' + coord(here[0], here[1]) + ' → ' + tc + '.'); return; }
-    if (SO.known[k]) { toast(tc + ' is already known. Peer into an unknown space.'); return; }
-    SO.known[k] = true; SO.peers++; SO.peer = false;
-    const said = soDescribe(r, c), hk = key(here[0], here[1]), onHazard = soLive(hk) === 'monster' || soLive(hk) === 'trap';
+    const here = soHere(), k = key(r, c), tc = coord(r, c), hk = key(here[0], here[1]);
+    SO.known[k] = true; SO.peers++; SO.peer = false; soPick = null;
+    const said = soDescribe(r, c), onHazard = soLive(hk) === 'monster' || soLive(hk) === 'trap';
     saveSolo();
-    if (onHazard) { // leaving a hazard's space by peering: you must go in, whatever you see
-      soEnter(r, c, null, said + ' You peered to get away, so you go in.');
-      return;
-    }
+    if (onHazard) { soEnter(r, c, null, {note: said + ' You peered to get away, so you go in.'}); return; }
     renderSolo();
     ask({title: 'Creep into ' + tc + '?', text: said + ' Creeping in after a peer is free.', keep: 'Stay here', go: 'Creep in',
-      onGo: () => soEnter(r, c, null, '')});
+      onGo: () => soEnter(r, c, null, {note: ''}), onKeep: soAfter});
   }
 
   function soStep(d){
     if (!SO || SO.over) return;
     const here = soHere(), [dr, dc, name] = DIRS[d], r = here[0] + dr, c = here[1] + dc;
     if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
-    soMoveTo(r, c);
+    soTap(r, c, true);
   }
 
-  // Outcomes you report after rolling your own dice.
-  function soOutcome(won){
-    const p = SO.pending || (soLive(key(soHere()[0], soHere()[1])) ? {k: key(soHere()[0], soHere()[1]), kind: soLive(key(soHere()[0], soHere()[1]))} : null);
+  const busyMsg = () => { const p = SO.pending; return p.must ? (p.kind === 'monster' ? 'First fight the monster on ' : 'First disarm the trap on ') + coordK(p.k) + '.' : 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'; };
+  function soPeerTap(){
+    if (!SO || SO.over) return;
+    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
+    if (SO.hustle) { toast('You can’t peer while hustling.'); return; }
+    SO.peer = !SO.peer; soPick = null;
+    saveSolo(); renderSolo();
+  }
+  // Hustle: you commit and pay first, then move up to 3 times. Entering anything that isn't empty ends it.
+  function soHustleTap(){
+    if (!SO || SO.over) return;
+    if (SO.hustle) { SO.hustle = null; soPick = null; saveSolo(); renderSolo(); toast('Hustle stopped.'); soAfter(); return; }
+    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
+    const quick = hasCube('q'), two = uses() >= 2;
+    if (!quick && !two) { toast('Hustling costs 2 cubes or your Quickness cube.'); return; }
+    const start = how => {
+      if (how === 'q') spendOne('q'); else spend(2);
+      SO.hustle = {left: 3}; SO.peer = false; soPick = null;
+      saveSolo(); renderSolo();
+      toast('Hustle! Up to 3 moves.');
+    };
+    const text = 'Up to 3 moves, chosen one at a time. If you enter any space that isn’t empty, the hustle ends and the rest are lost. Paying now commits you.';
+    if (quick && two) ask({title: 'Hustle?', text, keep: 'Cancel', go: '2 cubes', onGo: () => start('2'), alt: {label: 'Quickness', onGo: () => start('q')}});
+    else ask({title: 'Hustle?', text, keep: 'Cancel', go: quick ? 'Pay Quickness' : 'Pay 2 cubes', onGo: () => start(quick ? 'q' : '2')});
+  }
+  // End turn, with the option to Conserve up to 3 Fresh cubes (Quickness and Perception first).
+  function soEndTurnTap(){
+    if (!SO || SO.over) return;
+    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
+    const fresh = cubesAt('F').length, n = Math.min(fresh, 3 - cubesAt('C').length);
+    const end = () => { SO.pending = null; soNextTurn(); };
+    if (n > 0) {
+      const conserve = () => {
+        SO.cubes.filter(c => c.at === 'F').sort((a, b) => ORDER[b.k] - ORDER[a.k]).slice(0, n).forEach(c => { c.at = 'C'; });
+        end();
+      };
+      ask({title: 'End your turn?', text: 'You have ' + plural(fresh, 'Fresh cube', 'Fresh cubes') + ' left. Conserve ' + n +
+        ' to spend each one twice next turn, or just end your turn.', keep: 'Cancel', go: 'Conserve ' + n, onGo: conserve,
+        alt: {label: 'Just end it', onGo: end}});
+    } else ask({title: 'End your turn?', text: 'Your cubes are refreshed for the next turn.', keep: 'Cancel', go: 'End turn', onGo: end});
+  }
+
+  // ---- Encounters: strike → face it (buy dice) → rolled → hit → (a monster's new target) ----
+  function soStrikeDone(){
+    const p = SO.pending;
+    if (!p) return;
+    if (p.stage === 'strike') { p.stage = 'face'; soDice = Math.min(soDice || 2, uses()); }
+    else if (p.stage === 'hit') {
+      if (p.kind === 'monster') { p.stage = 'target'; setTimeout(() => { const i = $('soPwInput'); i.focus(); i.select(); }, 30); }
+      else SO.pending = null;
+    }
+    saveSolo(); renderSolo();
+    if (!SO.pending) soAfter();
+  }
+  function soFight(){
+    const p = SO.pending;
+    if (!p || p.stage !== 'face') return;
+    const n = Math.max(0, Math.min(soDice, uses()));
+    spend(n);
+    if (n === 0) { soOutcome(false, true); return; } // no dice: the check fails
+    p.stage = 'rolled'; p.dice = n;
+    saveSolo(); renderSolo();
+  }
+  function soOutcome(won, noDice){
+    const p = SO.pending;
     if (!p) return;
     const co = coordK(p.k);
     if (p.kind === 'monster') {
       if (won) {
-        SO.gone[p.k] = 'defeated'; SO.ach.monsters++; SO.pending = null; delete SO.power[p.k]; soEncOpen = false;
+        SO.gone[p.k] = 'defeated'; SO.ach.monsters++; delete SO.power[p.k]; SO.pending = null;
         toast('Monster on ' + co + ' defeated!' + (exitMet() ? ' You have what you need to exit.' : ''));
-      } else {
-        soPwFor = p.k; // it strikes again; ask for its lower target
-        SO.pending = {k: p.k, kind: 'monster', survived: true};
-      }
+      } else { p.stage = 'hit'; p.noDice = !!noDice; }
     } else {
       SO.gone[p.k] = won ? 'disarmed' : 'removed';
-      if (won) SO.ach.traps++;
-      else SO.strikeAt = p.k; // its strike may move you
-      SO.pending = null; soEncOpen = false;
-      toast(won ? 'Trap on ' + co + ' disarmed.' : 'The trap hits you: apply its strike. It’s gone now.');
+      if (won) { SO.ach.traps++; SO.pending = null; toast('Trap on ' + co + ' disarmed.'); }
+      else { SO.strikeAt = p.k; p.stage = 'hit'; p.noDice = !!noDice; } // its strike may move you
     }
-    saveSolo();
-    renderSolo();
-    if (soPwFor) setTimeout(() => { const i = $('soPwInput'); i.focus(); i.select(); }, 30);
+    saveSolo(); renderSolo();
+    if (!SO.pending) soAfter();
   }
   function soSetPower(v){
-    if (!soPwFor) return;
-    if (v == null || isNaN(v)) delete SO.power[soPwFor];
-    else SO.power[soPwFor] = Math.max(0, Math.min(99, v));
+    const p = SO.pending;
+    if (!p || p.stage !== 'target') return;
+    if (v == null || isNaN(v)) delete SO.power[p.k];
+    else SO.power[p.k] = Math.max(0, Math.min(99, v));
     const i = $('soPwInput');
-    if (document.activeElement !== i) i.value = SO.power[soPwFor] != null ? SO.power[soPwFor] : '';
+    if (document.activeElement !== i) i.value = SO.power[p.k] != null ? SO.power[p.k] : '';
   }
   function soPowerDone(){
-    if (!soPwFor) return;
-    soPwFor = null; SO.pending = null; soEncOpen = false;
+    if (!SO.pending || SO.pending.stage !== 'target') return;
+    SO.pending = null;
     saveSolo();
     $('soPwInput').blur();
     renderSolo();
+    soAfter();
+  }
+  // Applying a strike: one tap per cube the card asks for.
+  function soPenalty(kind, cube){
+    const c = kind === 'fatigue' ? fatigueOne(cube) : spendPenalty();
+    if (!c) { toast(kind === 'fatigue' ? 'Every cube is already fatigued.' : 'No cube left to spend: fatigue one instead.'); return; }
+    saveSolo(); renderSolo();
+    toast((kind === 'fatigue' ? 'Fatigued' : 'Spent') + ' your ' + CUBE_NAME[c.k] + '.');
   }
 
   function soAction(){
     const here = soHere(), k = key(here[0], here[1]), live = soLive(k);
-    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live}; soEncOpen = true; renderSolo(); return; }
+    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live, stage: 'face'}; soDice = Math.min(2, uses()); soPick = null; saveSolo(); renderSolo(); return; }
     if (live === 'chest') {
       SO.gone[k] = 'opened'; SO.ach.chests++;
       saveSolo(); renderSolo();
       toast('Chest opened! Take your treasures.' + (exitMet() ? ' You have what you need to exit.' : ''));
+      soAfter();
       return;
     }
     if (soFeat(k) === 'exit') {
       if (!exitMet()) { toast('To exit you need 3 chests, 3 monsters, or 2 of each.'); return; }
-      ask({title: 'Leave the lair?', text: 'You have an exit combination. Leaving ends the game.', keep: 'Keep exploring', go: 'Exit',
-        onGo: () => soFinish('exit')});
+      const pts = soExitPoints(SO.turn);
+      ask({title: 'Leave the lair?', text: 'You have an exit combination. Leaving ends the game' + (pts ? ' and scores ' + pts + ' exit points.' : '. It’s past par, so there are no exit points.'),
+        keep: 'Keep exploring', go: 'Exit', onGo: () => soFinish('exit')});
     }
   }
+
+  // ---- The end and the score ----
+  const soExitPoints = t => t <= SO.par ? 4 : t === SO.par + 1 ? 2 : 0;
+  const soMonsterPoints = m => m >= 3 ? 6 : m === 2 ? 2 : 0;
+  const BEST_KEY = 'lairs-solo-best-v1';
   function soFinish(how){
-    SO.over = {how, moves: SO.path.length - 1};
-    SO.pending = null; SO.peer = false; soEncOpen = false; soPwFor = null; soTab = 'explore';
+    SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};
+    SO.pending = null; SO.peer = false; SO.hustle = null; soPick = null; soCubeSel = null; soTab = 'explore';
     saveSolo();
     render();
+    setTimeout(() => { const i = $('soTrInput'); if (i && !i.closest('[hidden]')) i.focus(); }, 60);
+  }
+  function soScore(){
+    const o = SO.over, exit = o.how === 'exit' ? soExitPoints(o.turn) : 0, mon = soMonsterPoints(SO.ach.monsters);
+    return {exit, mon, tre: o.treasure || 0, total: exit + mon + (o.treasure || 0)};
+  }
+  function soTreasureDone(){
+    if (!SO || !SO.over || SO.over.treasure != null) return;
+    const v = parseInt($('soTrInput').value, 10);
+    SO.over.treasure = isNaN(v) ? 0 : Math.max(0, Math.min(999, v));
+    const sc = soScore();
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch (e) {}
+    const prev = best[SO.code];
+    SO.over.prevBest = prev ? prev.score : null;
+    if (!prev || sc.total > prev.score) {
+      best[SO.code] = {score: sc.total, turn: SO.over.turn};
+      try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch (e) {}
+    }
+    $('soTrInput').blur();
+    saveSolo(); renderSolo();
   }
 
+  // ---- Drawing the solo screen ----
+  const CUBE_SVG = {
+    q: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7 1L3 7h3l-1 4 4-6H6z" fill="currentColor"/></svg>',
+    p: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1 6s2-3.2 5-3.2S11 6 11 6 9 9.2 6 9.2 1 6 1 6z" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="6" cy="6" r="1.5" fill="currentColor"/></svg>',
+    b: ''
+  };
+  function renderMat(){
+    const striking = SO.pending && (SO.pending.stage === 'strike' || SO.pending.stage === 'hit');
+    let html = '';
+    for (const at of ['C', 'F', 'S', 'T']) {
+      const here = SO.cubes.map((c, i) => [c, i]).filter(([c]) => c.at === at).sort((a, b) => ORDER[a[0].k] - ORDER[b[0].k]);
+      let cubes = here.map(([c, i]) => '<button type="button" class="cube k-' + c.k + (soCubeSel === i ? ' sel' : '') + '" data-i="' + i + '" aria-label="' +
+        CUBE_NAME[c.k] + ', ' + BASKET[at].toLowerCase() + (striking ? '. Tap to fatigue it' : '') + '">' + CUBE_SVG[c.k] + '</button>').join('');
+      if (at === 'C') for (let n = here.length; n < 3; n++) cubes += '<span class="slot" aria-hidden="true"></span>';
+      const target = soCubeSel != null && SO.cubes[soCubeSel].at !== at && !(at === 'C' && here.length >= 3);
+      html += '<div class="bk' + (target ? ' target' : '') + '" data-at="' + at + '"><span class="bk-name">' + BASKET[at] + '</span><span class="bk-cubes">' + cubes + '</span></div>';
+    }
+    $('soMat').innerHTML = html;
+  }
   function renderSolo(){
-    const on = !!SO;
-    if (!on) return;
-    const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]);
-    const visited = new Set(SO.path.map(p => key(p[0], p[1])));
+    if (!SO) return;
+    const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]), p = SO.pending;
+    const visited = new Set(SO.path.map(q => key(q[0], q[1])));
     // Outlined: the unknown spaces you could peer or creep into right now, i.e. the tracker's neighbours with no wall
-    // between. None while a fight must happen first or a monster's target is being entered.
+    // between. None while an encounter needs settling first.
     const reach = new Set();
-    if (!over && !(SO.pending && SO.pending.must) && !soPwFor) {
+    if (!over && !(p && (p.must || p.stage !== 'face'))) {
       for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
         const nr = here[0] + dr, nc = here[1] + dc;
         if (nr < 0 || nr > 5 || nc < 0 || nc > 5 || SO.known[key(nr, nc)] || L.walls[wallKey(here[0], here[1], dr, dc)]) continue;
@@ -2533,8 +2933,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (show && f) parts.push(f === 'start' ? 'the Start' : f === 'exit' ? 'the Exit' : FEAT_NAME[f] + (gone ? ' (' + SO.gone[k] + ')' : ''));
       if (k === hk) parts.push('your tracker is here');
       const pw = known && soLive(k) === 'monster' && SO.power[k] != null ? '<span class="pw">' + SO.power[k] + '</span>' : '';
+      const picked = soPick && soPick.r === r && soPick.c === c;
       const cls = 'cell' + (known ? ' known' : ' fog') + (show && center ? ' marked' : '') + (visited.has(k) ? ' visited' : '') +
-        (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '');
+        (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '') + (picked ? ' picked' : '');
       html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
         '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' + pw + '</span></button>';
     }
@@ -2569,52 +2970,89 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('soAch').setAttribute('aria-label', plural(SO.ach.chests, 'chest', 'chests') + ' opened, ' + plural(SO.ach.monsters, 'monster', 'monsters') +
       ' defeated, ' + plural(SO.ach.traps, 'trap', 'traps') + ' disarmed');
 
-    // Explore: the compass view, an encounter, or the end of the game
-    const enc = !over && soEncOpen && (SO.pending || soPwFor);
-    $('soMain').hidden = over || !!enc;
+    // Explore: the cube mat, then the controls, an encounter, or the end of the game
+    $('soMat').hidden = over;
+    if (!over) renderMat();
+    const enc = !over && !!p;
+    $('soMain').hidden = over || enc;
     $('soEnc').hidden = !enc;
     $('soEnd').hidden = !over;
-    const moves = SO.path.length - 1;
     $('soPos').textContent = coord(here[0], here[1]);
-    const st = $('soSteps');
-    st.classList.toggle('peering', !!SO.peer);
+    $('soTurn').textContent = SO.turn;
+    const parEl = $('soPar');
+    parEl.textContent = 'par ' + SO.par + (SO.turn === SO.par + 1 ? ' · final turn' : SO.turn > SO.par + 1 ? ' · past par' : '');
+    parEl.classList.toggle('over', SO.turn > SO.par);
+    const moves = SO.path.length - 1, st = $('soSteps');
+    st.classList.toggle('peering', !!SO.peer || !!SO.hustle);
     st.textContent = SO.peer ? 'Peer: tap a neighbouring unknown space.'
+      : SO.hustle ? 'Hustle: ' + plural(SO.hustle.left, 'move', 'moves') + ' left. Anything that isn’t empty ends it.'
+      : soCubeSel != null ? 'Tap a basket to move the ' + CUBE_NAME[SO.cubes[soCubeSel].k] + ' there.'
       : plural(moves, 'move', 'moves') + (SO.peers ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
-    $('soPeer').setAttribute('aria-pressed', String(!!SO.peer));
-    document.querySelectorAll('[data-sodir]').forEach(b => b.setAttribute('aria-label', (SO.peer ? 'Peer ' : 'Go ') + DIRS[b.dataset.sodir][2]));
     const live = soLive(hk), f = soFeat(hk), act = $('soAct');
-    act.hidden = !(live || f === 'exit');
-    act.classList.toggle('quiet', f === 'exit' && !live && !exitMet());
-    act.textContent = live === 'monster' ? 'Fight the monster' : live === 'trap' ? 'Disarm the trap' : live === 'chest' ? 'Open the chest' : 'Exit the lair';
+    act.hidden = !(live || f === 'exit') || !!SO.hustle;
+    act.textContent = live === 'monster' ? 'Fight' : live === 'trap' ? 'Disarm' : live === 'chest' ? 'Open' : 'Exit';
+    act.classList.toggle('primary', !(f === 'exit' && !live && !exitMet()));
+    $('soPeer').setAttribute('aria-pressed', String(!!SO.peer));
+    $('soPeer').disabled = !!SO.hustle;
+    $('soHustle').setAttribute('aria-pressed', String(!!SO.hustle));
+    $('soHustle').textContent = SO.hustle ? 'Stop' : 'Hustle';
+    $('soActs').hidden = !!soPick;
+    $('soConfirm').hidden = !soPick;
+    if (soPick) {
+      const plan = soPlan(soPick.r, soPick.c);
+      if (plan.error || plan.none) soPick = null;
+      else {
+        $('soConfirmText').textContent = plan.label + (plan.cost ? ' · ' + plan.cost : '');
+        $('soConfirmGo').textContent = plan.label.split(' ')[0];
+      }
+      $('soActs').hidden = !!soPick; $('soConfirm').hidden = !soPick;
+    }
     if (enc) {
-      const p = SO.pending || {k: soPwFor, kind: 'monster'}, isM = p.kind === 'monster', co = coordK(p.k);
+      const isM = p.kind === 'monster', co = coordK(p.k), what = isM ? 'monster' : 'trap';
       const tgt = isM && SO.power[p.k] != null ? ' (target ' + SO.power[p.k] + ')' : '';
-      $('soEncTitle').textContent = (isM ? 'Monster on ' : 'Trap on ') + co + tgt;
-      $('soEncClose').hidden = !!p.must || !!soPwFor;
-      $('soEncBtns').hidden = !!soPwFor;
-      $('soPw').hidden = !soPwFor;
+      const head = '<b>' + (isM ? 'Monster on ' : 'Trap on ') + co + tgt + '.</b> ';
+      let text;
+      if (p.stage === 'strike') text = (p.said ? p.said.replace(/!$/, '.') + ' ' : '') + 'It strikes you! Apply the strike from your ' + what +
+        ' card, then tap Done.' + (!isM ? ' <small>If the card moves you, tap Done, then tap where it sends you.</small>' : '');
+      else if (p.stage === 'face') text = (p.must ? 'You walked into a known ' + what + ', so you must ' + (isM ? 'fight it' : 'disarm it') + ' now. '
+        : (isM ? 'Fight it' : 'Disarm it') + ', or move out of its space. ') + 'Dice cost a cube each. <small>No dice is a fail.</small>';
+      else if (p.stage === 'rolled') text = 'Roll your ' + plural(p.dice, 'die', 'dice') + '. Did you beat its target?';
+      else if (p.stage === 'hit') text = (p.noDice ? 'With no dice, the check fails. ' : '') + (isM ? 'It survives and strikes you again: apply its strike, then tap Done.'
+        : 'It hits you: apply its strike, then tap Done. The trap is gone.' + ' <small>If the card moves you, tap Done, then tap where it sends you.</small>');
+      else text = 'Enter its target now: the old one minus your roll.';
+      $('soEncText').innerHTML = head + text;
+      $('soStrikeRow').hidden = !(p.stage === 'strike' || p.stage === 'hit');
+      $('soFaceRow').hidden = p.stage !== 'face';
+      $('soEncBtns').hidden = p.stage !== 'rolled';
+      $('soPw').hidden = p.stage !== 'target';
+      $('soEncClose').hidden = !!p.must;
+      const most = uses();
+      soDice = Math.max(0, Math.min(soDice, most));
+      $('soDiceN').textContent = plural(soDice, 'die', 'dice');
+      $('soDiceMinus').disabled = soDice <= 0;
+      $('soDicePlus').disabled = soDice >= most;
+      $('soFight').textContent = (isM ? 'Fight' : 'Disarm') + (soDice ? '' : ': fail');
       $('soWin').textContent = isM ? 'Defeated' : 'Disarmed';
       $('soLose').textContent = isM ? 'It survived' : 'Failed';
-      let text;
-      if (soPwFor) text = 'It survives and strikes you again: apply its strike. Then enter its target, lowered by your roll.';
-      else if (p.must) text = 'You walked into a known ' + (isM ? 'monster, so you must fight it' : 'trap, so you must disarm it') +
-        ' now. Roll your dice. <small>Rolling no dice counts as a fail.</small>';
-      else if (p.struck) text = (p.said ? p.said.replace(/!$/, '.') + ' ' : '') + 'It strikes you! Apply the strike from your ' + (isM ? 'monster' : 'trap') + ' card. Then ' +
-        (isM ? 'fight it' : 'disarm it') + ', or move out of its space.' + (!isM ? ' <small>If the card moves you, tap where it sends you.</small>' : '');
-      else text = (isM ? 'Fight it' : 'Disarm it') + ', or move out of its space. Roll your dice, then tell the app how it went.';
-      $('soEncText').innerHTML = text;
-      if (soPwFor) { const i = $('soPwInput'); if (document.activeElement !== i) i.value = SO.power[soPwFor] != null ? SO.power[soPwFor] : ''; }
+      if (p.stage === 'target') { const i = $('soPwInput'); if (document.activeElement !== i) i.value = SO.power[p.k] != null ? SO.power[p.k] : ''; }
     }
     if (over) {
-      const a = SO.ach;
-      $('soEndTitle').textContent = SO.over.how === 'exit' ? 'You escaped!' : 'You gave up';
-      $('soEndText').textContent = plural(SO.over.moves, 'move', 'moves') + (SO.peers ? ', ' + plural(SO.peers, 'peer', 'peers') : '') + ' · ' +
-        plural(a.chests, 'chest', 'chests') + ', ' + plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') +
-        ' disarmed. The whole lair is shown on the map.';
+      const o = SO.over, a = SO.ach;
+      $('soEndTitle').textContent = o.how === 'exit' ? 'You escaped!' : 'You gave up';
+      const facts = 'Turn ' + o.turn + ', par ' + SO.par + ' · ' + plural(o.moves, 'move', 'moves') + ' · ' + plural(a.chests, 'chest', 'chests') + ', ' +
+        plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') + ' disarmed.';
+      $('soTreasure').hidden = o.treasure != null;
+      $('soEndBtns').hidden = o.treasure == null;
+      if (o.treasure == null) $('soEndText').textContent = facts + ' Now enter your treasure score from your cards.';
+      else {
+        const sc = soScore();
+        const best = o.prevBest == null ? 'Your first score on this lair.' : sc.total > o.prevBest ? 'A new best on this lair (was ' + o.prevBest + ')!' : 'Your best on this lair: ' + o.prevBest + '.';
+        $('soEndText').textContent = 'Score ' + sc.total + ': treasures ' + sc.tre + ', monsters ' + sc.mon + ', exit ' + sc.exit + '. ' + facts + ' ' + best;
+      }
     }
 
     // Game tab
-    $('soLairName').textContent = L.tierName + ' lair';
+    $('soLairName').textContent = L.tierName + ' lair · par ' + SO.par;
     $('soLairCode').textContent = L.code;
     $('soNeed').textContent = over ? 'This game is over.' : exitMet() ? 'You can exit: head for the Exit.'
       : 'To exit: 3 chests, 3 monsters, or 2 of each.';
@@ -2669,30 +3107,63 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   });
 
   // Solo screen events
-  $('soCells').addEventListener('click', e => { const b = e.target.closest('.cell'); if (b) soMoveTo(+b.dataset.r, +b.dataset.c); });
-  document.querySelectorAll('[data-sodir]').forEach(b => b.addEventListener('click', () => soStep(b.dataset.sodir)));
-  $('soPeer').addEventListener('click', () => {
-    if (!SO || SO.over) return;
-    if (SO.pending && SO.pending.must) { soMoveTo(-1, -1); return; }
-    SO.peer = !SO.peer; saveSolo(); renderSolo();
-  });
-  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; soFileAsk = false; renderSolo(); }));
+  $('soCells').addEventListener('click', e => { const b = e.target.closest('.cell'); if (b) soTap(+b.dataset.r, +b.dataset.c); });
+  $('soConfirmGo').addEventListener('click', () => { if (soPick) soTap(soPick.r, soPick.c, true); });
+  $('soConfirmNo').addEventListener('click', () => { soPick = null; renderSolo(); });
+  $('soPeer').addEventListener('click', soPeerTap);
+  $('soHustle').addEventListener('click', soHustleTap);
+  $('soEndTurn').addEventListener('click', soEndTurnTap);
+  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; soFileAsk = false; soPick = null; renderSolo(); }));
   $('soAct').addEventListener('click', soAction);
+  // The cube mat: during a strike, tapping a cube fatigues it. Otherwise tap a cube, then a basket, to move it by hand
+  // (for treasure abilities and corrections).
+  $('soMat').addEventListener('click', e => {
+    if (!SO || SO.over) return;
+    const cubeBtn = e.target.closest('.cube'), bk = e.target.closest('.bk');
+    const p = SO.pending, striking = p && (p.stage === 'strike' || p.stage === 'hit');
+    if (striking) { if (cubeBtn) soPenalty('fatigue', SO.cubes[+cubeBtn.dataset.i]); return; }
+    if (soCubeSel != null && bk && bk.dataset.at !== SO.cubes[soCubeSel].at) {
+      const c = SO.cubes[soCubeSel], to = bk.dataset.at;
+      if (to === 'C' && cubesAt('C').length >= 3) { toast('The Conserved slots are full.'); return; }
+      c.at = to; soCubeSel = null;
+      saveSolo(); renderSolo();
+      toast('Moved your ' + CUBE_NAME[c.k] + ' to ' + BASKET[to] + '.');
+      return;
+    }
+    if (cubeBtn) { const i = +cubeBtn.dataset.i; soCubeSel = soCubeSel === i ? null : i; soPick = null; renderSolo(); return; }
+    if (soCubeSel != null) { soCubeSel = null; renderSolo(); }
+  });
+  $('soFatigue').addEventListener('click', () => soPenalty('fatigue'));
+  $('soSpendP').addEventListener('click', () => soPenalty('spend'));
+  $('soStrikeDone').addEventListener('click', soStrikeDone);
+  $('soDiceMinus').addEventListener('click', () => { soDice = Math.max(0, soDice - 1); renderSolo(); });
+  $('soDicePlus').addEventListener('click', () => { soDice = Math.min(uses(), soDice + 1); renderSolo(); });
+  $('soFight').addEventListener('click', soFight);
   $('soWin').addEventListener('click', () => soOutcome(true));
   $('soLose').addEventListener('click', () => soOutcome(false));
-  $('soEncClose').addEventListener('click', () => { soEncOpen = false; SO.pending = null; saveSolo(); renderSolo(); });
+  $('soEncClose').addEventListener('click', () => { if (SO.pending && !SO.pending.must) { SO.pending = null; saveSolo(); renderSolo(); soAfter(); } });
   $('soPwInput').addEventListener('input', e => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 2);
     if (digits !== e.target.value) e.target.value = digits;
     soSetPower(digits === '' ? null : parseInt(digits, 10));
   });
   document.querySelectorAll('[data-sod]').forEach(b => b.addEventListener('click', () => {
-    if (!soPwFor) return;
-    const cur = SO.power[soPwFor], d = +b.dataset.sod;
+    const p = SO.pending;
+    if (!p || p.stage !== 'target') return;
+    const cur = SO.power[p.k], d = +b.dataset.sod;
     soSetPower(cur == null ? (d > 0 ? 1 : 0) : cur + d);
   }));
   $('soPw').addEventListener('submit', e => { e.preventDefault(); soPowerDone(); });
+  $('soTrInput').addEventListener('input', e => { const d = e.target.value.replace(/\D/g, '').slice(0, 3); if (d !== e.target.value) e.target.value = d; });
+  document.querySelectorAll('[data-sot]').forEach(b => b.addEventListener('click', () => {
+    const i = $('soTrInput'), v = parseInt(i.value, 10) || 0;
+    i.value = Math.max(0, Math.min(999, v + +b.dataset.sot));
+  }));
+  $('soTreasure').addEventListener('submit', e => { e.preventDefault(); soTreasureDone(); });
   $('soAgain').addEventListener('click', () => { soloStart(SO.lair); render(); });
+  // Settings: Confirm moves on the map
+  $('setConfirm').checked = !!SET.confirmMoves;
+  $('setConfirm').addEventListener('change', e => { SET.confirmMoves = e.target.checked; saveSettings(); soPick = null; });
   const newSoloFromGame = () => {
     if (SO && !SO.over) ask({title: 'Start a new solo lair?', text: 'Your solo game in progress will end.', keep: 'Keep it', go: 'New lair', onGo: openSoloNew});
     else openSoloNew();
@@ -2751,9 +3222,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const g = soFromFile(raw);
       if (!g) { toast('That file is not a Lairs solo save.'); return; }
       const load = () => {
-        SO = g;
-        soTab = 'explore'; soPwFor = null; soFileAsk = false;
-        soEncOpen = !!SO.pending && !SO.over;
+        SO = soNormalize(g);
+        soTab = 'explore'; soFileAsk = false; soPick = null; soCubeSel = null;
         saveSolo();
         render();
         const d = new Date(raw.savedAt);
@@ -3402,7 +3872,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('appVer').textContent = $('homeVer').textContent = $('soloVer').textContent = 'v' + APP_VERSION;
 
   $('cfKeep').addEventListener('click', closeAsk);
-  $('cfGo').addEventListener('click', () => { const f = askGo; closeAsk(); if (f) f(); });
+  $('cfGo').addEventListener('click', () => askChoose(askGo));
+  $('cfAlt').addEventListener('click', () => askChoose(askAlt));
   $('confirmBox').addEventListener('click', e => { if (e.target === e.currentTarget) closeAsk(); });
 
   document.addEventListener('keydown', e => {

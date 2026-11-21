@@ -111,20 +111,49 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 - **Your route** is drawn as in the tracker.
 - **Achievements:** next to the tabs are your chests opened, monsters defeated and traps disarmed.
 
-**Actions** (Explore tab):
-- **Creep:** tap a neighbouring square or use the compass.
-- **Peer:** tap **Peer** in the middle of the compass, then a neighbouring unknown square. You learn about it, then choose whether to creep in for free. If you peer to leave a hazard's space, you must go in.
-- **Backtrack:** tap a known square further away. The rulebook's backtrack rule applies.
-- **When a trap strikes,** its card may move you. Tap where it sends you.
+**Cubes:** the Explore tab shows your cube mat: Conserved (3 slots), Fresh, Spent and Fatigued. You have 6 cubes: 4 basic, a Quickness cube (yellow, with a bolt) and a Perception cube (green, with an eye). They all start Fresh.
+- **Paying is automatic.** Conserved cubes go first, so their second use is never lost, then basic cubes. Your Quickness cube is kept for last, as it's the only way to backtrack.
+- **By hand:** tap a cube, then a basket, to move it, for treasure abilities or to correct something.
+
+**Actions** (tap the map; there's no compass in solo):
+
+| Action | How | Cost |
+|---|---|---|
+| **Creep** | Tap a neighbouring square | Any 1 cube |
+| **Peer** | Tap **Peer**, then a neighbouring unknown square. You learn about it, then choose whether to creep in for free. If you peer to leave a hazard's space, you must go in | Your Perception cube, or any 2 |
+| **Hustle** | Tap **Hustle** and pay first. If both ways of paying are possible, you choose which. That commits you: up to 3 moves, chosen one at a time. Entering any space that isn't empty ends it, and the rest are lost. **Stop** ends it early | Any 2 cubes, or your Quickness cube |
+| **Backtrack** | Tap a known square further away. The rulebook's backtrack rule applies | Your Quickness cube |
+| **Conserve** | **End turn** offers to conserve up to 3 Fresh cubes (Quickness and Perception first), and each can be spent twice next turn | Ends your turn |
+
+- **When a trap strikes,** its card may move you. Tap where it sends you; that's free.
+- **Confirm moves on the map** (Settings → Solo): when it's on, a tap on the map only selects a square and shows what it would do and cost, for example "Creep into D5 · 1 cube". Tap the same square again, or tap the button, to go. This is handy on small screens.
+
+**Turns and par:**
+- **Your turn ends** when you have no Fresh cubes left, or when you tap **End turn**. If you're standing on a chest or at the Exit with an exit combination, the app waits, as those cost nothing to use.
+- **Each new turn** moves Spent cubes to Fresh, then Fatigued cubes to Spent. Conserved and Fresh cubes stay where they are.
+- **Par** is shown next to the turn. It's the median number of turns that 48 simulated explorers, who don't know the lair, needed to get out. They play by the cube rules with the real dice (faces 1, 2, 2, 3, 3, 4). The same lair always has the same par.
 
 **Encounters:** the app never needs your cards' numbers. You roll your own dice and tell it how it went.
-- **Walking into an unknown monster or trap:** it strikes. Apply the strike from your card, then fight or disarm it, or move out of its space.
-- **Walking into a known one:** you must fight or disarm it at once. Rolling no dice counts as a fail.
-- **Monsters:** **Defeated**, or **It survived**. If it survived, it strikes again and you enter its target lowered by your roll, which is shown on the square.
+- **Walking into an unknown monster or trap:** it strikes.
+  1. Apply the strike from your card with **Fatigue a cube** or **Spend a cube**, once per cube. You can also tap a specific cube on the mat to fatigue it. Then tap **Done**.
+  2. Fight or disarm it, or move out of its space.
+- **Walking into a known one:** you must fight or disarm it at once.
+- **Fighting or disarming:** buy dice at a cube each, roll them, and tap the outcome. Buying no dice is a fail.
+- **Monsters:** **Defeated**, or **It survived**. If it survived, it strikes again (apply it as above) and you enter its target lowered by your roll, which is shown on the square.
 - **Traps:** **Disarmed**, or **Failed**. A failed trap hits you and is removed. Either way it's filled in.
-- **Chests:** **Open the chest** and take your treasures.
+- **Chests:** **Open** and take your treasures.
 
-**Leaving:** at the Exit, **Exit the lair** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab. Either way the whole lair is then shown, and you can play it again or start a new one.
+**Leaving and your score:**
+- **Leaving:** at the Exit, **Exit** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab.
+- **Your score:** your treasure total (you enter it from your cards at the end), plus monsters (the 2nd is worth 2, the 3rd 4 more), plus exit points. Par works like a rival who exits on that turn:
+
+| When you exit | Exit points |
+|---|---|
+| Within par | 4 |
+| On the turn after par (your final turn) | 2 |
+| Later | none; the app tells you once, and you can keep exploring or give up |
+
+- **After the game:** the whole lair is shown, along with your best score on that lair code. You can play it again or start a new one.
 
 **Saving:** your solo game saves itself on your device. **Game → Save game** also stores it as a `.json` file (you can choose the name), and **Load game** opens one again, for example on another phone. A save from a game with a rival belongs in the tracker's Load game, and the app tells you so.
 
@@ -182,7 +211,8 @@ For quick games: instead of designing a lair, the Builder gets a random one and 
   - **Keeping it:** your progress stays across new games and is printed on PDFs.
   - **Changing it mid-game:** you can change it during a game. If the game already uses something from a later package, the app asks first and offers a new game instead.
   - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
-- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
+- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers.
+- **Solo → Confirm moves on the map:** in solo, a tap on the map selects a square first, and a second tap (or the button) carries out the move. **Default** goes back to 21 / 3 / 3 / 3.
 - **About:** the version, and links to this page and the release notes.
 
 The phone's Back button returns from Settings to the map.
@@ -223,14 +253,16 @@ The app is a single page with no build step.
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
 - `lairs-settings-v1`: settings that belong to the device (game progress).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
-- `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone and your achievements.
+- `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone, your cubes, turn and achievements.
+- `lairs-solo-best-v1`: your best solo score for each lair code.
 
 **The lair maker** (`LairGen` in the `lairgen` script):
 - **Same code, same lair:** everything comes from one random sequence seeded by the code. It only uses whole numbers and basic arithmetic, so every browser builds the same lair. It runs in a background worker, built from that script, when the browser allows one.
 - **`VERSION`:** raise it whenever a code would build a different lair. Codes from another version are refused with a message.
+- **Par:** `par(lair)` runs 48 turn-based simulated explorers (cube rules, dice 1, 2, 2, 3, 3, 4, monster target 6, trap target 5, strikes fatigue 2) and takes the median. It's stored with each lair and worked out again for older saves.
 - **`PRESETS`:** these hold the difficulty ranges for the standard piece set with 10–25 walls, worked out ahead of time with `bands()`. Re-create them whenever the scoring or the generator changes. Other piece sets are calibrated on the phone the first time (a few seconds).
 
-**Solo save file** (`.json`): `format: "lairs-solo"`, `version`, `appVersion`, `gameProgress`, `savedAt` and `solo`: the lair itself (so it loads even if Make a lair changes), its `code`, `known` spaces, the `path` (moves as `[row, col]`, with `'b'` for a backtrack or `'t'` for a trap teleport), what's `gone`, monsters' lowered targets (`power`), achievements (`ach`), `peers`, any encounter still to settle (`pending`) and `over` when the game has ended.
+**Solo save file** (`.json`): `format: "lairs-solo"`, `version`, `appVersion`, `gameProgress`, `savedAt` and `solo`: the lair itself (so it loads even if Make a lair changes), its `code`, `known` spaces, the `path` (moves as `[row, col]`, with `'b'` for a backtrack or `'t'` for a trap teleport), what's `gone`, monsters' lowered targets (`power`), achievements (`ach`), `peers`, `cubes` (kind and basket), `turn`, `par`, any `hustle` in progress, any encounter still to settle (`pending`, with its stage) and `over` when the game has ended.
 
 **Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `teleports` (move numbers that were trap teleports), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
 
