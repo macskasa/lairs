@@ -1,6 +1,6 @@
 // Lairs Tracker offline support.
 // Change CACHE when you change this file, so phones drop the old copy.
-const CACHE = 'lairs-tracker-v1';
+const CACHE = 'lairs-tracker-v2';
 
 const LOCAL = [
   './',
@@ -44,6 +44,20 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  // The manifest always comes from the network first, so Chrome sees changes to the installed app
+  // (full screen, rotation, colours) as soon as it checks. The stored copy is only for offline.
+  if (url.origin === self.location.origin && url.pathname.endsWith('/manifest.webmanifest')) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await fetch(req, {cache: 'no-store'});
+        if (res && res.ok) { cache.put(req, res.clone()); return res; }
+      } catch (err) {}
+      return (await cache.match(req, {ignoreSearch: true})) || Response.error();
+    })());
+    return;
+  }
 
   if (url.origin === self.location.origin) {
     // Open instantly from the stored copy, and refresh it in the background when online.

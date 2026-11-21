@@ -127,6 +127,10 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 | **Conserve** | **End turn** offers to conserve up to 3 Fresh cubes (Quickness and Perception first), and each can be spent twice next turn | Ends your turn |
 
 - **When a trap strikes,** its card may move you. Tap where it sends you; that's free.
+- **Card actions** (the **Cards** button): abilities from cards you hold. The app can't see your cards, so they're always offered and never limited.
+  - **Look into a space:** spend your Perception cube to learn about any unknown space on the map. You don't move.
+  - **Builder reveals one:** the app reveals an unknown space that has something on it, chosen at random.
+  - **They count:** the number of card actions you used is shown with your score, because the simulated explorers behind par don't have them.
 - **Confirm moves on the map** (Settings → Solo): when it's on, a tap on the map only selects a square and shows what it would do and cost, for example "Creep into D5 · 1 cube". Tap the same square again, or tap the button, to go. This is handy on small screens.
 
 **Turns and par:**
@@ -136,7 +140,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 
 **Encounters:** the app never needs your cards' numbers. You roll your own dice and tell it how it went.
 - **Walking into an unknown monster or trap:** it strikes.
-  1. Apply the strike from your card with **Fatigue a cube** or **Spend a cube**, once per cube. You can also tap a specific cube on the mat to fatigue it. Then tap **Done**.
+  1. Apply the strike from your card: tap **Fatigue a cube** or **Spend a cube**, then tap the cube on the mat (the ones that qualify are outlined), or **Any** to let the app pick the one that hurts least. Repeat for each cube the card asks for, then tap **Done**.
   2. Fight or disarm it, or move out of its space.
 - **Walking into a known one:** you must fight or disarm it at once.
 - **Fighting or disarming:** buy dice at a cube each, roll them, and tap the outcome. Buying no dice is a fail.
@@ -155,6 +159,8 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 | Later | none; the app tells you once, and you can keep exploring or give up |
 
 - **After the game:** the whole lair is shown, along with your best score on that lair code. You can play it again or start a new one.
+
+**The Game tab** looks like the tracker's: **Save game**, **Load game** and **Give up**, then **New solo lair**, **Copy code**, and the lair's code, difficulty and par.
 
 **Saving:** your solo game saves itself on your device. **Game → Save game** also stores it as a `.json` file (you can choose the name), and **Load game** opens one again, for example on another phone. A save from a game with a rival belongs in the tracker's Load game, and the app tells you so.
 
@@ -246,7 +252,7 @@ The app is a single page with no build step.
 
 **Running it locally:** open `index.html` in a browser. Offline mode and installing only work when it's served over https, for example from GitHub Pages.
 
-**Deploying:** pushing to `main` publishes it with GitHub Pages.
+**Deploying:** pushing to `main` publishes it with GitHub Pages. Work held for the next version waits on the `next` branch.
 
 **Versions:** `APP_VERSION` in `index.html` is `0.x`, where `x` is the number of GitHub Pages deployments. Raise it with every deployment and add `release-notes/v0.x.md` in the same push. If you change `sw.js`, also change its `CACHE` name so devices drop the old copy.
 

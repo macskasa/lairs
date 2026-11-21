@@ -248,7 +248,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .filebtn{min-height:calc(70px + var(--g) * .3 + var(--x) * .5);justify-content:center}
 .gameview{display:flex;flex-direction:column;gap:8px}
 .gamerow{display:flex;align-items:center;gap:8px}
-#newBtn,#makeBtn{flex:none;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+#newBtn,#makeBtn,#soNewGame,#soCopy{flex:none;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
 #newBtn.armed{background:var(--pc);border-color:var(--pc);color:var(--onp)}
 .autosave{flex:1;min-width:0;font-size:12.5px;line-height:1.3;color:var(--muted)}
 
@@ -412,7 +412,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-turn span:last-child{font-size:12.5px;color:var(--muted);white-space:nowrap}
 .so-turn .over{color:var(--pc);font-weight:600}
 .so-acts{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
-.so-act{min-width:0;min-height:42px;padding:4px 6px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.so-act{min-width:0;min-height:42px;padding:3px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-family:var(--display);font-weight:600;font-size:12.5px;line-height:1.1;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);overflow-wrap:anywhere}
 .so-act.primary{border-color:var(--pc);background:var(--pc);color:var(--onp)}
 .so-act[aria-pressed="true"]{border-color:var(--pc);background:var(--paper);color:var(--pc);box-shadow:inset 0 0 0 1.5px var(--pc)}
 .so-act:active{filter:brightness(.94)}
@@ -422,6 +422,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-confirm .so-act{padding:4px 12px}
 .board.solo .cell.picked .box{border:2px solid var(--pc);box-shadow:inset 0 0 0 2px var(--pc)}
 .so-row3{display:grid;grid-template-columns:1fr 1fr auto;gap:6px}
+.so-row3 .primary{padding:3px 12px}
+.so-choose{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px}
+.so-choose span{min-width:0;font-size:13.5px;font-weight:600;line-height:1.25}
+.so-choose .so-act{padding:3px 12px}
+.so-mat.choosing .cube{opacity:.3}
+.so-mat.choosing .cube.pickable{opacity:1;outline:2px solid var(--pc);outline-offset:1px}
 .so-row3 .so-act{font-size:12px;letter-spacing:.03em}
 .so-face{display:flex;align-items:center;gap:6px}
 .so-face .pw-step{flex:none;width:38px;height:42px}
@@ -459,9 +465,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-row,.so-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .so-grid .mk-btn{height:40px;padding:0 8px;font-size:13px}
 /* The "saves itself" note only on tall screens; the exit rule is left out on very short ones (the Exit says it too). */
-.so-keep{display:none}
-@media (min-height: 780px){ .so-keep{display:block} }
-@media (max-height: 680px), (orientation: landscape) and (max-height: 420px){ #soNeed{display:none} }
+.board.solo.looking .cell.fog .box{border:1.5px dashed var(--pc)}
 /* New solo lair page */
 .solonew{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .solonew .mk-desc{min-height:2.8em}
@@ -740,7 +744,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <button type="button" class="so-act primary" id="soAct" hidden></button>
           <button type="button" class="so-act" id="soPeer" aria-pressed="false">Peer</button>
           <button type="button" class="so-act" id="soHustle" aria-pressed="false">Hustle</button>
+          <button type="button" class="so-act" id="soCards" aria-pressed="false">Cards</button>
           <button type="button" class="so-act" id="soEndTurn">End turn</button>
+        </div>
+        <div class="so-acts" id="soCardRow" hidden>
+          <button type="button" class="so-act" id="soCardLook">Look into a space</button>
+          <button type="button" class="so-act" id="soCardReveal">Builder reveals one</button>
+          <button type="button" class="so-act" id="soCardBack">Back</button>
         </div>
         <div class="so-confirm" id="soConfirm" hidden>
           <span id="soConfirmText"></span>
@@ -755,6 +765,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <button type="button" class="so-act" id="soFatigue">Fatigue a cube</button>
           <button type="button" class="so-act" id="soSpendP">Spend a cube</button>
           <button type="button" class="so-act primary" id="soStrikeDone">Done</button>
+        </div>
+        <div class="so-choose" id="soChooseRow" hidden>
+          <span id="soChooseText"></span>
+          <button type="button" class="so-act" id="soChooseAny">Any</button>
+          <button type="button" class="so-act" id="soChooseBack">Back</button>
         </div>
         <div class="so-face" id="soFaceRow">
           <button type="button" class="pw-step" id="soDiceMinus" aria-label="Fewer dice">−</button>
@@ -795,19 +810,26 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
     <div class="panel" id="soGame" hidden>
       <div class="gameview" id="soGameMain">
-        <div class="so-lair">
-          <span><span class="label" id="soLairName">Lair</span><strong id="soLairCode"></strong></span>
-          <button type="button" class="mk-btn small" id="soCopy">Copy</button>
-        </div>
-        <p class="hint" id="soNeed"></p>
-        <div class="so-grid">
-          <button type="button" class="mk-btn" id="soSave">Save game</button>
-          <button type="button" class="mk-btn" id="soLoad">Load game</button>
-          <button type="button" class="mk-btn" id="soGiveUp">Give up</button>
-          <button type="button" class="mk-btn primary" id="soNewGame">New solo lair</button>
+        <div class="filebtns">
+          <button type="button" class="filebtn" id="soSave">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Save game<small>.json file</small>
+          </button>
+          <button type="button" class="filebtn" id="soLoad">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5V4.5M7 9.5l5-5 5 5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Load game<small>from .json</small>
+          </button>
+          <button type="button" class="filebtn" id="soGiveUp">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4M6 4.5h10.5l-2 3.5 2 3.5H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Give up<small>show the lair</small>
+          </button>
         </div>
         <input type="file" id="soLoadInput" accept=".json,application/json" hidden>
-        <p class="hint so-keep">Saves itself on this device as you play. No Undo in solo.</p>
+        <div class="gamerow">
+          <button type="button" id="soNewGame">New solo lair</button>
+          <button type="button" id="soCopy">Copy code</button>
+        </div>
+        <p class="hint" id="soLairInfo"></p>
       </div>
       <form class="gameview" id="soSaveView" hidden autocomplete="off">
         <div class="pc-head">
@@ -2525,7 +2547,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
   // the app reveals what you learn about, keeps your cubes and turns, and you tell it how fights and disarms went.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soDice = 2;
+  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soDice = 2, soCardsOpen = false, soChoose = null;
   const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
   const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
@@ -2604,6 +2626,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     g.peers = g.peers || 0;
     g.hustle = g.hustle || null;
     g.parNoted = !!g.parNoted;
+    g.cardUses = g.cardUses || 0;
+    g.look = !!g.look;
     if (g.pending && !g.pending.stage) g.pending.stage = g.pending.struck ? 'strike' : 'face';
     return g;
   }
@@ -2614,7 +2638,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, hustle: null, over: null,
       cubes: newCubes(), turn: 1});
     SO.known[key(lair.start[0], lair.start[1])] = true;
-    soTab = 'explore'; soPick = null; soCubeSel = null;
+    soTab = 'explore'; soPick = null; soCubeSel = null; soCardsOpen = false; soChoose = null;
     saveSolo();
     toast('You start in ' + soDescribe(lair.start[0], lair.start[1]) + ' Par: ' + plural(SO.par, 'turn', 'turns') + '.');
   }
@@ -2625,7 +2649,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     for (const c of SO.cubes) if (c.at === 'S') c.at = 'F';
     for (const c of SO.cubes) if (c.at === 'T') c.at = 'S';
     SO.turn++;
-    SO.hustle = null; SO.peer = false; SO.strikeAt = null; soPick = null; soCubeSel = null;
+    SO.hustle = null; SO.peer = false; SO.look = false; SO.strikeAt = null; soPick = null; soCubeSel = null; soCardsOpen = false;
     saveSolo();
     renderSolo();
     toast('Turn ' + SO.turn + '. Your cubes are refreshed.');
@@ -2670,6 +2694,11 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (p && p.must) return {error: p.kind === 'monster' ? 'First fight the monster on ' + coordK(p.k) + '.' : 'First disarm the trap on ' + coordK(p.k) + '.'};
     if (p && p.stage !== 'face') return {error: 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'};
     const near = isNeighbour(here, to), wall = near && soWall(here, to);
+    if (SO.look) {
+      if (SO.known[k]) return {error: tc + ' is already known. Pick an unknown space.'};
+      if (!hasCube('p')) return {error: 'That card needs your Perception cube.'};
+      return {label: 'Look into ' + tc, cost: 'Perception cube', go: () => { spendOne('p'); soLookAt(r, c); }};
+    }
     if (SO.peer) {
       if (!near) return {error: 'You can only peer into a neighbouring space.'};
       if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
@@ -2755,12 +2784,41 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     soTap(r, c, true);
   }
 
+  // ---- Card actions (abilities from cards you hold; the app can't see your cards, so they're always offered) ----
+  // Look into a space: your Perception cube, any unknown space, you don't move.
+  function soLookAt(r, c){
+    SO.known[key(r, c)] = true; SO.look = false; SO.cardUses++; soPick = null;
+    saveSolo(); renderSolo();
+    toast(soDescribe(r, c));
+    soAfter();
+  }
+  // The Builder reveals an unknown space with something on it, chosen at random.
+  function soBuilderReveal(){
+    const cand = [];
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+      const k = key(r, c), f = soFeat(k);
+      if (!SO.known[k] && (f === 'chest' || f === 'trap' || f === 'monster' || f === 'exit')) cand.push([r, c]);
+    }
+    if (!cand.length) { toast('Every space with something on it is already known.'); return; }
+    const [r, c] = cand[Math.floor(Math.random() * cand.length)];
+    SO.known[key(r, c)] = true; SO.cardUses++;
+    saveSolo(); renderSolo();
+    toast('The Builder reveals ' + soDescribe(r, c));
+  }
+  function soCardsTap(){
+    if (!SO || SO.over) return;
+    if (SO.look) { SO.look = false; soPick = null; saveSolo(); renderSolo(); return; }
+    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
+    if (SO.hustle) { toast('Finish or stop your hustle first.'); return; }
+    soCardsOpen = !soCardsOpen; soPick = null;
+    renderSolo();
+  }
   const busyMsg = () => { const p = SO.pending; return p.must ? (p.kind === 'monster' ? 'First fight the monster on ' : 'First disarm the trap on ') + coordK(p.k) + '.' : 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'; };
   function soPeerTap(){
     if (!SO || SO.over) return;
     if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
     if (SO.hustle) { toast('You can’t peer while hustling.'); return; }
-    SO.peer = !SO.peer; soPick = null;
+    SO.peer = !SO.peer; SO.look = false; soCardsOpen = false; soPick = null;
     saveSolo(); renderSolo();
   }
   // Hustle: you commit and pay first, then move up to 3 times. Entering anything that isn't empty ends it.
@@ -2772,7 +2830,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!quick && !two) { toast('Hustling costs 2 cubes or your Quickness cube.'); return; }
     const start = how => {
       if (how === 'q') spendOne('q'); else spend(2);
-      SO.hustle = {left: 3}; SO.peer = false; soPick = null;
+      SO.hustle = {left: 3}; SO.peer = false; SO.look = false; soCardsOpen = false; soPick = null;
       saveSolo(); renderSolo();
       toast('Hustle! Up to 3 moves.');
     };
@@ -2801,6 +2859,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   function soStrikeDone(){
     const p = SO.pending;
     if (!p) return;
+    soChoose = null;
     if (p.stage === 'strike') { p.stage = 'face'; soDice = Math.min(soDice || 2, uses()); }
     else if (p.stage === 'hit') {
       if (p.kind === 'monster') { p.stage = 'target'; setTimeout(() => { const i = $('soPwInput'); i.focus(); i.select(); }, 30); }
@@ -2851,10 +2910,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     renderSolo();
     soAfter();
   }
-  // Applying a strike: one tap per cube the card asks for.
+  // Applying a strike: one tap per cube the card asks for. After Fatigue or Spend you pick the cube on the mat,
+  // or tap Any to let the app choose the one that hurts least.
+  const canTake = (kind, c) => kind === 'fatigue' ? c.at !== 'T' : c.at === 'F' || c.at === 'C';
   function soPenalty(kind, cube){
-    const c = kind === 'fatigue' ? fatigueOne(cube) : spendPenalty();
-    if (!c) { toast(kind === 'fatigue' ? 'Every cube is already fatigued.' : 'No cube left to spend: fatigue one instead.'); return; }
+    if (cube && !canTake(kind, cube)) { toast('That cube can’t be ' + (kind === 'fatigue' ? 'fatigued' : 'spent') + '. Tap another.'); return; }
+    soChoose = null;
+    const c = kind === 'fatigue' ? fatigueOne(cube) : cube ? (cube.at = cube.at === 'C' ? 'F' : 'S', cube) : spendPenalty();
+    if (!c) { renderSolo(); toast(kind === 'fatigue' ? 'Every cube is already fatigued.' : 'No cube left to spend: fatigue one instead.'); return; }
     saveSolo(); renderSolo();
     toast((kind === 'fatigue' ? 'Fatigued' : 'Spent') + ' your ' + CUBE_NAME[c.k] + '.');
   }
@@ -2883,7 +2946,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   const BEST_KEY = 'lairs-solo-best-v1';
   function soFinish(how){
     SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};
-    SO.pending = null; SO.peer = false; SO.hustle = null; soPick = null; soCubeSel = null; soTab = 'explore';
+    SO.pending = null; SO.peer = false; SO.hustle = null; SO.look = false; soPick = null; soCubeSel = null; soCardsOpen = false; soChoose = null; soTab = 'explore';
     saveSolo();
     render();
     setTimeout(() => { const i = $('soTrInput'); if (i && !i.closest('[hidden]')) i.focus(); }, 60);
@@ -2902,7 +2965,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const prev = best[SO.code];
     SO.over.prevBest = prev ? prev.score : null;
     if (!prev || sc.total > prev.score) {
-      best[SO.code] = {score: sc.total, turn: SO.over.turn};
+      best[SO.code] = {score: sc.total, turn: SO.over.turn, cards: SO.cardUses || 0};
       try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch (e) {}
     }
     $('soTrInput').blur();
@@ -2917,16 +2980,19 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   };
   function renderMat(){
     const striking = SO.pending && (SO.pending.stage === 'strike' || SO.pending.stage === 'hit');
+    if (!striking) soChoose = null;
     let html = '';
     for (const at of ['C', 'F', 'S', 'T']) {
       const here = SO.cubes.map((c, i) => [c, i]).filter(([c]) => c.at === at).sort((a, b) => ORDER[a[0].k] - ORDER[b[0].k]);
-      let cubes = here.map(([c, i]) => '<button type="button" class="cube k-' + c.k + (soCubeSel === i ? ' sel' : '') + '" data-i="' + i + '" aria-label="' +
-        CUBE_NAME[c.k] + ', ' + BASKET[at].toLowerCase() + (striking ? '. Tap to fatigue it' : '') + '">' + CUBE_SVG[c.k] + '</button>').join('');
+      let cubes = here.map(([c, i]) => '<button type="button" class="cube k-' + c.k + (soCubeSel === i ? ' sel' : '') +
+        (soChoose && canTake(soChoose, c) ? ' pickable' : '') + '" data-i="' + i + '" aria-label="' +
+        CUBE_NAME[c.k] + ', ' + BASKET[at].toLowerCase() + (soChoose && canTake(soChoose, c) ? '. Tap to ' + (soChoose === 'fatigue' ? 'fatigue' : 'spend') + ' it' : '') + '">' + CUBE_SVG[c.k] + '</button>').join('');
       if (at === 'C') for (let n = here.length; n < 3; n++) cubes += '<span class="slot" aria-hidden="true"></span>';
       const target = soCubeSel != null && SO.cubes[soCubeSel].at !== at && !(at === 'C' && here.length >= 3);
       html += '<div class="bk' + (target ? ' target' : '') + '" data-at="' + at + '"><span class="bk-name">' + BASKET[at] + '</span><span class="bk-cubes">' + cubes + '</span></div>';
     }
     $('soMat').innerHTML = html;
+    $('soMat').classList.toggle('choosing', !!soChoose);
   }
   function renderSolo(){
     if (!SO) return;
@@ -2982,6 +3048,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     tok.hidden = false; tok.style.left = (here[1] * u) + '%'; tok.style.top = (here[0] * u) + '%';
     $('soBoard').classList.toggle('over', over);
     $('soBoard').classList.toggle('peering', !!SO.peer && !over);
+    $('soBoard').classList.toggle('looking', !!SO.look && !over);
 
     // Tabs and achievements
     document.querySelectorAll('[data-solo-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.soloTab === soTab)));
@@ -3012,8 +3079,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const hereWhat = hf === 'chest' || hf === 'trap' || hf === 'monster'
       ? FEAT_NAME[hf][0].toUpperCase() + FEAT_NAME[hf].slice(1) + (hGone ? ' (' + GONE_WORD[SO.gone[hk]] + ')' : hf === 'monster' && SO.power[hk] != null ? ', target ' + SO.power[hk] : '')
       : hf === 'exit' ? 'Exit' : hf === 'start' && moves ? 'Start' : '';
-    st.classList.toggle('peering', !!SO.peer || !!SO.hustle);
-    st.textContent = SO.peer ? 'Peer: tap a neighbouring unknown space.'
+    st.classList.toggle('peering', !!SO.peer || !!SO.hustle || !!SO.look);
+    st.textContent = SO.look ? 'Card: tap any unknown space to look into it.'
+      : SO.peer ? 'Peer: tap a neighbouring unknown space.'
       : SO.hustle ? 'Hustle: ' + plural(SO.hustle.left, 'move', 'moves') + ' left. Anything that isn’t empty ends it.'
       : soCubeSel != null ? 'Tap a basket to move the ' + CUBE_NAME[SO.cubes[soCubeSel].k] + ' there.'
       : (hereWhat ? hereWhat + ' · ' : '') + plural(moves, 'move', 'moves') + (SO.peers && !hereWhat ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
@@ -3025,7 +3093,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('soPeer').disabled = !!SO.hustle;
     $('soHustle').setAttribute('aria-pressed', String(!!SO.hustle));
     $('soHustle').textContent = SO.hustle ? 'Stop' : 'Hustle';
-    $('soActs').hidden = !!soPick;
+    $('soCards').setAttribute('aria-pressed', String(soCardsOpen || !!SO.look));
+    $('soCards').disabled = !!SO.hustle;
+    $('soActs').hidden = !!soPick || soCardsOpen;
+    $('soCardRow').hidden = !!soPick || !soCardsOpen;
     $('soConfirm').hidden = !soPick;
     if (soPick) {
       const plan = soPlan(soPick.r, soPick.c);
@@ -3034,7 +3105,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         $('soConfirmText').textContent = plan.label + (plan.cost ? ' · ' + plan.cost : '');
         $('soConfirmGo').textContent = plan.label.split(' ')[0];
       }
-      $('soActs').hidden = !!soPick; $('soConfirm').hidden = !soPick;
+      $('soActs').hidden = !!soPick || soCardsOpen; $('soCardRow').hidden = !!soPick || !soCardsOpen; $('soConfirm').hidden = !soPick;
     }
     if (enc) {
       const isM = p.kind === 'monster', co = coordK(p.k), what = isM ? 'monster' : 'trap';
@@ -3050,7 +3121,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         : 'It hits you: apply its strike, then tap Done. The trap is gone.' + ' <small>If the card moves you, tap Done, then tap where it sends you.</small>');
       else text = 'Enter its target now: the old one minus your roll.';
       $('soEncText').innerHTML = head + text;
-      $('soStrikeRow').hidden = !(p.stage === 'strike' || p.stage === 'hit');
+      const striking = p.stage === 'strike' || p.stage === 'hit';
+      $('soStrikeRow').hidden = !striking || !!soChoose;
+      $('soChooseRow').hidden = !striking || !soChoose;
+      if (soChoose) $('soChooseText').textContent = (soChoose === 'fatigue' ? 'Fatigue' : 'Spend') + ' which cube? Tap it on the mat.';
       $('soFaceRow').hidden = p.stage !== 'face';
       $('soEncBtns').hidden = p.stage !== 'rolled';
       $('soPw').hidden = p.stage !== 'target';
@@ -3069,7 +3143,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const o = SO.over, a = SO.ach;
       $('soEndTitle').textContent = o.how === 'exit' ? 'You escaped!' : 'You gave up';
       const facts = 'Turn ' + o.turn + ', par ' + SO.par + ' · ' + plural(o.moves, 'move', 'moves') + ' · ' + plural(a.chests, 'chest', 'chests') + ', ' +
-        plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') + ' disarmed.';
+        plural(a.monsters, 'monster', 'monsters') + ', ' + plural(a.traps, 'trap', 'traps') + ' disarmed' +
+        (SO.cardUses ? ' · ' + plural(SO.cardUses, 'card action', 'card actions') : '') + '.';
       $('soTreasure').hidden = o.treasure != null;
       $('soEndBtns').hidden = o.treasure == null;
       if (o.treasure == null) $('soEndText').textContent = facts + ' Now enter your treasure score from your cards.';
@@ -3081,10 +3156,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
 
     // Game tab
-    $('soLairName').textContent = L.tierName + ' lair · par ' + SO.par;
-    $('soLairCode').textContent = L.code;
-    $('soNeed').textContent = over ? 'This game is over.' : exitMet() ? 'You can exit: head for the Exit.'
-      : 'To exit: 3 chests, 3 monsters, or 2 of each.';
+    $('soLairInfo').textContent = L.code + ' · ' + L.tierName + ' · par ' + SO.par;
     $('soGiveUp').disabled = over;
     $('soGameMain').hidden = soFileAsk;
     $('soSaveView').hidden = !soFileAsk;
@@ -3150,7 +3222,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!SO || SO.over) return;
     const cubeBtn = e.target.closest('.cube'), bk = e.target.closest('.bk');
     const p = SO.pending, striking = p && (p.stage === 'strike' || p.stage === 'hit');
-    if (striking) { if (cubeBtn) soPenalty('fatigue', SO.cubes[+cubeBtn.dataset.i]); return; }
+    if (striking) {
+      if (!cubeBtn) return;
+      if (!soChoose) { toast('Tap Fatigue or Spend first, then the cube.'); return; }
+      soPenalty(soChoose, SO.cubes[+cubeBtn.dataset.i]);
+      return;
+    }
     if (soCubeSel != null && bk && bk.dataset.at !== SO.cubes[soCubeSel].at) {
       const c = SO.cubes[soCubeSel], to = bk.dataset.at;
       if (to === 'C' && cubesAt('C').length >= 3) { toast('The Conserved slots are full.'); return; }
@@ -3162,8 +3239,22 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (cubeBtn) { const i = +cubeBtn.dataset.i; soCubeSel = soCubeSel === i ? null : i; soPick = null; renderSolo(); return; }
     if (soCubeSel != null) { soCubeSel = null; renderSolo(); }
   });
-  $('soFatigue').addEventListener('click', () => soPenalty('fatigue'));
-  $('soSpendP').addEventListener('click', () => soPenalty('spend'));
+  $('soFatigue').addEventListener('click', () => { soChoose = 'fatigue'; renderSolo(); });
+  $('soSpendP').addEventListener('click', () => { soChoose = 'spend'; renderSolo(); });
+  $('soChooseAny').addEventListener('click', () => { if (soChoose) soPenalty(soChoose); });
+  $('soChooseBack').addEventListener('click', () => { soChoose = null; renderSolo(); });
+  $('soCards').addEventListener('click', soCardsTap);
+  $('soCardBack').addEventListener('click', () => { soCardsOpen = false; renderSolo(); });
+  $('soCardLook').addEventListener('click', () => {
+    if (!hasCube('p')) { toast('Looking into a space needs your Perception cube.'); return; }
+    SO.look = true; SO.peer = false; soCardsOpen = false; soPick = null;
+    saveSolo(); renderSolo();
+  });
+  $('soCardReveal').addEventListener('click', () => {
+    soCardsOpen = false; renderSolo();
+    ask({title: 'Use a card?', text: 'The Builder reveals one unknown space that has something on it, chosen at random.',
+      keep: 'Cancel', go: 'Reveal', onGo: soBuilderReveal});
+  });
   $('soStrikeDone').addEventListener('click', soStrikeDone);
   $('soDiceMinus').addEventListener('click', () => { soDice = Math.max(0, soDice - 1); renderSolo(); });
   $('soDicePlus').addEventListener('click', () => { soDice = Math.min(uses(), soDice + 1); renderSolo(); });
