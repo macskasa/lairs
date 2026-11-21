@@ -244,14 +244,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 /* Lair pieces editor (Settings) and shared box headers */
 .pc-head{display:flex;align-items:center;gap:8px;min-height:34px}
 .pc-head strong{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pcDefault,#saveCancel,#saveGo,#routeClose{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
-#saveGo,#routeClose{border-color:var(--pc);background:var(--pc);color:var(--onp)}
+#pcDefault,#saveCancel,#saveGo,#routeClose,#soSaveCancel,#soSaveGo{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-family:var(--display);font-weight:600;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink)}
+#saveGo,#routeClose,#soSaveGo{border-color:var(--pc);background:var(--pc);color:var(--onp)}
 #saveGo:disabled{opacity:.7;cursor:progress}
 
 /* File name box (Save game / Export PDF) */
 .namerow{display:flex;align-items:center;height:44px;border-radius:10px;border:1.5px solid var(--wall);background:var(--paper);overflow:hidden}
 .namerow:focus-within{outline:2px solid var(--pc);outline-offset:1px}
-#fileName{flex:1;min-width:0;height:100%;border:0;background:transparent;padding:0 2px 0 12px;font-size:16px;outline:none}
+#fileName,#soFileName{flex:1;min-width:0;height:100%;border:0;background:transparent;padding:0 2px 0 12px;font-size:16px;outline:none}
 .ext{flex:none;padding-right:12px;font-size:16px;color:var(--muted)}
 .pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .pc{min-width:0;display:flex;align-items:center;gap:2px;padding:3px 3px 3px 8px;border-radius:10px;background:var(--bg);border:1.5px solid var(--line)}
@@ -406,7 +406,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-lair{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg)}
 .so-lair > span{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .so-lair strong{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.06em;color:var(--pc);font-variant-numeric:tabular-nums}
-.so-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.so-row,.so-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.so-grid .mk-btn{height:40px;padding:0 8px;font-size:13px}
+/* The "saves itself" note only on tall screens; the exit rule is left out on very short ones (the Exit says it too). */
+.so-keep{display:none}
+@media (min-height: 780px){ .so-keep{display:block} }
+@media (max-height: 680px), (orientation: landscape) and (max-height: 420px){ #soNeed{display:none} }
 /* New solo lair page */
 .solonew{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .solonew .mk-desc{min-height:2.8em}
@@ -480,7 +485,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   .home-hero svg{width:50px;height:50px}
   .home-hero h1{font-size:28px}
   .home-q{display:none}
-  .so-keep{display:none}
   .so-text{font-size:13.5px;line-height:1.33}
   .so-btns button{min-height:42px}
   #soEnc{gap:5px}
@@ -712,18 +716,33 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     </div>
 
     <div class="panel" id="soGame" hidden>
-      <div class="gameview">
+      <div class="gameview" id="soGameMain">
         <div class="so-lair">
           <span><span class="label" id="soLairName">Lair</span><strong id="soLairCode"></strong></span>
           <button type="button" class="mk-btn small" id="soCopy">Copy</button>
         </div>
         <p class="hint" id="soNeed"></p>
-        <div class="so-row">
+        <div class="so-grid">
+          <button type="button" class="mk-btn" id="soSave">Save game</button>
+          <button type="button" class="mk-btn" id="soLoad">Load game</button>
           <button type="button" class="mk-btn" id="soGiveUp">Give up</button>
           <button type="button" class="mk-btn primary" id="soNewGame">New solo lair</button>
         </div>
-        <p class="hint so-keep">Saves itself as you play. No Undo in solo.</p>
+        <input type="file" id="soLoadInput" accept=".json,application/json" hidden>
+        <p class="hint so-keep">Saves itself on this device as you play. No Undo in solo.</p>
       </div>
+      <form class="gameview" id="soSaveView" hidden autocomplete="off">
+        <div class="pc-head">
+          <strong>Save solo game as</strong>
+          <button type="button" id="soSaveCancel">Cancel</button>
+          <button type="submit" id="soSaveGo">Save</button>
+        </div>
+        <div class="namerow">
+          <input id="soFileName" type="text" maxlength="80" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go" aria-label="File name">
+          <span class="ext">.json</span>
+        </div>
+        <p class="hint">Leave it empty to use the date and time.</p>
+      </form>
     </div>
   </section>
 </main>
@@ -2291,7 +2310,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
   // the app reveals what you learn about, and you tell it how fights and disarms turned out.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soEncOpen = false, soPwFor = null;
+  let soTab = 'explore', soEncOpen = false, soPwFor = null, soFileAsk = false;
   if (SO && SO.pending && !SO.over) soEncOpen = true;
   const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
   const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
@@ -2597,10 +2616,11 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     // Game tab
     $('soLairName').textContent = L.tierName + ' lair';
     $('soLairCode').textContent = L.code;
-    $('soNeed').textContent = over ? 'This game is over.' : exitMet() ? 'You have an exit combination: head for the Exit.'
-      : 'To exit: 3 chests, 3 monsters, or 2 of each. You have ' + plural(SO.ach.chests, 'chest', 'chests') + ' and ' +
-        plural(SO.ach.monsters, 'monster', 'monsters') + '.';
+    $('soNeed').textContent = over ? 'This game is over.' : exitMet() ? 'You can exit: head for the Exit.'
+      : 'To exit: 3 chests, 3 monsters, or 2 of each.';
     $('soGiveUp').disabled = over;
+    $('soGameMain').hidden = soFileAsk;
+    $('soSaveView').hidden = !soFileAsk;
   }
 
   // New solo lair page
@@ -2656,7 +2676,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (SO.pending && SO.pending.must) { soMoveTo(-1, -1); return; }
     SO.peer = !SO.peer; saveSolo(); renderSolo();
   });
-  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; renderSolo(); }));
+  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; soFileAsk = false; renderSolo(); }));
   $('soAct').addEventListener('click', soAction);
   $('soWin').addEventListener('click', () => soOutcome(true));
   $('soLose').addEventListener('click', () => soOutcome(false));
@@ -2685,6 +2705,77 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const code = SO && SO.code;
     if (!code) return;
     try { navigator.clipboard.writeText(code).then(() => toast('Code copied: ' + code), () => toast('Lair code: ' + code)); } catch (e) { toast('Lair code: ' + code); }
+  });
+  // Save and load a solo game as a .json file. The file holds the lair itself, so it loads even if Make a lair changes.
+  function soToFile(){
+    return {format: 'lairs-solo', version: 1, game: 'Lairs', appVersion: APP_VERSION, gameProgress: SET.progress,
+      savedAt: new Date().toISOString(), solo: SO};
+  }
+  function soFromFile(o){
+    const g = o && o.format === 'lairs-solo' && o.solo;
+    const pt = p => Array.isArray(p) && p.length >= 2 && Number.isInteger(p[0]) && Number.isInteger(p[1]) && p[0] >= 0 && p[0] < 6 && p[1] >= 0 && p[1] < 6;
+    if (!g || !g.lair || !pt(g.lair.start) || !pt(g.lair.exit) || typeof g.lair.walls !== 'object' ||
+        !['chests', 'traps', 'monsters'].every(t => Array.isArray(g.lair[t]) && g.lair[t].every(pt)) ||
+        !Array.isArray(g.path) || !g.path.length || !g.path.every(pt) || typeof g.known !== 'object' || !g.known) return null;
+    return Object.assign({gone: {}, power: {}, ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, over: null},
+      g, {code: g.code || g.lair.code || ''});
+  }
+  $('soSave').addEventListener('click', () => {
+    const def = 'lairs-solo-' + fileStamp(new Date());
+    soFileAsk = true;
+    $('soFileName').value = def;
+    $('soFileName').placeholder = def;
+    renderSolo();
+  });
+  $('soSaveCancel').addEventListener('click', () => { soFileAsk = false; renderSolo(); });
+  $('soFileName').addEventListener('focus', e => setTimeout(() => e.target.select(), 0));
+  $('soSaveView').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!SO) return;
+    const name = (cleanName($('soFileName').value, 'json') || $('soFileName').placeholder) + '.json';
+    $('soFileName').blur();
+    soFileAsk = false;
+    renderSolo();
+    offerFile(name, JSON.stringify(soToFile(), null, 2));
+  });
+  $('soLoad').addEventListener('click', () => $('soLoadInput').click());
+  $('soLoadInput').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let raw = null;
+      try { raw = JSON.parse(rd.result); } catch (err) {}
+      if (raw && raw.format === 'lairs-tracker') { toast('That’s a game with a rival. Load it from Track my map → Game.'); return; }
+      const g = soFromFile(raw);
+      if (!g) { toast('That file is not a Lairs solo save.'); return; }
+      const load = () => {
+        SO = g;
+        soTab = 'explore'; soPwFor = null; soFileAsk = false;
+        soEncOpen = !!SO.pending && !SO.over;
+        saveSolo();
+        render();
+        const d = new Date(raw.savedAt);
+        toast(isNaN(d) ? 'Solo game loaded.' : 'Loaded the solo game from ' + niceDate(d) + '.');
+      };
+      const replace = () => {
+        if (SO && !SO.over) ask({title: 'Replace your solo game?', text: 'The solo game in progress will be replaced by the one in the file.',
+          keep: 'Keep mine', go: 'Load it', onGo: load});
+        else load();
+      };
+      // A save that uses things from a package you haven't opened: ask, in general terms only (no spoilers).
+      const need = stepNeeded({}, g.path);
+      if (need > progressIndex()) {
+        const id = STEPS[need].id, nm = stepName(id);
+        ask({title: 'Set your progress?', text: 'This saved game was made by a player who has opened ' + nm + '. Set your progress to ' + nm + ' and load it?',
+          keep: 'Cancel', go: 'Set and load', onGo: () => { setProgress(id); setTimeout(replace, 0); }});
+        return;
+      }
+      replace();
+    };
+    rd.onerror = () => toast('Could not read that file.');
+    rd.readAsText(f);
   });
   $('soloHome').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
   $('soloSettings').addEventListener('click', openSettings);
@@ -3047,8 +3138,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!f) return;
     const rd = new FileReader();
     rd.onload = () => {
-      let o = null;
-      try { o = fromFile(JSON.parse(rd.result)); } catch (err) {}
+      let o = null, raw = null;
+      try { raw = JSON.parse(rd.result); o = fromFile(raw); } catch (err) {}
+      if (raw && raw.format === 'lairs-solo') { toast('That’s a solo game. Load it from Solo → Game.'); return; }
       if (!o) { toast('That file is not a Lairs Tracker save.'); return; }
       const load = () => {
         snap();

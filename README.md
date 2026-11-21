@@ -126,6 +126,8 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 
 **Leaving:** at the Exit, **Exit the lair** works once you have an exit combination: 3 chests, 3 monsters, or 2 of each. **Give up** is on the Game tab. Either way the whole lair is then shown, and you can play it again or start a new one.
 
+**Saving:** your solo game saves itself on your device. **Game → Save game** also stores it as a `.json` file (you can choose the name), and **Load game** opens one again, for example on another phone. A save from a game with a rival belongs in the tracker's Load game, and the app tells you so.
+
 **No Undo in solo:** the app is the Builder, and what you've learned can't be unlearned.
 
 ---
@@ -227,6 +229,8 @@ The app is a single page with no build step.
 - **Same code, same lair:** everything comes from one random sequence seeded by the code. It only uses whole numbers and basic arithmetic, so every browser builds the same lair. It runs in a background worker, built from that script, when the browser allows one.
 - **`VERSION`:** raise it whenever a code would build a different lair. Codes from another version are refused with a message.
 - **`PRESETS`:** these hold the difficulty ranges for the standard piece set with 10–25 walls, worked out ahead of time with `bands()`. Re-create them whenever the scoring or the generator changes. Other piece sets are calibrated on the phone the first time (a few seconds).
+
+**Solo save file** (`.json`): `format: "lairs-solo"`, `version`, `appVersion`, `gameProgress`, `savedAt` and `solo`: the lair itself (so it loads even if Make a lair changes), its `code`, `known` spaces, the `path` (moves as `[row, col]`, with `'b'` for a backtrack or `'t'` for a trap teleport), what's `gone`, monsters' lowered targets (`power`), achievements (`ach`), `peers`, any encounter still to settle (`pending`) and `over` when the game has ended.
 
 **Save file** (`.json`): `format: "lairs-tracker"`, `version`, `appVersion`, `gameProgress` (for reference; loading doesn't change the device's progress), `savedAt`, `tracker`, `path` (squares like `"F3"`), `teleports` (move numbers that were trap teleports), `spaces` (marks per square), `walls` (pairs of neighbouring squares) and `pieces` (limits).
 
