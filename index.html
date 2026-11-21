@@ -125,8 +125,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 /* The map shrinks inside its box on short screens so the whole app fits without scrolling
    (322px = header, map box padding, tray and page padding; the sheet is as tall as it is wide). */
 .sheet{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px;width:100%;margin-inline:auto;
-  max-width:max(250px, calc(100vh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
-  max-width:max(250px, calc(100dvh - 322px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
+  max-width:max(250px, calc(100vh - 322px - var(--mat, 0px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  max-width:max(250px, calc(100dvh - 322px - var(--mat, 0px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}
 /* While the example map's note shows (up to 64px with its gap), the map and the spare height for the controls make room for it. */
 .app:has(#exampleNote:not([hidden])){
   --g:clamp(0px, calc(100dvh - 100vw - 350px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 40px)}
@@ -554,6 +554,22 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 @media (orientation: portrait) and (max-height: 680px){
   .so-info .label{display:none}
 }
+/* Fat fingers → Big cubes: the four baskets in two rows of two, with 22px cubes. Each cube's tap area also covers
+   the gaps around it. --mat is what the map gives up for the taller mat on phones that would otherwise scroll.
+   Sideways, where height is short and the controls are wide, the baskets stay in one row and the cubes wrap. */
+#soloApp.big-cubes{--mat:54px}
+#soloApp.big-cubes .so-mat{grid-template-columns:repeat(2,minmax(0,1fr))}
+#soloApp.big-cubes .bk{gap:3px;padding:4px 7px 5px}
+#soloApp.big-cubes .bk-name{font-size:10.5px}
+#soloApp.big-cubes .bk-cubes{flex-wrap:nowrap;gap:4px;min-height:22px}
+#soloApp.big-cubes .cube,#soloApp.big-cubes .slot{width:22px;height:22px;border-radius:5px}
+#soloApp.big-cubes .cube{position:relative}
+#soloApp.big-cubes .cube::after{content:"";position:absolute;inset:-6px -3px}
+#soloApp.big-cubes .cube svg{width:14px;height:14px}
+@media (orientation: landscape) and (min-width: 560px){
+  #soloApp.big-cubes .so-mat{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #soloApp.big-cubes .bk-cubes{flex-wrap:wrap;min-height:48px}
+}
 /* Phones turned sideways: the start screen keeps the choices and drops their descriptions,
    and the example map's note is left out (the start screen says it's an example). */
 @media (orientation: landscape) and (min-width: 560px) and (max-height: 420px){
@@ -876,11 +892,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     <p class="hint">Eliminated pieces still count.</p>
   </section>
 
-  <section class="set-card" aria-labelledby="soloSetTitle">
-    <h3 id="soloSetTitle">Solo</h3>
+  <section class="set-card" aria-labelledby="fatSetTitle">
+    <h3 id="fatSetTitle">Fat fingers</h3>
+    <p class="set-sub">Easier tapping. These work in Solo for now.</p>
     <label class="switch-row">
-      <span><b>Confirm moves on the map</b><small>Tap a square to select it, then confirm, or tap it again. Handy on small screens.</small></span>
+      <span><b>Confirm moves on the map</b><small>Tap a square to select it, then confirm, or tap it again.</small></span>
       <input type="checkbox" id="setConfirm" role="switch">
+    </label>
+    <label class="switch-row">
+      <span><b>Big cubes</b><small>The cube mat as two rows of two baskets with bigger cubes. A tap between cubes still counts.</small></span>
+      <input type="checkbox" id="setBigCubes" role="switch">
     </label>
   </section>
 
@@ -3003,6 +3024,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('soMat').classList.toggle('choosing', !!soChoose);
   }
   function renderSolo(){
+    $('soloApp').classList.toggle('big-cubes', !!SET.bigCubes);
     if (!SO) return;
     const L = SO.lair, over = !!SO.over, here = soHere(), hk = key(here[0], here[1]), p = SO.pending;
     const visited = new Set(SO.path.map(q => key(q[0], q[1])));
@@ -3290,6 +3312,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // Settings: Confirm moves on the map
   $('setConfirm').checked = !!SET.confirmMoves;
   $('setConfirm').addEventListener('change', e => { SET.confirmMoves = e.target.checked; saveSettings(); soPick = null; });
+  $('setBigCubes').checked = !!SET.bigCubes;
+  $('setBigCubes').addEventListener('change', e => { SET.bigCubes = e.target.checked; saveSettings(); render(); });
   $('soNewEnd').addEventListener('click', openSoloNew);
   armButton($('soNewGame'), () => !!(SO && !SO.over), openSoloNew);
   $('soGiveUp').addEventListener('click', () => ask({title: 'Give up this lair?', text: 'The game ends and the whole lair is shown.',

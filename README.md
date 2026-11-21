@@ -115,6 +115,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 **Cubes:** the Explore tab shows your cube mat: Conserved (3 slots), Fresh, Spent and Fatigued. You have 6 cubes: 4 basic, a Quickness cube (yellow, with a bolt) and a Perception cube (green, with an eye). They all start Fresh.
 - **Paying is automatic.** Conserved cubes go first, so their second use is never lost, then basic cubes. Your Quickness cube is kept for last, as it's the only way to backtrack.
 - **By hand:** tap a cube, then a basket, to move it, for treasure abilities or to correct something.
+- **Big cubes** (Settings → Fat fingers): the mat shows two rows of two baskets with bigger cubes, and a tap between cubes still counts. Turned sideways, the baskets stay in one row and the cubes wrap.
 
 **Actions** (tap the map; there's no compass in solo):
 
@@ -131,7 +132,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
   - **Look into a space:** spend your Perception cube to learn about any unknown space on the map. You don't move.
   - **Builder reveals one:** the app reveals an unknown space that has something on it, chosen at random.
   - **They count:** the number of card actions you used is shown with your score, because the simulated explorers behind par don't have them.
-- **Confirm moves on the map** (Settings → Solo): when it's on, a tap on the map only selects a square and shows what it would do and cost, for example "Creep into D5 · 1 cube". Tap the same square again, or tap the button, to go. This is handy on small screens.
+- **Confirm moves on the map** (Settings → Fat fingers): when it's on, a tap on the map only selects a square and shows what it would do and cost, for example "Creep into D5 · 1 cube". Tap the same square again, or tap the button, to go. This is handy on small screens.
 
 **Turns and par:**
 - **Your turn ends** when you have no Fresh cubes left, or when you tap **End turn**. If you're standing on a chest or at the Exit with an exit combination, the app waits, as those cost nothing to use.
@@ -218,8 +219,10 @@ For quick games: instead of designing a lair, the Builder gets a random one and 
   - **Keeping it:** your progress stays across new games and is printed on PDFs.
   - **Changing it mid-game:** you can change it during a game. If the game already uses something from a later package, the app asks first and offers a new game instead.
   - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
-- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers.
-- **Solo → Confirm moves on the map:** in solo, a tap on the map selects a square first, and a second tap (or the button) carries out the move. **Default** goes back to 21 / 3 / 3 / 3.
+- **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
+- **Fat fingers:** helpers for easier tapping, in Solo for now.
+  - **Confirm moves on the map:** a tap on the map selects a square first, and a second tap (or the button) carries out the move.
+  - **Big cubes:** a bigger cube mat (see [Solo](#solo)).
 - **About:** the version, and links to this page and the release notes.
 
 The phone's Back button returns from Settings to the map.
@@ -258,7 +261,7 @@ The app is a single page with no build step.
 
 **Where data is kept** (browser storage on the device):
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
-- `lairs-settings-v1`: settings that belong to the device (game progress).
+- `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, and the Fat fingers switches (`confirmMoves`, `bigCubes`).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
 - `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone, your cubes, turn and achievements.
 - `lairs-solo-best-v1`: your best solo score for each lair code.
