@@ -160,7 +160,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 
 - **After the game:** the whole lair is shown, along with your best score on that lair code. You can play it again or start a new one.
 
-**The Game tab** looks like the tracker's: **Save game**, **Load game** and **Give up**, then **New solo lair**, **Copy code**, and the lair's code, difficulty and par.
+**The Game tab** looks like the tracker's: **Save game**, **Load game** and **Give up**, then **New game** (tap it twice while a game is in progress, like the tracker's), **Copy code**, and the lair's code, difficulty and par.
 
 **Saving:** your solo game saves itself on your device. **Game → Save game** also stores it as a `.json` file (you can choose the name), and **Load game** opens one again, for example on another phone. A save from a game with a rival belongs in the tracker's Load game, and the app tells you so.
 
