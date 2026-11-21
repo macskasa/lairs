@@ -329,10 +329,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 /* On phones the side column dissolves into one column, with the board after the description. */
 .mk-side{display:contents}
 .maker .set-head{order:1}
-.mk-tiers{flex:none;order:2;background:var(--tint)}
+.mk-tiers{flex:none;background:var(--tint)}
+.maker .mk-tiers{order:2}
 .mk-tiers button{font-size:13px;letter-spacing:.04em;padding:9px 2px;white-space:nowrap}
-.mk-tiers button[aria-checked="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .14)}
-.mk-desc{order:3;margin:-2px 2px 0;min-height:2.8em;font-size:13.5px;line-height:1.4;color:var(--muted)}
+.mk-tiers button[aria-checked="true"]{background:var(--paper);color:var(--pc);box-shadow:inset 0 0 0 2px var(--pc),0 1px 3px rgb(0 0 0 / .14)}
+.maker .mk-desc{order:3}
+.mk-desc{margin:-2px 2px 0;min-height:2.8em;font-size:13.5px;line-height:1.4;color:var(--muted)}
 .mk-card{order:4;margin-top:0}
 .mk-sheet{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px;width:100%;margin-inline:auto;
   max-width:max(200px, calc(100vh - 440px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
