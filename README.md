@@ -42,6 +42,7 @@ The app gets its own icon (a 3×3 grid with an L). From then on it opens without
 - **The map:** rows A–F and columns 1–6, like the paper sheet.
 - **The controls box** has three tabs, **Move**, **Map** and **Game**, plus an **Undo** button that works everywhere.
 - **The house** at the top left goes back to the start screen. **The gear** at the top right opens **Settings**.
+- **EN | HU** on the start screen switches the language between English and Hungarian.
 
 The phone's Back button always returns to the previous screen.
 
@@ -213,6 +214,7 @@ For quick games: instead of designing a lair, the Builder gets a random one and 
 
 ## Settings (gear button)
 
+- **Language:** English or Hungarian (Magyar). The **EN | HU** switch on the start screen does the same. Until you pick one, the app follows your phone's language. Everything in the tracker, Make a lair and Settings is translated; Solo is still mostly in English.
 - **Game progress:** *Lairs* changes as you open its boxes and envelopes, in this order:
   **Box 0 → Box 1 → Envelope A → Envelope B → Box 2 → Envelope C → Envelope D → Box 3 → Envelope E → Envelope F → Box 4 → Vault**.
   - **Setting it:** tap the last one you've opened. The tracker then adds the tools and rules from what you've opened, and never shows anything from a package you haven't.
@@ -262,7 +264,7 @@ The app is a single page with no build step.
 
 **Where data is kept** (browser storage on the device):
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
-- `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, and the Fat fingers switches (`confirmMoves`, `bigCubes`).
+- `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, the Fat fingers switches (`confirmMoves`, `bigCubes`) and the language (`lang`: `en` or `hu`).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
 - `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone, your cubes, turn and achievements.
 - `lairs-solo-best-v2`: your best solo score for each lair code. (v1 held bests scored against the older par.)
@@ -292,6 +294,12 @@ The app is a single page with no build step.
   - A 16:9 screen (1280×720) both ways.
 
 ---
+
+## Translations
+
+- **How it works:** texts are written in English in the code. `T('…', {name})` looks them up in the `HU` table (English → Hungarian); `{name}` marks a value filled in.
+- **Fixed texts in the page** are translated in place by `translatePage()`. Elements with markup inside a sentence use `data-t` and the `HU_HTML` table.
+- **Hungarian wording:** sentences avoid putting endings on square names (D5-re, B3-ba): they use forms like "Bejárat · D5" or "ide: D5". Hungarian keeps the singular after a number ("3 csapda"), which `plural()` handles. The PDF uses ö and ü for ő and ű, as its built-in fonts lack them.
 
 ## License
 

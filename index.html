@@ -302,6 +302,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   min-height:calc(100vh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   min-height:calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))}
 .home-head{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-height:28px}
+/* Language switch on the start screen: EN | HU */
+.lang-switch{display:flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.lang-switch button{border:0;background:transparent;padding:4px 10px;font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.lang-switch button[aria-pressed="true"]{background:var(--pc);color:var(--onp)}
+.lang-seg{background:var(--tint)}
+.lang-seg button{letter-spacing:.04em;text-transform:none;font-size:15px}
+.lang-seg button[aria-checked="true"]{background:var(--paper);color:var(--pc);box-shadow:inset 0 0 0 2px var(--pc),0 1px 3px rgb(0 0 0 / .14)}
 .home-head .ver{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.04em;color:var(--muted);opacity:.8;font-variant-numeric:tabular-nums}
 .home-hero{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 6px;text-align:center}
 .home-hero svg{width:72px;height:72px}
@@ -608,7 +615,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     </button>
   </header>
 
-  <p class="note" id="exampleNote" hidden>This is an example map. Start your own with <b>New game</b> on the Game tab.</p>
+  <p class="note" id="exampleNote" data-t="example" hidden>This is an example map. Start your own with <b>New game</b> on the Game tab.</p>
 
   <div class="mapcard">
     <section class="sheet" aria-label="Lair map">
@@ -647,13 +654,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="dpad">
-          <button type="button" class="dir dn" data-dir="n" aria-label="Step north">N</button>
-          <button type="button" class="dir dw" data-dir="w" aria-label="Step west">W</button>
+          <button type="button" class="dir dn" data-dir="n" aria-label="Step north" data-t="dirN">N</button>
+          <button type="button" class="dir dw" data-dir="w" aria-label="Step west" data-t="dirW">W</button>
           <div class="rose" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>
           </div>
-          <button type="button" class="dir de" data-dir="e" aria-label="Step east">E</button>
-          <button type="button" class="dir ds" data-dir="s" aria-label="Step south">S</button>
+          <button type="button" class="dir de" data-dir="e" aria-label="Step east" data-t="dirE">E</button>
+          <button type="button" class="dir ds" data-dir="s" aria-label="Step south" data-t="dirS">S</button>
         </div>
       </div>
 
@@ -881,6 +888,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     <h2 id="setTitle">Settings</h2>
   </div>
 
+  <section class="set-card" aria-labelledby="langTitle">
+    <h3 id="langTitle">Language</h3>
+    <div class="seg two lang-seg" role="radiogroup" aria-labelledby="langTitle">
+      <button type="button" role="radio" data-lang="en" aria-checked="false" lang="en">English</button>
+      <button type="button" role="radio" data-lang="hu" aria-checked="false" lang="hu">Magyar</button>
+    </div>
+  </section>
+
   <section class="set-card" aria-labelledby="progTitle">
     <h3 id="progTitle">Game progress</h3>
     <p class="set-sub">Tap the last box or envelope you’ve opened.</p>
@@ -915,7 +930,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   <section class="set-card about" aria-labelledby="aboutTitle">
     <h3 id="aboutTitle">About</h3>
-    <p>Lairs Tracker <span id="aboutVer"></span>, an unofficial fan-made map tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
+    <p data-t="about">Lairs Tracker <span id="aboutVer"></span>, an unofficial fan-made map tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
     <p><a href="https://github.com/macskasa/lairs#readme" target="_blank" rel="noopener">How to use it</a> · <a href="https://github.com/macskasa/lairs/tree/main/release-notes" target="_blank" rel="noopener">Release notes</a></p>
   </section>
 </section>
@@ -924,6 +939,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 <section class="home" id="home" hidden aria-labelledby="homeTitle">
   <div class="home-head">
     <span class="ver" id="homeVer"></span>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button><button type="button" data-lang="hu" aria-pressed="false" lang="hu">HU</button>
+    </div>
     <button type="button" class="gear" id="homeSettings" aria-label="Settings" title="Settings">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-dasharray="3 2.97"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></svg>
     </button>
@@ -956,7 +974,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
       </button>
     </div>
   </div>
-  <p class="home-foot">An unofficial fan-made tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
+  <p class="home-foot" data-t="homefoot">An unofficial fan-made tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
 </section>
 
 <!-- Make a lair: a random legal lair for the Builder to copy onto their Lair board -->
@@ -1604,7 +1622,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.21';
+  const APP_VERSION = '0.22';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -1660,6 +1678,317 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   try { const raw = localStorage.getItem(SETTINGS_KEY); if (raw) SET = Object.assign(SET, JSON.parse(raw)); } catch (e) {}
   if (!STEPS.some(s => s.id === SET.progress)) SET.progress = '0';
   function saveSettings(){ try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(SET)); } catch (e) {} }
+
+  // ---- Language: English or Hungarian (start screen and Settings). Until one is picked it follows the phone. ----
+  // Texts are written in English in the code; T() looks them up in HU. {name} marks a value filled in.
+  let LANG = SET.lang === 'hu' || SET.lang === 'en' ? SET.lang : /^hu\b/i.test(navigator.language || '') ? 'hu' : 'en';
+  const HU = {
+    "Start screen": "Kezdőlap",
+    "Map tracker": "Térképkövető",
+    "Settings": "Beállítások",
+    "New game": "Új játék",
+    "Lair map": "Odútérkép",
+    "Mode": "Mód",
+    "Move": "Lépés",
+    "Map": "Térkép",
+    "Game": "Játék",
+    "Undo": "Visszavonás",
+    "Tracker at": "Bábu itt:",
+    "Show the whole route": "A teljes útvonal",
+    "Step north": "Lépés északra",
+    "Step west": "Lépés nyugatra",
+    "Step east": "Lépés keletre",
+    "Step south": "Lépés délre",
+    "Route": "Útvonal",
+    "Close": "Bezár",
+    "⇢ marks a backtrack or a trap teleport.": "⇢ visszalépést vagy csapda okozta teleportot jelöl.",
+    "Power": "Erő",
+    "Lower power by 1": "Erő −1",
+    "Raise power by 3": "Erő +3",
+    "Done": "Kész",
+    "Save game": "Mentés",
+    ".json file": ".json fájlba",
+    "Load game": "Betöltés",
+    "from .json": ".json fájlból",
+    "Export PDF": "PDF",
+    "printable map": "nyomtatható térkép",
+    "Make a lair": "Odú készítése",
+    "Your game saves itself as you play.": "A játék menet közben magától mentődik.",
+    "Save game as": "Mentés ezen a néven",
+    "Cancel": "Mégse",
+    "Save": "Mentés",
+    "File name": "Fájlnév",
+    "Leave it empty to use the date and time.": "Ha üresen hagyod, a dátum és az idő lesz a neve.",
+    "Solo": "Szóló",
+    "Solo lair": "Szóló odú",
+    "Explore": "Felfedezés",
+    "Cube mat": "Akciókocka-tábla",
+    "Turn": "Kör",
+    "Peer": "Kémlelés",
+    "Hustle": "Rohanás",
+    "Cards": "Kártyák",
+    "End turn": "Kör vége",
+    "Look into a space": "Benézés egy mezőre",
+    "Builder reveals one": "Az Építő felfed egyet",
+    "Back": "Vissza",
+    "Go": "Mehet",
+    "Fatigue a cube": "Kimerítés",
+    "Spend a cube": "Elhasználás",
+    "Any": "Bármelyik",
+    "Fewer dice": "Kevesebb kocka",
+    "2 dice": "2 kocka",
+    "More dice": "Több kocka",
+    "Fight": "Harc",
+    "Not now": "Most nem",
+    "Its target now": "Célértéke most",
+    "Lower the target by 1": "Célérték −1",
+    "The monster's target now": "A szörny célértéke most",
+    "Raise the target by 3": "Célérték +3",
+    "Treasures": "Kincsek",
+    "Lower the treasure score by 1": "Kincspont −1",
+    "Your treasure score": "Kincspontjaid",
+    "Raise the treasure score by 3": "Kincspont +3",
+    "Play it again": "Újra ezt",
+    "New solo lair": "Új szóló odú",
+    "Give up": "Feladom",
+    "show the lair": "mutasd az odút",
+    "Copy code": "Kód másolása",
+    "Save solo game as": "Szóló játék mentése ezen a néven",
+    "Game progress": "Haladás",
+    "Tap the last box or envelope you’ve opened.": "Koppints az utolsó dobozra vagy borítékra, amit kinyitottatok.",
+    "Open in order, ending with the Vault": "Sorban nyissátok ki, a végén a Trezorral",
+    "Lair pieces": "Az odú elemei",
+    "Default": "Alapértékek",
+    "How many of each piece the lair has. New games keep these numbers.": "Melyik elemből hány van az odúban. Az új játékok is ezeket használják.",
+    "Eliminated pieces still count.": "A kiiktatott elemek is számítanak.",
+    "Fat fingers": "Vastag ujjak",
+    "Easier tapping. These work in Solo for now.": "Könnyebb koppintás. Egyelőre csak Szóló módban.",
+    "Confirm moves on the map": "Lépések megerősítése a térképen",
+    "Tap a square to select it, then confirm, or tap it again.": "Koppints egy mezőre, aztán erősítsd meg, vagy koppints rá újra.",
+    "Big cubes": "Nagy akciókockák",
+    "The cube mat as two rows of two baskets with bigger cubes. A tap between cubes still counts.": "Az akciókocka-tábla két sorban, kettesével, nagyobb kockákkal. A kockák közti koppintás is számít.",
+    "About": "Névjegy",
+    "How to use it": "Útmutató (angol)",
+    "Release notes": "Változások (angol)",
+    "How are you playing?": "Hogyan játszotok?",
+    "With a rival": "Ellenfél ellen",
+    "Map your rival’s lair as you explore it.": "Térképezd fel az ellenfeled odúját.",
+    "Track my map": "Térképem",
+    "No time to build? Get a random lair for your rival.": "Nincs idő építeni? Kérj egy véletlen odút.",
+    "Explore a lair the app builds for you.": "Fedezz fel egy odút, amit az app épít.",
+    "Pick a difficulty": "Válassz nehézséget",
+    "Home": "Kezdőlap",
+    "Difficulty": "Nehézség",
+    "Apprentice": "Tanonc",
+    "Journeyman": "Kalandozó",
+    "Guild Master": "Céhmester",
+    "Lair code": "Odúkód",
+    "Copy": "Másolás",
+    "Hide": "Elrejtés",
+    "Enter code": "Kód megadása",
+    "New lair": "Új odú",
+    "e.g. J1-7KQ3M": "pl. J1-7KQ3M",
+    "Build": "Építés",
+    "Copy it onto your Lair board behind your screen. The same code always builds the same lair, so you can share it.": "Rajzold át az Odútábládra a paravánod mögött. Ugyanaz a kód mindig ugyanazt az odút építi, így meg is oszthatod.",
+    "Lair": "Odú",
+    "Tap to show": "Koppints, hogy lásd",
+    "Only the Builder should see this lair.": "Ezt az odút csak az Építő láthatja.",
+    "The app builds a hidden lair and acts as the Builder. It uses your Lair pieces from Settings, and you play with your own cards, dice and treasures.": "Az app épít egy rejtett odút, és ő lesz az Építő. A Beállításokban megadott elemekkel dolgozik, te pedig a saját kártyáiddal, kockáiddal és kincseiddel játszol.",
+    "Start exploring": "Felfedezés indítása",
+    "Or play a lair code, for example one a friend shared:": "Vagy játssz egy odúkóddal, például amit egy barátod küldött:",
+    "Play": "Játék",
+    "Lairs Tracker": "Lairs Tracker",
+    "Lairs": "Lairs",
+    "Language": "Nyelv",
+    "move": "lépés",
+    "trap": "csapda",
+    "monster": "szörny",
+    "die": "kocka",
+    "chest": "láda",
+    "wall": "fal",
+    "turn": "kör",
+    "peer": "kémlelés",
+    "card action": "kártyaakció",
+    "Fresh cube": "friss akciókocka",
+    "Box 0": "0. doboz",
+    "Box 1": "1. doboz",
+    "Box 2": "2. doboz",
+    "Box 3": "3. doboz",
+    "Box 4": "4. doboz",
+    "Envelope A": "A boríték",
+    "Envelope B": "B boríték",
+    "Envelope C": "C boríték",
+    "Envelope D": "D boríték",
+    "Envelope E": "E boríték",
+    "Envelope F": "F boríték",
+    "Vault": "Trezor",
+    "Known": "Ismert",
+    "Exit": "Kijárat",
+    "Scrounged": "Átkutatva",
+    "Wall": "Fal",
+    "Clear": "Törlés",
+    "Trap": "Csapda",
+    "Monster": "Szörny",
+    "Chest": "Láda",
+    "Eliminate": "Kiiktat",
+    "Tap a space to mark it as known.": "Koppints egy mezőre, hogy ismertnek jelöld.",
+    "Tap the space where the Exit is.": "Koppints arra a mezőre, ahol a kijárat van.",
+    "Tap a space once you have scrounged it.": "Koppints egy mezőre, ha már átkutattad.",
+    "Tap near the side of a space to add or remove a wall.": "Koppints egy mező oldala közelébe, hogy falat rakj oda vagy levedd.",
+    "Tap a space to clear its marks. Walls stay.": "Koppints egy mezőre, hogy töröld a jeleit. A falak maradnak.",
+    "Tap to draw a trap. Tap it again to remove it.": "Koppints, hogy csapdát rajzolj. Újabb koppintás törli.",
+    "Tap to draw a monster, then set its power.": "Koppints, hogy szörnyet rajzolj, aztán állítsd be az erejét.",
+    "Tap to draw a chest. Tap it again to remove it.": "Koppints, hogy ládát rajzolj. Újabb koppintás törli.",
+    "Tap a monster, trap or chest to fill it in when it is gone.": "Koppints egy szörnyre, csapdára vagy ládára, hogy kiiktatottnak jelöld.",
+    "Tap a monster to set its remaining power.": "Koppints egy szörnyre, hogy beállítsd a maradék erejét.",
+    "walls": "falak",
+    "traps": "csapdák",
+    "monsters": "szörnyek",
+    "chests": "ládák",
+    "This game has no {many}. You can change that on the Game tab.": "Ebben a játékban nincsenek {many}. Ezt a Játék fülön módosíthatod.",
+    "The only {one} is already on the map. Remove it to draw it somewhere else.": "Az egyetlen {one} már a térképen van. Töröld, ha máshová rajzolnád.",
+    "Both {many} are on the map. Remove one to draw another.": "Mindkét {one} a térképen van. Törölj egyet, ha újat rajzolnál.",
+    "All {n} {many} are on the map. Remove one to draw another.": "Mind a térképen van ({n} {one}). Törölj egyet, ha újat rajzolnál.",
+    "known": "ismert",
+    "start": "bejárat",
+    "exit": "kijárat",
+    "eliminated": "kiiktatva",
+    "power {n}": "erő {n}",
+    "scrounged": "átkutatva",
+    "your tracker is here": "itt a bábud",
+    "{piece}, {n} left": "{piece}, még {n}",
+    "Showing an example map": "Mintatérkép látható",
+    "Ready for a new map": "Kész egy új térképre",
+    "Game in progress · on the starting space": "Folyamatban · a kiinduló mezőn",
+    "Game in progress · {moves}": "Folyamatban · {moves}",
+    "Continue": "Folytatás",
+    "Last lair: escaped in {moves}": "Legutóbb: kijutottál, {moves}",
+    "Last lair: you gave up": "Legutóbb: feladtad",
+    ", opened": ", kinyitva",
+    ", coming soon": ", hamarosan",
+    "Everything is open, ending with the Vault.": "Minden ki van nyitva, a Trezort is beleértve.",
+    "Opened so far: {list}. Next up: {next}.": "Eddig kinyitva: {list}. Következik: {next}.",
+    " and ": " és ",
+    "{sq} power": "Erő · {sq}",
+    "Power for the monster on {sq}": "A szörny ereje · {sq}",
+    " (eliminated)": " (kiiktatva)",
+    ", power {n}": ", erő {n}",
+    "Not placed yet": "Még nincs a térképen",
+    "On the starting space": "A kiinduló mezőn",
+    "{moves} so far": "Eddig {moves}",
+    "No route yet": "Még nincs útvonal",
+    "No moves yet. Tap your starting space on the map.": "Még nincs lépés. Koppints a kiinduló mezőre a térképen.",
+    "{sq} is the Exit. Start on another space.": "{sq} a kijárat. Másik mezőről indulj.",
+    "The trap on {sq} is eliminated, so it can’t teleport you.": "A csapda ki van iktatva ({sq}), nem teleportálhat.",
+    "A wall blocks {a} → {b}.": "Fal zárja el: {a} → {b}.",
+    " Only an active trap can take you through.": " Csak egy működő csapda vihet át rajta.",
+    "{sq} isn’t known yet, so you can’t backtrack there.": "{sq} még nem ismert, oda nem léphetsz vissza.",
+    "No way from {a} to {b} through known, empty squares.": "Nincs út ismert, üres mezőkön át: {a} → {b}.",
+    "Tap a space to place your tracker first.": "Előbb koppints egy mezőre, hogy letedd a bábut.",
+    "The outer wall is to the north.": "Északra a külső fal van.",
+    "The outer wall is to the south.": "Délre a külső fal van.",
+    "The outer wall is to the west.": "Nyugatra a külső fal van.",
+    "The outer wall is to the east.": "Keletre a külső fal van.",
+    "{cause} makes move {i} ({mv}) illegal.": "{cause} miatt szabálytalan lesz ez a lépés: {i}. ({mv}).",
+    "Move {i} will be removed and the tracker goes back to {sq}.": "Ez a lépés törlődik, a bábu visszakerül ide: {sq}.",
+    "Moves {i}–{n} will be removed and the tracker goes back to {sq}.": "A {i}–{n}. lépések törlődnek, a bábu visszakerül ide: {sq}.",
+    "Remove the trap on {sq}?": "Törlöd a csapdát ({sq})?",
+    "Removing the trap on {sq}": "A csapda törlése ({sq})",
+    "Keep the trap": "Marad a csapda",
+    "Remove and go back": "Törlés és vissza",
+    "Tap near a side of a space to place a wall.": "Koppints egy mező oldala közelébe, hogy falat rakj oda.",
+    "That side is the outer wall.": "Ott a külső fal van.",
+    "Draw this wall?": "Megrajzolod ezt a falat?",
+    "A wall between {a} and {b}": "Az új fal ({a}–{b})",
+    "Don’t draw it": "Ne rajzold",
+    "Draw and go back": "Rajzolás és vissza",
+    "There is no monster on {sq}.": "Nincs szörny itt: {sq}.",
+    "The monster on {sq} is eliminated.": "Ez a szörny ki van iktatva ({sq}).",
+    "There is no monster, trap or chest on {sq}.": "Nincs itt szörny, csapda vagy láda: {sq}.",
+    "{sq} has a {feat}. Clear it before marking the Exit here.": "Itt {feat} van ({sq}). Töröld, mielőtt ide jelölöd a kijáratot.",
+    "{sq} is the Start. The Exit can’t go there.": "{sq} a bejárat, oda nem kerülhet a kijárat.",
+    "{sq} is the Exit. Remove the Exit before drawing a {feat} here.": "{sq} a kijárat. Előbb töröld onnan a kijáratot.",
+    "Exit moved to {sq}.": "A kijárat új helye: {sq}.",
+    "Nothing to undo.": "Nincs mit visszavonni.",
+    "Fewer {many}": "Kevesebb: {many}",
+    "{Many} in the lair": "{Many} az odúban",
+    "More {many}": "Több: {many}",
+    "Tap again to clear": "Koppints újra",
+    "New game. Tap your starting space.": "Új játék. Koppints a kiinduló mezőre.",
+    "{step} opened": "{step} kinyitva",
+    "Coming soon.": "Hamarosan.",
+    "Go back to {step}?": "Visszalépsz ide: {step}?",
+    "Your current game already uses things from a later package, so going back to {step} would change what has happened. You can start a new game at {step} instead.": "A mostani játék már használ valamit egy későbbi csomagból, így a visszalépés ({step}) megváltoztatná, ami történt. Helyette új játékot kezdhetsz ezzel: {step}.",
+    "Keep my progress": "Maradjon így",
+    "New game at {step}": "Új játék: {step}",
+    "Progress saved: {what}. New game started.": "Haladás mentve: {what}. Új játék indult.",
+    "Progress saved: {what}.": "Haladás mentve: {what}.",
+    "{n} {one} is on the map, so it can’t go below {n}.": "{n} {one} van a térképen, ennél kevesebb nem lehet.",
+    "Back to the standard numbers, except where more are already on the map.": "Vissza az alapértékekre, kivéve ahol már több van a térképen.",
+    "Back to 21 walls and 3 traps, monsters and chests.": "Vissza az alapra: 21 fal, 3 csapda, 3 szörny és 3 láda.",
+    "An open lair with shortcuts. Every goal can be reached without passing a hazard.": "Nyitott odú rövidítésekkel. Minden cél elérhető veszély érintése nélkül.",
+    "Fewer shortcuts. At least one goal sits behind a hazard.": "Kevesebb rövidítés. Legalább egy cél veszély mögött van.",
+    "Every wall, long corridors, and at least two goals behind a hazard.": "Minden fal a helyén, hosszú folyosók, és legalább két cél veszély mögött.",
+    "That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.": "Ennyi elem nem fér el egy 6×6-os odúban. Nézd meg az odú elemeit a Beállításokban.",
+    "Show": "Mutasd",
+    "Building…": "Épül…",
+    "First lair with these pieces: this takes a few seconds.": "Első odú ezekkel az elemekkel: ez eltart pár másodpercig.",
+    " (leave {n} out)": " ({n} kimarad)",
+    "Start": "Bejárat",
+    ". A 6×6 lair can’t use more than {n} walls and still reach every space.": ". Egy 6×6-os odúban legfeljebb {n} fal lehet úgy, hogy minden mező elérhető maradjon.",
+    "{tier} lair {code}": "{tier} odú, {code}",
+    "Code selected. Copy it from here.": "A kód ki van jelölve, innen másold ki.",
+    "Code copied: {code}": "Kód kimásolva: {code}",
+    "That code is from a different version of Make a lair.": "Ez a kód az odúkészítő egy másik változatából való.",
+    "That isn’t a lair code. It looks like J1-7KQ3M.": "Ez nem odúkód. Így néz ki: J1-7KQ3M.",
+    "Downloading {file}": "Letöltés: {file}",
+    "Save cancelled.": "Mentés megszakítva.",
+    "Export PDF as": "PDF mentése ezen a néven",
+    "Export": "Exportálás",
+    "That’s a solo game. Load it from Solo → Game.": "Ez egy szóló játék. A Szóló → Játék fülön töltsd be.",
+    "That file is not a Lairs Tracker save.": "Ez a fájl nem Lairs Tracker mentés.",
+    "Save loaded.": "Mentés betöltve.",
+    "Loaded the save from {date}.": "Betöltve a mentés: {date}.",
+    "Set your progress?": "Beállítod a haladást?",
+    "This saved game was made by a player who has opened {step}. Set your progress to {step} and load it?": "Ezt a mentést olyan játékos készítette, aki már kinyitotta ezt: {step}. Beállítod a haladásod erre, és betöltöd?",
+    "Set and load": "Beállítás és betöltés",
+    "Could not read that file.": "Nem sikerült beolvasni a fájlt.",
+    "MAP TRACKER": "TÉRKÉPKÖVETŐ",
+    "Game progress: {what}": "Haladás: {what}",
+    "Tracker at {sq}": "Bábu itt: {sq}",
+    "Tracker not placed": "A bábu még nincs a térképen",
+    "   (>> marks a backtrack or a trap teleport)": "   (>> visszalépés vagy csapda okozta teleport)",
+    "Not started yet": "Még nem indult",
+    " (power {n})": " (erő {n})",
+    "Monsters": "Szörnyek",
+    "Traps": "Csapdák",
+    "Eliminated": "Kiiktatva",
+    "Chests": "Ládák",
+    "Pieces left": "Maradt",
+    "{Many} {n} of {of}": "{Many} {n}/{of}",
+    "Tracker": "Bábu",
+    "Lairs map, continued": "Lairs térkép, folytatás",
+    " (cont.)": " (folyt.)",
+    "Preparing…": "Készül…",
+    "Could not build the PDF. Check your connection and try again.": "Nem sikerült a PDF. Ellenőrizd az internetkapcsolatot, és próbáld újra."
+  };
+  // Whole elements with markup inside (data-t on the element)
+  const HU_HTML = {
+      "example": "Ez egy mintatérkép. Sajátot a Játék fülön, az <b>Új játék</b> gombbal kezdhetsz.",
+      "about": "Lairs Tracker <span id=\"aboutVer\"></span>: nem hivatalos, rajongói térképkövető a Kids Table Board Gaming <i>Lairs</i> című játékához.",
+      "homefoot": "Nem hivatalos rajongói app a Kids Table Board Gaming <i>Lairs</i> játékához.",
+      "dirN": "É",
+      "dirW": "Ny",
+      "dirE": "K",
+      "dirS": "D"
+  };
+  const T = (s, v) => {
+    let r = LANG === 'hu' && HU[s] != null ? HU[s] : s;
+    if (v) r = r.replace(/\{(\w+)\}/g, (m, k) => v[k] != null ? v[k] : m);
+    return r;
+  };
+  // The Start and Exit letters: S and E, or B (Bejárat) and K (Kijárat).
+  const SL = () => LANG === 'hu' ? 'B' : 'S', EL = () => LANG === 'hu' ? 'K' : 'E';
   const stepIndex = id => STEPS.findIndex(s => s.id === id);
   // Packages after this one aren't supported yet: they show as "Coming soon".
   const LAST_READY = 'A';
@@ -1679,7 +2008,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     return need;
   }
-  const stepName = id => (STEPS.find(s => s.id === id) || STEPS[0]).name;
+  const stepName = id => T((STEPS.find(s => s.id === id) || STEPS[0]).name);
   // Icon for a step: a box with its number, an envelope with its letter, or the Vault.
   function stepIcon(s){
     const label = (x, y, size) => '<text x="' + x + '" y="' + y + '" text-anchor="middle" font-size="' + size + '" font-weight="700" fill="currentColor" stroke="none" font-family="Oswald, Arial Narrow, sans-serif">' + s.id + '</text>';
@@ -1749,10 +2078,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   function left(t){ return S.limits[t] - used(t); }
   function fullMsg(t){
     const P = PIECES[t], lim = S.limits[t];
-    if (lim === 0) return 'This game has no ' + P.many + '. You can change that on the Game tab.';
-    if (lim === 1) return 'The only ' + P.one + ' is already on the map. Remove it to draw it somewhere else.';
-    if (lim === 2) return 'Both ' + P.many + ' are on the map. Remove one to draw another.';
-    return 'All ' + lim + ' ' + P.many + ' are on the map. Remove one to draw another.';
+    if (lim === 0) return T('This game has no {many}. You can change that on the Game tab.', {many: T(P.many)});
+    if (lim === 1) return T('The only {one} is already on the map. Remove it to draw it somewhere else.', {one: T(P.one)});
+    if (lim === 2) return T('Both {many} are on the map. Remove one to draw another.', {many: T(P.many), one: T(P.one)});
+    return T('All {n} {many} are on the map. Remove one to draw another.', {n: lim, many: T(P.many), one: T(P.one)});
   }
 
   let hist = [];
@@ -1760,13 +2089,13 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   let view = 'home';
   let viewStack = ['home']; // the screens behind the current one, matching the browser history
   const VIEW_LABEL = {home:'Home', track:'Map', settings:'Settings', maker:'Lair', solo:'Solo', soloNew:'New lair'};
-  const backLabel = () => VIEW_LABEL[viewStack[viewStack.length - 2] || 'home'];
+  const backLabel = () => T(VIEW_LABEL[viewStack[viewStack.length - 2] || 'home']);
   // The solo game (see Solo below), kept separately from the tracker's game.
   const SOLO_KEY = 'lairs-solo-v1';
   let SO = null; // {code, lair, known, path, gone, power, ach, peers, pending, strikeAt, peer, over}
   try { const raw = localStorage.getItem(SOLO_KEY); if (raw) SO = JSON.parse(raw); } catch (e) {}
   if (SO && (!SO.lair || !Array.isArray(SO.path) || !SO.path.length || !SO.known)) SO = null;
-  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+  const plural = (n, one, many) => n + ' ' + (LANG === 'hu' ? T(one) : n === 1 ? one : many); // Hungarian keeps the singular after a number
   let fileAsk = null;     // 'json' or 'pdf' while the file name box is showing
   let routeOpen = false;  // the whole route is showing on the Move tab
 
@@ -1992,8 +2321,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const letter = ch => '<text x="12" y="17" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor" font-family="Oswald, Arial Narrow, sans-serif">' + ch + '</text>';
     switch (t) {
       case 'known': return open + '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
-      case 'start': return open + frame + letter('S') + '</svg>';
-      case 'exit': return open + frame + letter('E') + '</svg>';
+      case 'start': return open + frame + letter(SL()) + '</svg>';
+      case 'exit': return open + frame + letter(EL()) + '</svg>';
       case 'scr': return open + frame + '<circle cx="15.5" cy="8.5" r="2.4" fill="currentColor"/></svg>';
       case 'trap': return open + '<polygon points="4,6 20,6 12,20" fill="' + fill + '" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
       case 'monster': return open + '<rect x="5" y="5" width="14" height="14" rx="1" fill="' + fill + '" stroke="currentColor" stroke-width="2"/></svg>';
@@ -2019,18 +2348,18 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
       const k = key(r, c), cell = S.cells[k] || {}, co = coord(r, c);
       const isHere = here && here[0] === r && here[1] === c;
-      const se = (cell.start ? 'S' : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? 'E' : '');
+      const se = (cell.start ? SL() : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? EL() : '');
       let center = '';
       if (cell.feat) center = sym(cell.feat, cell.dead);
       else if (se) center = '<span class="se-big">' + se + '</span>';
       const parts = [co];
-      if (cell.known) parts.push('known');
-      if (cell.start) parts.push('start');
-      if (cell.exit) parts.push('exit');
-      if (cell.feat) parts.push(FEAT[cell.feat] + (cell.dead ? ' eliminated' : ''));
-      if (liveMonster(cell) && cell.power != null) parts.push('power ' + cell.power);
-      if (cell.scr) parts.push('scrounged');
-      if (isHere) parts.push('your tracker is here');
+      if (cell.known) parts.push(T('known'));
+      if (cell.start) parts.push(T('start'));
+      if (cell.exit) parts.push(T('exit'));
+      if (cell.feat) parts.push(T(FEAT[cell.feat]) + (cell.dead ? ' ' + T('eliminated') : ''));
+      if (liveMonster(cell) && cell.power != null) parts.push(T('power {n}', {n: cell.power}));
+      if (cell.scr) parts.push(T('scrounged'));
+      if (isHere) parts.push(T('your tracker is here'));
       const cls = 'cell' + (visited.has(k) ? ' visited' : '') + (center ? ' marked' : '') + (cell.known ? ' known' : '') + (sel === k ? ' sel' : '') + (isHere && center ? ' here' : '');
       html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
         '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' +
@@ -2051,7 +2380,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     $('walls').innerHTML = w;
     const hereCell = here ? S.cells[key(here[0], here[1])] || {} : {};
-    const hereSE = (hereCell.start ? 'S' : '') + (hereCell.start && hereCell.exit ? '/' : '') + (hereCell.exit ? 'E' : '');
+    const hereSE = (hereCell.start ? SL() : '') + (hereCell.start && hereCell.exit ? '/' : '') + (hereCell.exit ? EL() : '');
     const hereIco = hereCell.feat ? sym(hereCell.feat, hereCell.dead) : hereSE ? '<b>' + hereSE + '</b>' : '';
     $('trail').innerHTML = trailSVG(routeSegments(S.path, isSpecial, hereIco ? HALO_TRIM : 0));
 
@@ -2077,7 +2406,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (scrTool) scrTool.hidden = !unlocked('scrounge');
     if (S.tool === 'scr' && !unlocked('scrounge')) S.tool = 'known';
     document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === S.tool)));
-    $('toolHint').textContent = HINTS[S.tool];
+    $('toolHint').textContent = T(HINTS[S.tool]);
 
     // Pieces left: tool badges and the Lair pieces editor.
     for (const t in PIECES) {
@@ -2086,7 +2415,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (b) {
         b.querySelector('.cnt').textContent = l;
         b.classList.toggle('out', l <= 0);
-        b.setAttribute('aria-label', PIECES[t].label + ', ' + l + ' left');
+        b.setAttribute('aria-label', T('{piece}, {n} left', {piece: T(PIECES[t].label), n: l}));
       }
       const v = document.querySelector('.pc-val[data-t="' + t + '"]');
       if (v) v.textContent = S.limits[t];
@@ -2102,16 +2431,16 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('maker').hidden = view !== 'maker';
     $('setBackLabel').textContent = $('mkBackLabel').textContent = backLabel();
     const moves = S.path.length;
-    $('rivalStatus').textContent = S.example ? 'Showing an example map' : moves === 0 ? 'Ready for a new map'
-      : moves === 1 ? 'Game in progress · on the starting space' : 'Game in progress · ' + (moves - 1) + ' move' + (moves === 2 ? '' : 's');
+    $('rivalStatus').textContent = S.example ? T('Showing an example map') : moves === 0 ? T('Ready for a new map')
+      : moves === 1 ? T('Game in progress · on the starting space') : T('Game in progress · {moves}', {moves: plural(moves - 1, 'move', 'moves')});
     if (view === 'maker') renderMaker();
     if (view === 'solo') renderSolo();
     if (view === 'soloNew') renderSoloNew();
     const soOn = !!SO && !SO.over;
-    $('soloGoLabel').textContent = soOn ? 'Continue' : 'New solo lair';
-    $('soloStatus').textContent = soOn ? SO.lair.tierName + ' · ' + plural(SO.path.length - 1, 'move', 'moves')
-      : SO && SO.over ? (SO.over.how === 'exit' ? 'Last lair: escaped in ' + plural(SO.over.moves, 'move', 'moves') : 'Last lair: you gave up')
-      : 'Pick a difficulty';
+    $('soloGoLabel').textContent = soOn ? T('Continue') : T('New solo lair');
+    $('soloStatus').textContent = soOn ? T(SO.lair.tierName) + ' · ' + plural(SO.path.length - 1, 'move', 'moves')
+      : SO && SO.over ? (SO.over.how === 'exit' ? T('Last lair: escaped in {moves}', {moves: plural(SO.over.moves, 'move', 'moves')}) : T('Last lair: you gave up'))
+      : T('Pick a difficulty');
     $('homeSoloNew').hidden = !soOn;
     const pi = progressIndex();
     document.querySelectorAll('#track .step').forEach((b, i) => {
@@ -2119,13 +2448,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       b.className = 'step ' + (i < pi ? 'done' : i === pi ? 'now' : soon ? 'todo soon' : 'todo');
       b.setAttribute('aria-pressed', String(i <= pi));
       b.setAttribute('aria-disabled', String(soon));
-      b.setAttribute('aria-label', STEPS[i].name + (i <= pi ? ', opened' : soon ? ', coming soon' : ''));
+      b.setAttribute('aria-label', T(STEPS[i].name) + (i <= pi ? T(', opened') : soon ? T(', coming soon') : ''));
     });
-    const opened = STEPS.slice(0, pi + 1).map(s => s.name);
+    const opened = STEPS.slice(0, pi + 1).map(s => T(s.name));
     $('progressNow').textContent = pi === STEPS.length - 1
-      ? 'Everything is open, ending with the Vault.'
-      : 'Opened so far: ' + (opened.length > 1 ? opened.slice(0, -1).join(', ') + ' and ' + opened[opened.length - 1] : opened[0]) +
-        '. Next up: ' + STEPS[pi + 1].name + '.';
+      ? T('Everything is open, ending with the Vault.')
+      : T('Opened so far: {list}. Next up: {next}.', {list: opened.length > 1 ? opened.slice(0, -1).join(', ') + T(' and ') + opened[opened.length - 1] : opened[0], next: T(STEPS[pi + 1].name)});
     $('saveView').hidden = !fileAsk;
 
     // The power editor takes the hint's place while a monster is selected.
@@ -2133,8 +2461,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('powerEd').hidden = !sel;
     if (sel) {
       const cell = S.cells[sel];
-      $('pwCell').textContent = coordK(sel) + ' power';
-      $('pwVal').setAttribute('aria-label', 'Power for the monster on ' + coordK(sel));
+      $('pwCell').textContent = T('{sq} power', {sq: coordK(sel)});
+      $('pwVal').setAttribute('aria-label', T('Power for the monster on {sq}', {sq: coordK(sel)}));
       $('pwVal').textContent = cell.power != null ? cell.power : '–';
       $('powerEd').querySelector('[data-d="-1"]').disabled = !cell.power;
     }
@@ -2142,17 +2470,17 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const n = S.path.length;
     $('posLabel').textContent = here ? coord(here[0], here[1]) : '—';
     // What's on the tracker's square, in words (the icon is also drawn on top of the tracker).
-    const hereWhat = hereCell.feat ? FEAT[hereCell.feat][0].toUpperCase() + FEAT[hereCell.feat].slice(1) +
-        (hereCell.dead ? ' (eliminated)' : liveMonster(hereCell) && hereCell.power != null ? ', power ' + hereCell.power : '')
-      : hereCell.exit ? 'Exit' : '';
-    $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' + (hereWhat ? ' · ' + hereWhat : '')
-      : hereWhat ? hereWhat + ' · ' + (n - 1) + ' move' + (n === 2 ? '' : 's') : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
+    const hereWhat = hereCell.feat ? T(FEAT[hereCell.feat][0].toUpperCase() + FEAT[hereCell.feat].slice(1)) +
+        (hereCell.dead ? T(' (eliminated)') : liveMonster(hereCell) && hereCell.power != null ? T(', power {n}', {n: hereCell.power}) : '')
+      : hereCell.exit ? T('Exit') : '';
+    $('stepLabel').textContent = n === 0 ? T('Not placed yet') : n === 1 ? T('On the starting space') + (hereWhat ? ' · ' + hereWhat : '')
+      : hereWhat ? hereWhat + ' · ' + plural(n - 1, 'move', 'moves') : T('{moves} so far', {moves: plural(n - 1, 'move', 'moves')});
     // Route button: as many of the latest moves as fit (up to 5 squares).
     const rb = $('routeBtn'), pl = $('pathLabel');
     $('moveMain').hidden = routeOpen;
     $('routeView').hidden = !routeOpen;
     rb.disabled = n === 0;
-    if (!n) pl.textContent = 'No route yet';
+    if (!n) pl.textContent = T('No route yet');
     else {
       const wide = $('trackApp').classList.contains('roomy') || matchMedia(BIG_SCREEN).matches;
       let shown = Math.min(n, wide ? 10 : 5);
@@ -2164,10 +2492,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     if (routeOpen) {
       const moves = Math.max(0, n - 1);
-      $('routeTitle').textContent = n ? 'Route · ' + moves + ' move' + (moves === 1 ? '' : 's') : 'Route';
+      $('routeTitle').textContent = n ? T('Route') + ' · ' + plural(moves, 'move', 'moves') : T('Route');
       const rt = $('routeText');
       const atEnd = rt.scrollTop + rt.clientHeight >= rt.scrollHeight - 4;
-      rt.textContent = n ? routeText(0, '→', '⇢') : 'No moves yet. Tap your starting space on the map.';
+      rt.textContent = n ? routeText(0, '→', '⇢') : T('No moves yet. Tap your starting space on the map.');
       if (atEnd) rt.scrollTop = rt.scrollHeight; // keep the newest moves in view while you play
       $('routeHint').hidden = !hasSpecialMove();
     }
@@ -2184,7 +2512,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const last = S.path[S.path.length - 1];
     if (last && last[0] === r && last[1] === c) return;
     // The first space becomes the Start, and the Start can't be the Exit.
-    if (!last && (S.cells[key(r, c)] || {}).exit) { toast(coord(r, c) + ' is the Exit. Start on another space.'); return; }
+    if (!last && (S.cells[key(r, c)] || {}).exit) { toast(T('{sq} is the Exit. Start on another space.', {sq: coord(r, c)})); return; }
     let kind = null; // null = a step, 'b' = a backtrack, 't' = a trap teleport
     if (last) {
       const to = [r, c], fc = coord(last[0], last[1]), tc = coord(r, c);
@@ -2193,13 +2521,13 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       // Can a trap on this square teleport the tracker there? Only to the Start until it's unlocked to go anywhere.
       const trapCould = from.feat === 'trap' && (unlocked('teleportAnywhere') || toStart);
       const teleport = trapCould && !from.dead;
-      const eliminatedMsg = 'The trap on ' + fc + ' is eliminated, so it can’t teleport you.';
+      const eliminatedMsg = T('The trap on {sq} is eliminated, so it can’t teleport you.', {sq: fc});
       if (isNeighbour(last, to)) {
         if (wallBetween(last, to)) {
           if (teleport) kind = 't';
           else {
             toast(trapCould ? eliminatedMsg
-              : 'A wall blocks ' + fc + ' → ' + tc + '.' + (unlocked('teleportAnywhere') ? ' Only an active trap can take you through.' : ''));
+              : T('A wall blocks {a} → {b}.', {a: fc, b: tc}) + (unlocked('teleportAnywhere') ? T(' Only an active trap can take you through.') : ''));
             return;
           }
         }
@@ -2208,8 +2536,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         // Only if that isn't possible does a trap teleport count.
         const goal = S.cells[key(r, c)];
         let why = '';
-        if (!goal || !goal.known) why = tc + ' isn’t known yet, so you can’t backtrack there.';
-        else if (!canBacktrack(last, to)) why = 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.';
+        if (!goal || !goal.known) why = T('{sq} isn’t known yet, so you can’t backtrack there.', {sq: tc});
+        else if (!canBacktrack(last, to)) why = T('No way from {a} to {b} through known, empty squares.', {a: fc, b: tc});
         if (!why) kind = 'b';
         else if (teleport) kind = 't';
         else { toast(trapCould ? eliminatedMsg : why); return; }
@@ -2225,10 +2553,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   function step(d){
     const last = S.path[S.path.length - 1];
-    if (!last) { toast('Tap a space to place your tracker first.'); return; }
+    if (!last) { toast(T('Tap a space to place your tracker first.')); return; }
     const [dr, dc, name] = DIRS[d];
     const r = last[0] + dr, c = last[1] + dc;
-    if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
+    if (r < 0 || r > 5 || c < 0 || c > 5) { toast(T('The outer wall is to the ' + name + '.')); return; }
     moveTo(r, c); // walls and traps are checked there, the same as for a tap
   }
 
@@ -2262,14 +2590,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const mv = coord(p[0], p[1]) + (isSpecial(p, q) ? '\u00a0⇢\u00a0' : '\u00a0→\u00a0') + coord(q[0], q[1]); // kept on one line
     ask({
       title: o.title,
-      text: o.cause + ' makes move ' + i + ' (' + mv + ') illegal. ' +
-        (i === n ? 'Move ' + i + ' will be removed' : 'Moves ' + i + '–' + n + ' will be removed') +
-        ' and the tracker goes back to ' + coord(p[0], p[1]) + '.',
+      text: T('{cause} makes move {i} ({mv}) illegal.', {cause: o.cause, i, mv}) + ' ' +
+        (i === n ? T('Move {i} will be removed and the tracker goes back to {sq}.', {i, sq: coord(p[0], p[1])})
+          : T('Moves {i}–{n} will be removed and the tracker goes back to {sq}.', {i, n, sq: coord(p[0], p[1])})),
       keep: o.keep, go: o.go,
       onGo: () => { snap(); apply(); S.path = S.path.slice(0, i); commit(); }
     });
   }
-  const trapAsk = co => ({title:'Remove the trap on ' + co + '?', cause:'Removing the trap on ' + co, keep:'Keep the trap', go:'Remove and go back'});
+  const trapAsk = co => ({title: T('Remove the trap on {sq}?', {sq: co}), cause: T('Removing the trap on {sq}', {sq: co}), keep: T('Keep the trap'), go: T('Remove and go back')});
 
   // A confirm box: Keep (cancel) and Go, plus an optional third choice (alt). onKeep runs when it's dismissed.
   let askGo = null, askAlt = null, askKeep = null;
@@ -2298,18 +2626,18 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const cur = S.cells[k] || {};
 
     if (t === 'wall') {
-      if (!e.detail) { toast('Tap near a side of a space to place a wall.'); return; }
+      if (!e.detail) { toast(T('Tap near a side of a space to place a wall.')); return; }
       const rect = btn.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width, y = (e.clientY - rect.top) / rect.height;
       const d = [[y, -1, 0], [1 - y, 1, 0], [x, 0, -1], [1 - x, 0, 1]].sort((a, b) => a[0] - b[0])[0];
       const nr = r + d[1], nc = c + d[2];
-      if (nr < 0 || nr > 5 || nc < 0 || nc > 5) { toast('That side is the outer wall.'); return; }
+      if (nr < 0 || nr > 5 || nc < 0 || nc > 5) { toast(T('That side is the outer wall.')); return; }
       const wk = wallKey(r, c, d[1], d[2]);
       if (!S.walls[wk] && left('wall') <= 0) { toast(fullMsg('wall')); return; }
       if (!S.walls[wk]) {
         const fx = wallEffects(wk);
         if (fx.cut) {
-          askCut({title:'Draw this wall?', cause:'A wall between ' + co + ' and ' + coord(nr, nc), keep:'Don’t draw it', go:'Draw and go back'},
+          askCut({title: T('Draw this wall?'), cause: T('A wall between {a} and {b}', {a: co, b: coord(nr, nc)}), keep: T('Don’t draw it'), go: T('Draw and go back')},
             fx.cut, () => { S.walls[wk] = 1; markTeleports(fx.convert); });
           return;
         }
@@ -2337,14 +2665,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       return;
     }
     if (t === 'power') {
-      if (cur.feat !== 'monster') { toast('There is no monster on ' + co + '.'); return; }
-      if (cur.dead) { toast('The monster on ' + co + ' is eliminated.'); return; }
+      if (cur.feat !== 'monster') { toast(T('There is no monster on {sq}.', {sq: co})); return; }
+      if (cur.dead) { toast(T('The monster on {sq} is eliminated.', {sq: co})); return; }
       select(sel === k ? null : k);
       render();
       return;
     }
     if (t === 'kill') {
-      if (!cur.feat) { toast('There is no monster, trap or chest on ' + co + '.'); return; }
+      if (!cur.feat) { toast(T('There is no monster, trap or chest on {sq}.', {sq: co})); return; }
       snap();
       const n = Object.assign({}, cur);
       if (n.dead) delete n.dead; else n.dead = true;
@@ -2354,10 +2682,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     // The Exit can't share a space with the Start, a trap, a monster or a chest.
     if (t === 'exit' && !cur.exit) {
-      if (cur.feat) { toast(co + ' has a ' + cur.feat + '. Clear it before marking the Exit here.'); return; }
-      if (cur.start) { toast(co + ' is the Start. The Exit can’t go there.'); return; }
+      if (cur.feat) { toast(T('{sq} has a {feat}. Clear it before marking the Exit here.', {sq: co, feat: T(cur.feat)})); return; }
+      if (cur.start) { toast(T('{sq} is the Start. The Exit can’t go there.', {sq: co})); return; }
     }
-    if (PIECES[t] && cur.exit) { toast(co + ' is the Exit. Remove the Exit before drawing a ' + t + ' here.'); return; }
+    if (PIECES[t] && cur.exit) { toast(T('{sq} is the Exit. Remove the Exit before drawing a {feat} here.', {sq: co, feat: T(S.tool)})); return; }
     // Drawing a trap, monster or chest (or swapping one in) needs one left.
     if (PIECES[t] && cur.feat !== t && left(t) <= 0) { toast(fullMsg(t)); return; }
 
@@ -2373,7 +2701,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
           if (Object.keys(o).length) S.cells[k2] = o; else delete S.cells[k2];
           moved = true;
         }
-        if (moved) toast('Exit moved to ' + co + '.');
+        if (moved) toast(T('Exit moved to {sq}.', {sq: co}));
       }
       if (t === 'known' || t === 'exit' || t === 'scr') {
         if (n[t]) delete n[t]; else n[t] = true;
@@ -2405,32 +2733,32 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   }
 
   function undo(){
-    if (!hist.length) { toast('Nothing to undo.'); return; }
+    if (!hist.length) { toast(T('Nothing to undo.')); return; }
     Object.assign(S, JSON.parse(hist.pop()));
     pwSnapped = false;
     commit();
   }
 
-  // Build tool buttons
-  // Two rows of tools; a hidden (locked) tool leaves no gap, the rest of its row widens.
-  $('tools').innerHTML = [TOOLS.slice(0, 5), TOOLS.slice(5)].map(row => '<div class="toolrow">' + row.map(([id, label, act]) =>
-    '<button type="button" class="tool' + (act ? ' act' : '') + '" data-tool="' + id + '" aria-pressed="false">' + sym(id, id === 'kill') + '<span>' + label + '</span>' +
-    (PIECES[id] ? '<b class="cnt" aria-hidden="true"></b>' : '') + '</button>'
-  ).join('') + '</div>').join('');
-
-  // Build the Lair pieces steppers
-  $('pcGrid').innerHTML = Object.keys(PIECES).map(t => {
-    const m = PIECES[t].many, M = m[0].toUpperCase() + m.slice(1);
-    return '<div class="pc"><span class="pc-name">' + M + '</span>' +
-      '<button type="button" class="pc-step" data-t="' + t + '" data-d="-1" aria-label="Fewer ' + m + '">−</button>' +
-      '<output class="pc-val" data-t="' + t + '" aria-label="' + M + ' in the lair"></output>' +
-      '<button type="button" class="pc-step" data-t="' + t + '" data-d="1" aria-label="More ' + m + '">+</button></div>';
-  }).join('');
-
-  // Build the progress track
-  $('track').innerHTML = STEPS.map(s =>
-    '<button type="button" class="step" data-step="' + s.id + '" title="' + s.name + '">' + stepIcon(s) + '</button>'
-  ).join('');
+  // Built pieces of the screen: the tool buttons, the Lair pieces steppers and the progress track.
+  // Built again when the language changes.
+  function buildStatic(){
+    // Two rows of tools; a hidden (locked) tool leaves no gap, the rest of its row widens.
+    $('tools').innerHTML = [TOOLS.slice(0, 5), TOOLS.slice(5)].map(row => '<div class="toolrow">' + row.map(([id, label, act]) =>
+      '<button type="button" class="tool' + (act ? ' act' : '') + '" data-tool="' + id + '" aria-pressed="false">' + sym(id, id === 'kill') + '<span>' + T(label) + '</span>' +
+      (PIECES[id] ? '<b class="cnt" aria-hidden="true"></b>' : '') + '</button>'
+    ).join('') + '</div>').join('');
+    $('pcGrid').innerHTML = Object.keys(PIECES).map(t => {
+      const m = T(PIECES[t].many), M = m[0].toUpperCase() + m.slice(1);
+      return '<div class="pc"><span class="pc-name">' + M + '</span>' +
+        '<button type="button" class="pc-step" data-t="' + t + '" data-d="-1" aria-label="' + T('Fewer {many}', {many: m}) + '">−</button>' +
+        '<output class="pc-val" data-t="' + t + '" aria-label="' + T('{Many} in the lair', {Many: M}) + '"></output>' +
+        '<button type="button" class="pc-step" data-t="' + t + '" data-d="1" aria-label="' + T('More {many}', {many: m}) + '">+</button></div>';
+    }).join('');
+    $('track').innerHTML = STEPS.map(s =>
+      '<button type="button" class="step" data-step="' + s.id + '" title="' + T(s.name) + '">' + stepIcon(s) + '</button>'
+    ).join('');
+  }
+  buildStatic();
   $('aboutVer').textContent = 'v' + APP_VERSION;
 
   // Shrink a tool label slightly if it would be cut off (e.g. "Scrounged" on a narrow screen).
@@ -2516,13 +2844,13 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // New game buttons: when a game would be lost, the first tap arms the button ("Tap again to clear")
   // for 3 seconds and the second tap goes ahead. Every New game button uses this, so they all match.
   function armButton(btn, needed, onGo){
-    const label = btn.textContent;
+    const label = btn.textContent.trim(); // the English label (bound before the page is translated)
     let t = 0;
-    const disarm = () => { clearTimeout(t); btn.classList.remove('armed'); btn.textContent = label; };
+    const disarm = () => { clearTimeout(t); btn.classList.remove('armed'); btn.textContent = T(label); };
     btn.addEventListener('click', () => {
       if (needed() && !btn.classList.contains('armed')) {
         btn.classList.add('armed');
-        btn.textContent = 'Tap again to clear';
+        btn.textContent = T('Tap again to clear');
         t = setTimeout(disarm, 3000);
         return;
       }
@@ -2530,7 +2858,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       onGo();
     });
   }
-  armButton($('newBtn'), () => !S.example, () => startNewGame('New game. Tap your starting space.'));
+  armButton($('newBtn'), () => !S.example, () => startNewGame(T('New game. Tap your starting space.')));
   function startNewGame(msg){
     S = {mode:'move', tool:S.tool, example:false, path:[], cells:{}, walls:{}, limits:S.limits};
     hist = [];
@@ -3268,8 +3596,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('snForm').addEventListener('submit', e => {
     e.preventDefault();
     const p = LairGen.parseCode($('snInput').value);
-    if (p.error === 'version') { toast('That code is from a different version of Make a lair.'); return; }
-    if (p.error) { toast('That isn’t a lair code. It looks like J1-7KQ3M.'); return; }
+    if (p.error === 'version') { toast(T('That code is from a different version of Make a lair.')); return; }
+    if (p.error) { toast(T('That isn’t a lair code. It looks like J1-7KQ3M.')); return; }
     $('snInput').blur();
     soloBuild(p.tier, p.seed, p.counts);
   });
@@ -3426,7 +3754,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       }
       replace();
     };
-    rd.onerror = () => toast('Could not read that file.');
+    rd.onerror = () => toast(T('Could not read that file.'));
     rd.readAsText(f);
   });
   $('soloHome').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
@@ -3487,7 +3815,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     mkWant = null;
     mkCalibrated.add(countsKey);
     if (lair.error) {
-      toast('That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.');
+      toast(T('That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.'));
       renderMaker();
       return;
     }
@@ -3510,19 +3838,19 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const on = b.dataset.tier === MK.tier;
       b.setAttribute('aria-checked', String(on));
     });
-    $('mkDesc').textContent = TIER_DESC[MK.tier];
+    $('mkDesc').textContent = T(TIER_DESC[MK.tier]);
     $('mkBoard').classList.toggle('busy', busy);
     $('mkCover').hidden = mkShown;
-    $('mkHide').textContent = mkShown ? 'Hide' : 'Show';
-    $('mkCode').textContent = busy ? 'Building…' : l ? l.code : '—';
+    $('mkHide').textContent = mkShown ? T('Hide') : T('Show');
+    $('mkCode').textContent = busy ? T('Building…') : l ? l.code : '—';
     $('mkCopy').disabled = busy || !l;
     $('mkNew').disabled = busy;
-    if (busy && mkSlow) $('mkPieces').textContent = 'First lair with these pieces: this takes a few seconds.';
+    if (busy && mkSlow) $('mkPieces').textContent = T('First lair with these pieces: this takes a few seconds.');
     else if (l) {
       const c = l.counts, left = c.wall - l.wallCount;
-      $('mkPieces').textContent = plural(l.wallCount, 'wall', 'walls') + (left > 0 ? ' (leave ' + left + ' out)' : '') + ' · ' +
+      $('mkPieces').textContent = plural(l.wallCount, 'wall', 'walls') + (left > 0 ? T(' (leave {n} out)', {n: left}) : '') + ' · ' +
         plural(c.trap, 'trap', 'traps') + ' · ' + plural(c.monster, 'monster', 'monsters') + ' · ' + plural(c.chest, 'chest', 'chests') +
-        ' · Start · Exit' + (l.capped ? '. A 6×6 lair can’t use more than ' + LairGen.MAX_WALLS + ' walls and still reach every space.' : '');
+        ' · ' + T('Start') + ' · ' + T('Exit') + (l.capped ? T('. A 6×6 lair can’t use more than {n} walls and still reach every space.', {n: LairGen.MAX_WALLS}) : '');
     } else $('mkPieces').textContent = '';
     if (!l) { $('mkCells').innerHTML = ''; $('mkWalls').innerHTML = ''; return; }
     if ($('mkBoard').dataset.code === l.code) return; // already drawn
@@ -3533,7 +3861,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     let html = '';
     for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
       const t = at[key(r, c)];
-      const center = !t ? '' : t === 'start' ? '<span class="se-big">S</span>' : t === 'exit' ? '<span class="se-big">E</span>' : sym(t, false);
+      const center = !t ? '' : t === 'start' ? '<span class="se-big">' + SL() + '</span>' : t === 'exit' ? '<span class="se-big">' + EL() + '</span>' : sym(t, false);
       html += '<span class="cell' + (t ? ' marked' : '') + (t === 'start' || t === 'exit' ? ' tile' : '') + '"><span class="box"><span class="co">' +
         coord(r, c) + '</span><span class="ring">' + center + '</span></span></span>';
     }
@@ -3548,8 +3876,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     $('mkWalls').innerHTML = w;
     const list = ps => ps.map(p => coord(p[0], p[1])).join(', ');
-    $('mkBoard').setAttribute('aria-label', l.tierName + ' lair ' + l.code + ': Start ' + coord(l.start[0], l.start[1]) + ', Exit ' +
-      coord(l.exit[0], l.exit[1]) + ', chests ' + list(l.chests) + ', traps ' + list(l.traps) + ', monsters ' + list(l.monsters) +
+    $('mkBoard').setAttribute('aria-label', T('{tier} lair {code}', {tier: T(l.tierName), code: l.code}) + ': ' + T('Start') + ' ' + coord(l.start[0], l.start[1]) + ', ' + T('Exit') + ' ' +
+      coord(l.exit[0], l.exit[1]) + ', ' + T('chests') + ' ' + list(l.chests) + ', ' + T('traps') + ' ' + list(l.traps) + ', ' + T('monsters') + ' ' + list(l.monsters) +
       ', ' + plural(l.wallCount, 'wall', 'walls') + ': ' + Object.keys(l.walls).map(k => {
         const [t, r, c] = k.split(','); return t === 'h' ? coord(+r, +c) + '–' + coord(+r + 1, +c) : coord(+r, +c) + '–' + coord(+r, +c + 1);
       }).join(', ') + '.');
@@ -3572,9 +3900,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const r = document.createRange();
       r.selectNodeContents($('mkCode'));
       const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
-      toast('Code selected. Copy it from here.');
+      toast(T('Code selected. Copy it from here.'));
     };
-    try { navigator.clipboard.writeText(code).then(() => toast('Code copied: ' + code), fallback); } catch (e) { fallback(); }
+    try { navigator.clipboard.writeText(code).then(() => toast(T('Code copied: {code}', {code})), fallback); } catch (e) { fallback(); }
   });
   const showCodeForm = on => {
     $('mkForm').hidden = !on;
@@ -3587,8 +3915,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('mkForm').addEventListener('submit', e => {
     e.preventDefault();
     const p = LairGen.parseCode($('mkInput').value);
-    if (p.error === 'version') { toast('That code is from a different version of Make a lair.'); return; }
-    if (p.error) { toast('That isn’t a lair code. It looks like J1-7KQ3M.'); return; }
+    if (p.error === 'version') { toast(T('That code is from a different version of Make a lair.')); return; }
+    if (p.error) { toast(T('That isn’t a lair code. It looks like J1-7KQ3M.')); return; }
     $('mkInput').blur();
     showCodeForm(false);
     makeLair(p.tier, p.seed, p.counts);
@@ -3598,34 +3926,33 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     saveSettings();
     render();
   }
-  const openedMsg = id => stepName(id) + (id === 'V' ? '' : ' opened');
+  const openedMsg = id => id === 'V' ? stepName(id) : T('{step} opened', {step: stepName(id)});
   $('track').addEventListener('click', e => {
     const b = e.target.closest('.step');
     if (!b) return;
     const id = b.dataset.step, i = stepIndex(id);
-    if (i > stepIndex(LAST_READY)) { toast('Coming soon.'); return; }
+    if (i > stepIndex(LAST_READY)) { toast(T('Coming soon.')); return; }
     if (i === progressIndex()) return;
     // Changing progress mid-game is fine, unless the current game already uses something from a later package.
     if (i < stepNeeded(S.cells, S.path)) {
       const nm = stepName(id);
       ask({
-        title: 'Go back to ' + nm + '?',
-        text: 'Your current game already uses things from a later package, so going back to ' + nm +
-          ' would change what has happened. You can start a new game at ' + nm + ' instead.',
-        keep: 'Keep my progress', go: 'New game at ' + nm,
-        onGo: () => { setProgress(id); startNewGame('Progress saved: ' + openedMsg(id) + '. New game started.'); }
+        title: T('Go back to {step}?', {step: nm}),
+        text: T('Your current game already uses things from a later package, so going back to {step} would change what has happened. You can start a new game at {step} instead.', {step: nm}),
+        keep: T('Keep my progress'), go: T('New game at {step}', {step: nm}),
+        onGo: () => { setProgress(id); startNewGame(T('Progress saved: {what}. New game started.', {what: openedMsg(id)})); }
       });
       return;
     }
     setProgress(id);
-    toast('Progress saved: ' + openedMsg(id) + '.');
+    toast(T('Progress saved: {what}.', {what: openedMsg(id)}));
   });
   $('pcGrid').addEventListener('click', e => {
     const b = e.target.closest('.pc-step');
     if (!b) return;
     const t = b.dataset.t, P = PIECES[t], next = S.limits[t] + (+b.dataset.d);
     const u = used(t);
-    if (next < u) { toast(u + ' ' + (u === 1 ? P.one + ' is' : P.many + ' are') + ' on the map, so it can’t go below ' + u + '.'); return; }
+    if (next < u) { toast(LANG === 'hu' ? T('{n} {one} is on the map, so it can’t go below {n}.', {n: u, one: T(P.one)}) : u + ' ' + (u === 1 ? P.one + ' is' : P.many + ' are') + ' on the map, so it can’t go below ' + u + '.'); return; }
     if (next < 0 || next > P.cap) return;
     S.limits = Object.assign({}, S.limits, {[t]: next});
     commit();
@@ -3639,13 +3966,13 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     }
     S.limits = L;
     commit();
-    toast(kept ? 'Back to the standard numbers, except where more are already on the map.' : 'Back to 21 walls and 3 traps, monsters and chests.');
+    toast(kept ? T('Back to the standard numbers, except where more are already on the map.') : T('Back to 21 walls and 3 traps, monsters and chests.'));
   });
 
   // ---------- Game file: save / load JSON, export PDF ----------
   const pad2 = n => String(n).padStart(2, '0');
   const fileStamp = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
-  const niceDate = d => d.toLocaleString('en-GB', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+  const niceDate = d => d.toLocaleString(LANG === 'hu' ? 'hu-HU' : 'en-GB', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
   function parseCoord(s){
     if (typeof s !== 'string') return null;
     const m = /^([A-F])([1-6])$/i.exec(s.trim());
@@ -3741,7 +4068,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     a.href = url; a.download = filename; a.rel = 'noopener';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
-    toast('Downloading ' + filename);
+    toast(T('Downloading {file}', {file: filename}));
   }
   async function offerFile(filename, data){
     const type = MIME[filename.split('.').pop()] || 'application/octet-stream';
@@ -3752,7 +4079,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (file && navigator.canShare({files:[file]})) {
         try { await navigator.share({files:[file]}); return; }
         catch (err) {
-          if (err && err.name === 'AbortError') { toast('Save cancelled.'); return; }
+          if (err && err.name === 'AbortError') { toast(T('Save cancelled.')); return; }
           // Otherwise fall back to a normal download.
         }
       }
@@ -3775,8 +4102,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('fileName').value = def;
     $('fileName').placeholder = def;
     $('fileExt').textContent = '.' + kind;
-    $('saveTitle').textContent = kind === 'pdf' ? 'Export PDF as' : 'Save game as';
-    $('saveGo').textContent = kind === 'pdf' ? 'Export' : 'Save';
+    $('saveTitle').textContent = kind === 'pdf' ? T('Export PDF as') : T('Save game as');
+    $('saveGo').textContent = kind === 'pdf' ? T('Export') : T('Save');
     render();
   }
   $('saveBtn').addEventListener('click', () => askName('json'));
@@ -3792,8 +4119,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     rd.onload = () => {
       let o = null, raw = null;
       try { raw = JSON.parse(rd.result); o = fromFile(raw); } catch (err) {}
-      if (raw && raw.format === 'lairs-solo') { toast('That’s a solo game. Load it from Solo → Game.'); return; }
-      if (!o) { toast('That file is not a Lairs Tracker save.'); return; }
+      if (raw && raw.format === 'lairs-solo') { toast(T('That’s a solo game. Load it from Solo → Game.')); return; }
+      if (!o) { toast(T('That file is not a Lairs Tracker save.')); return; }
       const load = () => {
         snap();
         S.path = o.path; S.cells = o.cells; S.walls = o.walls; S.example = false;
@@ -3801,23 +4128,23 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         select(null);
         commit();
         const d = new Date(o.savedAt);
-        toast(isNaN(d) ? 'Save loaded.' : 'Loaded the save from ' + niceDate(d) + '.');
+        toast(isNaN(d) ? T('Save loaded.') : T('Loaded the save from {date}.', {date: niceDate(d)}));
       };
       // A save that uses things from a package you haven't opened: ask, in general terms only (no spoilers).
       const need = stepNeeded(o.cells, o.path);
       if (need > progressIndex()) {
         const id = STEPS[need].id, nm = stepName(id);
         ask({
-          title: 'Set your progress?',
-          text: 'This saved game was made by a player who has opened ' + nm + '. Set your progress to ' + nm + ' and load it?',
-          keep: 'Cancel', go: 'Set and load',
+          title: T('Set your progress?'),
+          text: T('This saved game was made by a player who has opened {step}. Set your progress to {step} and load it?', {step: nm}),
+          keep: T('Cancel'), go: T('Set and load'),
           onGo: () => { setProgress(id); load(); }
         });
         return;
       }
       load();
     };
-    rd.onerror = () => toast('Could not read that file.');
+    rd.onerror = () => toast(T('Could not read that file.'));
     rd.readAsText(f);
   });
 
@@ -3867,14 +4194,17 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       font('bold', 7.5); st(K.white); doc.text(txt, cx, cy, {align:'center', baseline:'middle'});
     }
 
+    // jsPDF's built-in fonts can't draw ő and ű: use ö and ü in the PDF.
+    const pdfSafe = x => typeof x === 'string' ? x.replace(/ő/g, 'ö').replace(/Ő/g, 'Ö').replace(/ű/g, 'ü').replace(/Ű/g, 'Ü') : Array.isArray(x) ? x.map(pdfSafe) : x;
+    if (LANG === 'hu') for (const fn of ['text', 'getTextWidth', 'splitTextToSize']) { try { const f = doc[fn].bind(doc); doc[fn] = (x, ...a) => f(pdfSafe(x), ...a); } catch (e) {} }
     // Header
     font('bold', 24); st(K.wall); doc.text('LAIRS', 20, 22);
     const tw = doc.getTextWidth('LAIRS');
     font('normal', 10); st(K.muted);
-    doc.text('MAP TRACKER', 20 + tw + 4, 22);
+    doc.text(T('MAP TRACKER'), 20 + tw + 4, 22);
     doc.text(niceDate(new Date()), 190, 22, {align:'right'});
     font('normal', 8.5);
-    doc.text('Game progress: ' + stepName(SET.progress) + (SET.progress === 'V' ? '' : ' opened'), 190, 27, {align:'right'});
+    doc.text(T('Game progress: {what}', {what: openedMsg(SET.progress)}), 190, 27, {align:'right'});
 
     // Grid
     const x0 = 35, y0 = 38, cs = 25, size = cs * 6;
@@ -3892,7 +4222,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (visited.has(key(r, c))) { sf(K.tint); doc.roundedRect(x + 1.2, y + 1.2, cs - 2.4, cs - 2.4, 1.5, 1.5, 'FD'); }
       else doc.roundedRect(x + 1.2, y + 1.2, cs - 2.4, cs - 2.4, 1.5, 1.5, 'S');
       font('normal', 7); st(K.muted); doc.text(coord(r, c), x + 2.6, y + 4.6);
-      const se = (cell.start ? 'S' : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? 'E' : '');
+      const se = (cell.start ? SL() : '') + (cell.start && cell.exit ? '/' : '') + (cell.exit ? EL() : '');
       if (cell.known) { sd(K.ink); doc.setLineWidth(0.6); doc.circle(cx, cy, 7.5, 'S'); }
       else if (!cell.feat && !se) { sd(K.tan); doc.setLineWidth(0.3); dash([0.9, 0.9]); doc.circle(cx, cy, 7.5, 'S'); dash(null); }
       if (cell.feat === 'trap') trap(cx, cy + 0.3, 4.6, cell.dead);
@@ -3947,29 +4277,29 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     let y = y0 + size + 11;
     const n = S.path.length;
     font('bold', 11); st(K.ink);
-    doc.text(here ? 'Tracker at ' + coord(here[0], here[1]) : 'Tracker not placed', 20, y);
+    doc.text(here ? T('Tracker at {sq}', {sq: coord(here[0], here[1])}) : T('Tracker not placed'), 20, y);
     font('normal', 10); st(K.muted);
-    if (n > 1) doc.text((n - 1) + ' move' + (n === 2 ? '' : 's'), 190, y, {align:'right'});
+    if (n > 1) doc.text(plural(n - 1, 'move', 'moves'), 190, y, {align:'right'});
     y += 7;
     const rowsOut = [];
     // The PDF font has no arrow characters, so steps are ">" and backtracks or trap teleports ">>".
-    rowsOut.push(['Route', n ? routeText(0, '>', '>>') + (hasSpecialMove() ? '   (>> marks a backtrack or a trap teleport)' : '') : 'Not started yet']);
+    rowsOut.push([T('Route'), n ? routeText(0, '>', '>>') + (hasSpecialMove() ? T('   (>> marks a backtrack or a trap teleport)') : '') : T('Not started yet')]);
     const live = [], traps = [], dead = [], chests = [];
     for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
       const cell = S.cells[key(r, c)]; if (!cell || !cell.feat) continue;
       const co = coord(r, c);
-      if (cell.dead) dead.push(co + ' ' + cell.feat);
-      else if (cell.feat === 'monster') live.push(co + (cell.power != null ? ' (power ' + cell.power + ')' : ''));
+      if (cell.dead) dead.push(co + ' ' + T(cell.feat));
+      else if (cell.feat === 'monster') live.push(co + (cell.power != null ? T(' (power {n})', {n: cell.power}) : ''));
       else if (cell.feat === 'trap') traps.push(co);
       else if (cell.feat === 'chest') chests.push(co);
     }
-    if (live.length) rowsOut.push(['Monsters', live.join(', ')]);
-    if (traps.length) rowsOut.push(['Traps', traps.join(', ')]);
-    if (dead.length) rowsOut.push(['Eliminated', dead.join(', ')]);
-    if (chests.length) rowsOut.push(['Chests', chests.join(', ')]);
-    rowsOut.push(['Pieces left', Object.keys(PIECES).map(t => {
-      const m = PIECES[t].many;
-      return m[0].toUpperCase() + m.slice(1) + ' ' + left(t) + ' of ' + S.limits[t];
+    if (live.length) rowsOut.push([T('Monsters'), live.join(', ')]);
+    if (traps.length) rowsOut.push([T('Traps'), traps.join(', ')]);
+    if (dead.length) rowsOut.push([T('Eliminated'), dead.join(', ')]);
+    if (chests.length) rowsOut.push([T('Chests'), chests.join(', ')]);
+    rowsOut.push([T('Pieces left'), Object.keys(PIECES).map(t => {
+      const m = T(PIECES[t].many);
+      return T('{Many} {n} of {of}', {Many: m[0].toUpperCase() + m.slice(1), n: left(t), of: S.limits[t]});
     }).join(', ')]);
     // Legend and version first (fixed spots on page 1), so the summary can continue on more pages.
     const ly = 266;
@@ -3977,8 +4307,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const letter = ch => (x, yy) => { font('bold', 10); st(K.ink); doc.text(ch, x, yy, {align:'center', baseline:'middle'}); };
     const items = [
       ['Known', (x, yy) => { sd(K.ink); doc.setLineWidth(0.5); doc.circle(x, yy, 2.6, 'S'); }],
-      ['Start', letter('S')],
-      ['Exit', letter('E')],
+      ['Start', letter(SL())],
+      ['Exit', letter(EL())],
       unlocked('scrounge') && ['Scrounged', (x, yy) => { sf(K.ink); doc.circle(x, yy, 0.9, 'F'); }],
       ['Trap', (x, yy) => trap(x, yy, 2.6, false)],
       ['Monster', (x, yy) => monster(x, yy, 2.6, false)],
@@ -3993,7 +4323,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const x = 20 + stepW * i + stepW / 2;
       draw(x, ly);
       font('normal', 6.5); st(K.muted);
-      doc.text(label.toUpperCase(), x, ly + 6.5, {align:'center'});
+      doc.text(T(label).toUpperCase(), x, ly + 6.5, {align:'center'});
     });
     font('normal', 7.5); st(K.muted);
     doc.text('Lairs Tracker v' + APP_VERSION, 190, 288, {align:'right'});
@@ -4008,12 +4338,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         if (y > bottom) {
           doc.addPage();
           y = 20; bottom = 282; cont = true;
-          font('bold', 11); st(K.ink); doc.text('Lairs map, continued', 20, y);
+          font('bold', 11); st(K.ink); doc.text(T('Lairs map, continued'), 20, y);
           y += 9;
         }
         const room = Math.max(1, Math.floor((bottom - y) / LINE) + 1);
         const chunk = wrapped.slice(i, i + room);
-        font('bold', 9.5); st(K.ink); doc.text(i === 0 ? label : label + (cont ? ' (cont.)' : ''), 20, y);
+        font('bold', 9.5); st(K.ink); doc.text(i === 0 ? label : label + (cont ? T(' (cont.)') : ''), 20, y);
         font('normal', 9.5); st(K.ink); doc.text(chunk, 45, y);
         y += chunk.length * LINE;
         i += chunk.length;
@@ -4037,7 +4367,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       offerFile(name, JSON.stringify(toFile(), null, 2));
       return;
     }
-    go.disabled = true; go.textContent = 'Preparing…';
+    go.disabled = true; go.textContent = T('Preparing…');
     try {
       const JsPDF = await loadJsPDF();
       const blob = buildPdf(JsPDF);
@@ -4045,9 +4375,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       render();
       await offerFile(name, blob);
     } catch (err) {
-      toast('Could not build the PDF. Check your connection and try again.');
+      toast(T('Could not build the PDF. Check your connection and try again.'));
     } finally {
-      go.disabled = false; go.textContent = 'Export';
+      go.disabled = false; go.textContent = T('Export');
     }
   });
 
@@ -4073,7 +4403,58 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (d && S.mode === 'move') { e.preventDefault(); step(d); }
   });
 
-  render();
+  // Fixed texts in the page: translated in place. The English is remembered per node, so switching back works;
+  // a text the code already set in the other language is recognised by looking it up the other way round.
+  const DOM_EN = new WeakMap();
+  let HU_REV = null;
+  function translatePage(){
+    if (!HU_REV) { HU_REV = {}; for (const k in HU) if (!(HU[k] in HU_REV)) HU_REV[HU[k]] = k; }
+    const enOf = txt => HU[txt] != null ? txt : HU_REV[txt];
+    document.querySelectorAll('[data-t]').forEach(el => {
+      if (!DOM_EN.has(el)) DOM_EN.set(el, el.innerHTML);
+      el.innerHTML = LANG === 'hu' && HU_HTML[el.dataset.t] != null ? HU_HTML[el.dataset.t] : DOM_EN.get(el);
+    });
+    const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {acceptNode: n =>
+      n.parentElement && !n.parentElement.closest('script,style,svg,[data-t],.rows,.cols,[data-lang]') && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT});
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const txt = n.nodeValue.trim(), en = DOM_EN.get(n) || enOf(txt);
+      if (en == null) continue;
+      DOM_EN.set(n, en);
+      n.nodeValue = n.nodeValue.replace(txt, T(en));
+    }
+    document.querySelectorAll('[aria-label],[title],[placeholder]').forEach(el => {
+      if (el.closest('script,style,svg')) return;
+      const keep = DOM_EN.get(el) || {};
+      for (const a of ['aria-label', 'title', 'placeholder']) {
+        const v = el.getAttribute(a);
+        if (!v) continue;
+        const en = keep[a] || enOf(v);
+        if (en == null) continue;
+        keep[a] = en;
+        el.setAttribute(a, T(en));
+      }
+      DOM_EN.set(el, keep);
+    });
+    $('aboutVer').textContent = 'v' + APP_VERSION;
+  }
+  function applyLanguage(lang){
+    LANG = lang;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-lang]').forEach(b => {
+      const on = b.dataset.lang === lang;
+      b.setAttribute(b.getAttribute('role') === 'radio' ? 'aria-checked' : 'aria-pressed', String(on));
+    });
+    translatePage();
+    buildStatic();
+    render();
+  }
+  document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.lang === LANG) return;
+    SET.lang = b.dataset.lang;
+    saveSettings();
+    applyLanguage(SET.lang);
+  }));
+  applyLanguage(LANG);
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
