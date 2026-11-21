@@ -930,7 +930,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   <section class="set-card about" aria-labelledby="aboutTitle">
     <h3 id="aboutTitle">About</h3>
-    <p data-t="about">Lairs Tracker <span id="aboutVer"></span>, an unofficial fan-made map tracker for <i>Lairs</i> by Kids Table Board Gaming.</p>
+    <p data-t="about">Lairs Tracker <span id="aboutVer"></span>, an unofficial fan-made map tracker for <i>Lairs</i> by <a href="https://www.kidstablebg.com/" target="_blank" rel="noopener">Kids Table Board Gaming</a>.</p>
     <p><a href="https://github.com/macskasa/lairs#readme" target="_blank" rel="noopener">How to use it</a> · <a href="https://github.com/macskasa/lairs/tree/main/release-notes" target="_blank" rel="noopener">Release notes</a></p>
   </section>
 </section>
@@ -1003,7 +1003,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
   <div class="mk-actions" id="mkActions">
     <button type="button" class="mk-btn" id="mkHide">Hide</button>
     <button type="button" class="mk-btn" id="mkEnter">Enter code</button>
-    <button type="button" class="mk-btn primary" id="mkNew">New lair</button>
+    <button type="button" class="mk-btn primary" id="mkNew" data-t="mkNew">New lair</button>
   </div>
   <form class="mk-form" id="mkForm" hidden autocomplete="off">
     <input id="mkInput" type="text" maxlength="24" spellcheck="false" autocapitalize="characters" autocorrect="off" enterkeyhint="go" placeholder="e.g. J1-7KQ3M" aria-label="Lair code">
@@ -1622,7 +1622,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 <script>
 (() => {
   // 0.x where x = the number of GitHub Pages deployments. Bump with every deployment.
-  const APP_VERSION = '0.22';
+  const APP_VERSION = '0.23';
   const ROWS = 'ABCDEF';
   const KEY = 'lairs-tracker-v2';
   const OLD_KEY = 'lairs-tracker-v1';
@@ -1687,7 +1687,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "Map tracker": "Térképkövető",
     "Settings": "Beállítások",
     "New game": "Új játék",
-    "Lair map": "Odútérkép",
+    "Lair map": "A kazamata térképe",
     "Mode": "Mód",
     "Move": "Lépés",
     "Map": "Térkép",
@@ -1712,7 +1712,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "from .json": ".json fájlból",
     "Export PDF": "PDF",
     "printable map": "nyomtatható térkép",
-    "Make a lair": "Odú készítése",
+    "Make a lair": "Kazamata készítése",
     "Your game saves itself as you play.": "A játék menet közben magától mentődik.",
     "Save game as": "Mentés ezen a néven",
     "Cancel": "Mégse",
@@ -1720,7 +1720,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "File name": "Fájlnév",
     "Leave it empty to use the date and time.": "Ha üresen hagyod, a dátum és az idő lesz a neve.",
     "Solo": "Szóló",
-    "Solo lair": "Szóló odú",
+    "Solo lair": "Szóló kazamata",
     "Explore": "Felfedezés",
     "Cube mat": "Akciókocka-tábla",
     "Turn": "Kör",
@@ -1749,17 +1749,17 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "Your treasure score": "Kincspontjaid",
     "Raise the treasure score by 3": "Kincspont +3",
     "Play it again": "Újra ezt",
-    "New solo lair": "Új szóló odú",
+    "New solo lair": "Új szóló kazamata",
     "Give up": "Feladom",
-    "show the lair": "mutasd az odút",
+    "show the lair": "mutasd a kazamatát",
     "Copy code": "Kód másolása",
     "Save solo game as": "Szóló játék mentése ezen a néven",
     "Game progress": "Haladás",
     "Tap the last box or envelope you’ve opened.": "Koppints az utolsó dobozra vagy borítékra, amit kinyitottatok.",
     "Open in order, ending with the Vault": "Sorban nyissátok ki, a végén a Trezorral",
-    "Lair pieces": "Az odú elemei",
+    "Lair pieces": "A kazamata elemei",
     "Default": "Alapértékek",
-    "How many of each piece the lair has. New games keep these numbers.": "Melyik elemből hány van az odúban. Az új játékok is ezeket használják.",
+    "How many of each piece the lair has. New games keep these numbers.": "Melyik elemből hány van a kazamatában. Az új játékok is ezeket használják.",
     "Eliminated pieces still count.": "A kiiktatott elemek is számítanak.",
     "Fat fingers": "Vastag ujjak",
     "Easier tapping. These work in Solo for now.": "Könnyebb koppintás. Egyelőre csak Szóló módban.",
@@ -1772,30 +1772,30 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "Release notes": "Változások (angol)",
     "How are you playing?": "Hogyan játszotok?",
     "With a rival": "Ellenfél ellen",
-    "Map your rival’s lair as you explore it.": "Térképezd fel az ellenfeled odúját.",
+    "Map your rival’s lair as you explore it.": "Térképezd fel az ellenfeled kazamatáját.",
     "Track my map": "Térképem",
-    "No time to build? Get a random lair for your rival.": "Nincs idő építeni? Kérj egy véletlen odút.",
-    "Explore a lair the app builds for you.": "Fedezz fel egy odút, amit az app épít.",
+    "No time to build? Get a random lair for your rival.": "Nincs idő építeni? Kérj egy véletlen kazamatát.",
+    "Explore a lair the app builds for you.": "Fedezz fel egy kazamatát, amit az app épít.",
     "Pick a difficulty": "Válassz nehézséget",
     "Home": "Kezdőlap",
     "Difficulty": "Nehézség",
     "Apprentice": "Tanonc",
     "Journeyman": "Kalandozó",
     "Guild Master": "Céhmester",
-    "Lair code": "Odúkód",
+    "Lair code": "Kazamatakód",
     "Copy": "Másolás",
     "Hide": "Elrejtés",
     "Enter code": "Kód megadása",
-    "New lair": "Új odú",
+    "New lair": "Új kazamata",
     "e.g. J1-7KQ3M": "pl. J1-7KQ3M",
     "Build": "Építés",
-    "Copy it onto your Lair board behind your screen. The same code always builds the same lair, so you can share it.": "Rajzold át az Odútábládra a paravánod mögött. Ugyanaz a kód mindig ugyanazt az odút építi, így meg is oszthatod.",
-    "Lair": "Odú",
+    "Copy it onto your Lair board behind your screen. The same code always builds the same lair, so you can share it.": "Rajzold át a kazamatatábládra a paravánod mögött. Ugyanaz a kód mindig ugyanazt a kazamatát építi, így meg is oszthatod.",
+    "Lair": "Kazamata",
     "Tap to show": "Koppints, hogy lásd",
-    "Only the Builder should see this lair.": "Ezt az odút csak az Építő láthatja.",
-    "The app builds a hidden lair and acts as the Builder. It uses your Lair pieces from Settings, and you play with your own cards, dice and treasures.": "Az app épít egy rejtett odút, és ő lesz az Építő. A Beállításokban megadott elemekkel dolgozik, te pedig a saját kártyáiddal, kockáiddal és kincseiddel játszol.",
+    "Only the Builder should see this lair.": "Ezt a kazamatát csak az Építő láthatja.",
+    "The app builds a hidden lair and acts as the Builder. It uses your Lair pieces from Settings, and you play with your own cards, dice and treasures.": "Az app épít egy rejtett kazamatát, és ő lesz az Építő. A Beállításokban megadott elemekkel dolgozik, te pedig a saját kártyáiddal, kockáiddal és kincseiddel játszol.",
     "Start exploring": "Felfedezés indítása",
-    "Or play a lair code, for example one a friend shared:": "Vagy játssz egy odúkóddal, például amit egy barátod küldött:",
+    "Or play a lair code, for example one a friend shared:": "Vagy játssz egy kazamatakóddal, például amit egy barátod küldött:",
     "Play": "Játék",
     "Lairs Tracker": "Lairs Tracker",
     "Lairs": "Lairs",
@@ -1911,7 +1911,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "Exit moved to {sq}.": "A kijárat új helye: {sq}.",
     "Nothing to undo.": "Nincs mit visszavonni.",
     "Fewer {many}": "Kevesebb: {many}",
-    "{Many} in the lair": "{Many} az odúban",
+    "{Many} in the lair": "{Many} a kazamatában",
     "More {many}": "Több: {many}",
     "Tap again to clear": "Koppints újra",
     "New game. Tap your starting space.": "Új játék. Koppints a kiinduló mezőre.",
@@ -1926,21 +1926,21 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     "{n} {one} is on the map, so it can’t go below {n}.": "{n} {one} van a térképen, ennél kevesebb nem lehet.",
     "Back to the standard numbers, except where more are already on the map.": "Vissza az alapértékekre, kivéve ahol már több van a térképen.",
     "Back to 21 walls and 3 traps, monsters and chests.": "Vissza az alapra: 21 fal, 3 csapda, 3 szörny és 3 láda.",
-    "An open lair with shortcuts. Every goal can be reached without passing a hazard.": "Nyitott odú rövidítésekkel. Minden cél elérhető veszély érintése nélkül.",
+    "An open lair with shortcuts. Every goal can be reached without passing a hazard.": "Nyitott kazamata rövidítésekkel. Minden cél elérhető veszély érintése nélkül.",
     "Fewer shortcuts. At least one goal sits behind a hazard.": "Kevesebb rövidítés. Legalább egy cél veszély mögött van.",
     "Every wall, long corridors, and at least two goals behind a hazard.": "Minden fal a helyén, hosszú folyosók, és legalább két cél veszély mögött.",
-    "That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.": "Ennyi elem nem fér el egy 6×6-os odúban. Nézd meg az odú elemeit a Beállításokban.",
+    "That’s more pieces than a 6×6 lair can hold. Check Lair pieces in Settings.": "Ennyi elem nem fér el egy 6×6-os kazamatában. Nézd meg a kazamata elemeit a Beállításokban.",
     "Show": "Mutasd",
     "Building…": "Épül…",
-    "First lair with these pieces: this takes a few seconds.": "Első odú ezekkel az elemekkel: ez eltart pár másodpercig.",
+    "First lair with these pieces: this takes a few seconds.": "Első kazamata ezekkel az elemekkel: ez eltart pár másodpercig.",
     " (leave {n} out)": " ({n} kimarad)",
     "Start": "Bejárat",
-    ". A 6×6 lair can’t use more than {n} walls and still reach every space.": ". Egy 6×6-os odúban legfeljebb {n} fal lehet úgy, hogy minden mező elérhető maradjon.",
-    "{tier} lair {code}": "{tier} odú, {code}",
+    ". A 6×6 lair can’t use more than {n} walls and still reach every space.": ". Egy 6×6-os kazamatában legfeljebb {n} fal lehet úgy, hogy minden mező elérhető maradjon.",
+    "{tier} lair {code}": "{tier} kazamata, {code}",
     "Code selected. Copy it from here.": "A kód ki van jelölve, innen másold ki.",
     "Code copied: {code}": "Kód kimásolva: {code}",
-    "That code is from a different version of Make a lair.": "Ez a kód az odúkészítő egy másik változatából való.",
-    "That isn’t a lair code. It looks like J1-7KQ3M.": "Ez nem odúkód. Így néz ki: J1-7KQ3M.",
+    "That code is from a different version of Make a lair.": "Ez a kód a kazamatakészítő egy másik változatából való.",
+    "That isn’t a lair code. It looks like J1-7KQ3M.": "Ez nem kazamatakód. Így néz ki: J1-7KQ3M.",
     "Downloading {file}": "Letöltés: {file}",
     "Save cancelled.": "Mentés megszakítva.",
     "Export PDF as": "PDF mentése ezen a néven",
@@ -1975,8 +1975,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // Whole elements with markup inside (data-t on the element)
   const HU_HTML = {
       "example": "Ez egy mintatérkép. Sajátot a Játék fülön, az <b>Új játék</b> gombbal kezdhetsz.",
-      "about": "Lairs Tracker <span id=\"aboutVer\"></span>: nem hivatalos, rajongói térképkövető a Kids Table Board Gaming <i>Lairs</i> című játékához.",
-      "homefoot": "Nem hivatalos rajongói app a Kids Table Board Gaming <i>Lairs</i> játékához.",
+      "about": "Lairs Tracker <span id=\"aboutVer\"></span>: nem hivatalos, rajongói térképkövető a <a href=\"https://www.kidstablebg.com/\" target=\"_blank\" rel=\"noopener\">Kids Table Board Gaming</a> <i>Lairs</i> című játékához.",
+      "mkNew": "Újat",
+    "homefoot": "Nem hivatalos rajongói app a Kids Table Board Gaming <i>Lairs</i> játékához.",
       "dirN": "É",
       "dirW": "Ny",
       "dirE": "K",
