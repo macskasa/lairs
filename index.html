@@ -2037,7 +2037,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       tok.hidden = true;
     }
 
-    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
+    document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
     $('movePanel').hidden = S.mode !== 'move';
     $('mapPanel').hidden = S.mode !== 'map';
     $('gamePanel').hidden = S.mode !== 'game';
@@ -2450,7 +2450,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (nb) nb.focus();
     }
   });
-  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; fileAsk = null; routeOpen = false; select(null); commit(); }));
+  // Only the tracker's own tabs: the solo tabs and the difficulty pickers share the .seg look.
+  document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; fileAsk = null; routeOpen = false; select(null); commit(); }));
   $('routeBtn').addEventListener('click', () => {
     routeOpen = true;
     render();
@@ -2543,7 +2544,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('settingsBtn').addEventListener('click', openSettings);
   $('homeSettings').addEventListener('click', openSettings);
   $('setBack').addEventListener('click', back);
-  $('homeTrack').addEventListener('click', () => go('track'));
+  // The tracker always opens on Move from the start screen. Coming back from Settings keeps the tab.
+  $('homeTrack').addEventListener('click', () => { S.mode = 'move'; routeOpen = false; save(); go('track'); });
   $('homeBtn').addEventListener('click', () => { if (viewStack[viewStack.length - 2] === 'home') back(); else go('home'); });
   // ---------- Solo: the app is the Builder ----------
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
