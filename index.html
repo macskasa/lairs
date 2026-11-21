@@ -165,8 +165,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .wall.h{height:6px;transform:translateY(-50%)}
 .wall.v{width:6px;transform:translateX(-50%)}
 .token{position:absolute;width:calc(100% / 6);height:calc(100% / 6);display:grid;place-items:center;pointer-events:none;transition:left .22s ease, top .22s ease}
-.token span{width:46%;aspect-ratio:1;border-radius:50%;background:var(--pc);border:3px solid var(--paper);box-shadow:0 0 0 1.5px var(--pc),0 3px 8px rgb(0 0 0 / .28);display:grid;place-items:center}
-.token span::after{content:"";width:34%;aspect-ratio:1;border-radius:50%;background:var(--onp)}
+.token > span{width:46%;aspect-ratio:1;border-radius:50%;background:var(--pc);border:3px solid var(--paper);box-shadow:0 0 0 1.5px var(--pc),0 3px 8px rgb(0 0 0 / .28);display:grid;place-items:center}
+.token > span::after{content:"";width:34%;aspect-ratio:1;border-radius:50%;background:var(--onp)}
+/* On a square with something on it, the tracker fades to a halo and the square's icon is drawn crisply on top. */
+.token .ico{position:absolute;inset:0;display:none;place-items:center;color:var(--ink)}
+.token.on .ico{display:grid}
+.token.on > span{width:62%;opacity:.4}
+.token.on > span::after{display:none}
+.token .ico svg{width:46%;height:46%}
+.token .ico b{font-family:var(--display);font-weight:700;font-size:13px;line-height:1}
+.cell.here .ring > svg,.cell.here .ring > .se-big{visibility:hidden}
 
 /* Tray: the Move, Map and Game tabs share one fixed-height panel, so switching never makes the page jump */
 .tray{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px}
@@ -582,7 +590,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <div class="cells" id="cells"></div>
         <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><g id="trail"></g></svg>
         <div class="walls" id="walls" aria-hidden="true"></div>
-        <div class="token" id="token" aria-hidden="true" hidden><span></span></div>
+        <div class="token" id="token" aria-hidden="true" hidden><span></span><i class="ico" id="tokIco"></i></div>
       </div>
     </section>
   </div>
@@ -705,7 +713,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         <div class="cells" id="soCells"></div>
         <svg class="trail" viewBox="0 0 6 6" preserveAspectRatio="none" aria-hidden="true"><g id="soTrail"></g></svg>
         <div class="walls" id="soWalls" aria-hidden="true"></div>
-        <div class="token" id="soToken" aria-hidden="true" hidden><span></span></div>
+        <div class="token" id="soToken" aria-hidden="true" hidden><span></span><i class="ico" id="soTokIco"></i></div>
       </div>
     </section>
   </div>
@@ -1789,7 +1797,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   // One entry per move, oldest first, in square units (centres at x.5):
   // main = the move's own line ({s, e}) or arc ({s, q, e}); join = the curve into it from the previous move.
-  function routeSegments(P = S.path, special = isSpecial){
+  // The last move's line stops at the halo's edge when the tracker stands on something (endTrim, in squares).
+  const HALO_TRIM = 0.31;
+  function routeSegments(P = S.path, special = isSpecial, endTrim = 0){
     const out = [], trips = {}, n = P.length - 1;
     for (let i = 1; i < P.length; i++) {
       const [r0, c0] = P[i - 1], [r1, c1] = P[i];
@@ -1830,15 +1840,15 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const base = [mid[0] - ux * ARROW_LEN / 2, mid[1] - uy * ARROW_LEN / 2];
       const arrow = [tip, [base[0] + px * ARROW_HALF, base[1] + py * ARROW_HALF], [base[0] - px * ARROW_HALF, base[1] - py * ARROW_HALF]];
       // Trim the ends that meet another move: the start (except at the Start) and the end (except under the tracker).
-      const trimStart = i > 1, trimEnd = i < n;
+      const trimStart = i > 1, endT = i < n ? TRIM : endTrim, trimEnd = endT > 0;
       let main, ts, te;
       if (!ctrl) {
         const s = trimStart ? [a[0] + ux * TRIM, a[1] + uy * TRIM] : a;
-        const e = trimEnd ? [b[0] - ux * TRIM, b[1] - uy * TRIM] : b;
+        const e = trimEnd ? [b[0] - ux * endT, b[1] - uy * endT] : b;
         main = {s, e}; ts = te = [ux, uy];
       } else {
         const L = qLen(a, ctrl, b);
-        const t0 = trimStart ? Math.min(0.4, TRIM / L) : 0, t1 = trimEnd ? Math.max(0.6, 1 - TRIM / L) : 1;
+        const t0 = trimStart ? Math.min(0.4, TRIM / L) : 0, t1 = trimEnd ? Math.max(0.6, 1 - endT / L) : 1;
         const [A, Q, B] = qSub(a, ctrl, b, t0, t1);
         main = {s: A, q: Q, e: B};
         ts = unit([Q[0] - A[0], Q[1] - A[1]]); te = unit([B[0] - Q[0], B[1] - Q[1]]);
@@ -1968,7 +1978,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (liveMonster(cell) && cell.power != null) parts.push('power ' + cell.power);
       if (cell.scr) parts.push('scrounged');
       if (isHere) parts.push('your tracker is here');
-      const cls = 'cell' + (visited.has(k) ? ' visited' : '') + (center ? ' marked' : '') + (cell.known ? ' known' : '') + (sel === k ? ' sel' : '');
+      const cls = 'cell' + (visited.has(k) ? ' visited' : '') + (center ? ' marked' : '') + (cell.known ? ' known' : '') + (sel === k ? ' sel' : '') + (isHere && center ? ' here' : '');
       html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
         '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' +
         (cell.feat && se ? '<span class="se">' + se + '</span>' : '') +
@@ -1987,9 +1997,14 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         : '<span class="wall v" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
     }
     $('walls').innerHTML = w;
-    $('trail').innerHTML = trailSVG(routeSegments());
+    const hereCell = here ? S.cells[key(here[0], here[1])] || {} : {};
+    const hereSE = (hereCell.start ? 'S' : '') + (hereCell.start && hereCell.exit ? '/' : '') + (hereCell.exit ? 'E' : '');
+    const hereIco = hereCell.feat ? sym(hereCell.feat, hereCell.dead) : hereSE ? '<b>' + hereSE + '</b>' : '';
+    $('trail').innerHTML = trailSVG(routeSegments(S.path, isSpecial, hereIco ? HALO_TRIM : 0));
 
     const tok = $('token');
+    tok.classList.toggle('on', !!hereIco);
+    $('tokIco').innerHTML = hereIco;
     if (here) {
       tok.hidden = false;
       tok.style.left = (here[1] * u) + '%';
@@ -2072,7 +2087,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
     const n = S.path.length;
     $('posLabel').textContent = here ? coord(here[0], here[1]) : '—';
-    $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
+    // What's on the tracker's square, in words (the icon is also drawn on top of the tracker).
+    const hereWhat = hereCell.feat ? FEAT[hereCell.feat][0].toUpperCase() + FEAT[hereCell.feat].slice(1) +
+        (hereCell.dead ? ' (eliminated)' : liveMonster(hereCell) && hereCell.power != null ? ', power ' + hereCell.power : '')
+      : hereCell.exit ? 'Exit' : '';
+    $('stepLabel').textContent = n === 0 ? 'Not placed yet' : n === 1 ? 'On the starting space' + (hereWhat ? ' · ' + hereWhat : '')
+      : hereWhat ? hereWhat + ' · ' + (n - 1) + ' move' + (n === 2 ? '' : 's') : (n - 1) + ' move' + (n === 2 ? '' : 's') + ' so far';
     // Route button: as many of the latest moves as fit (up to 5 squares).
     const rb = $('routeBtn'), pl = $('pathLabel');
     $('moveMain').hidden = routeOpen;
@@ -2935,7 +2955,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       const pw = known && soLive(k) === 'monster' && SO.power[k] != null ? '<span class="pw">' + SO.power[k] + '</span>' : '';
       const picked = soPick && soPick.r === r && soPick.c === c;
       const cls = 'cell' + (known ? ' known' : ' fog') + (show && center ? ' marked' : '') + (visited.has(k) ? ' visited' : '') +
-        (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '') + (picked ? ' picked' : '');
+        (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '') + (picked ? ' picked' : '') + (k === hk && center ? ' here' : '');
       html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
         '<span class="box"><span class="co">' + co + '</span><span class="ring">' + center + '</span>' + pw + '</span></button>';
     }
@@ -2953,8 +2973,12 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
         : '<span class="wall v' + dim + '" style="left:' + ((+c + 1) * u) + '%;top:' + (+r * u) + '%;height:' + u + '%"></span>';
     }
     $('soWalls').innerHTML = w;
-    $('soTrail').innerHTML = trailSVG(routeSegments(SO.path, soSpecial));
+    const hf = soFeat(hk), hGone = !!SO.gone[hk];
+    const hereIco = hf === 'chest' || hf === 'trap' || hf === 'monster' ? sym(hf, hGone) : hf === 'start' || hf === 'exit' ? '<b>' + (hf === 'start' ? 'S' : 'E') + '</b>' : '';
+    $('soTrail').innerHTML = trailSVG(routeSegments(SO.path, soSpecial, hereIco ? HALO_TRIM : 0));
     const tok = $('soToken');
+    tok.classList.toggle('on', !!hereIco);
+    $('soTokIco').innerHTML = hereIco;
     tok.hidden = false; tok.style.left = (here[1] * u) + '%'; tok.style.top = (here[0] * u) + '%';
     $('soBoard').classList.toggle('over', over);
     $('soBoard').classList.toggle('peering', !!SO.peer && !over);
@@ -2983,11 +3007,16 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     parEl.textContent = 'par ' + SO.par + (SO.turn === SO.par + 1 ? ' · final turn' : SO.turn > SO.par + 1 ? ' · past par' : '');
     parEl.classList.toggle('over', SO.turn > SO.par);
     const moves = SO.path.length - 1, st = $('soSteps');
+    // What's on the tracker's square, in words.
+    const GONE_WORD = {defeated: 'defeated', disarmed: 'disarmed', removed: 'gone', opened: 'opened'};
+    const hereWhat = hf === 'chest' || hf === 'trap' || hf === 'monster'
+      ? FEAT_NAME[hf][0].toUpperCase() + FEAT_NAME[hf].slice(1) + (hGone ? ' (' + GONE_WORD[SO.gone[hk]] + ')' : hf === 'monster' && SO.power[hk] != null ? ', target ' + SO.power[hk] : '')
+      : hf === 'exit' ? 'Exit' : hf === 'start' && moves ? 'Start' : '';
     st.classList.toggle('peering', !!SO.peer || !!SO.hustle);
     st.textContent = SO.peer ? 'Peer: tap a neighbouring unknown space.'
       : SO.hustle ? 'Hustle: ' + plural(SO.hustle.left, 'move', 'moves') + ' left. Anything that isn’t empty ends it.'
       : soCubeSel != null ? 'Tap a basket to move the ' + CUBE_NAME[SO.cubes[soCubeSel].k] + ' there.'
-      : plural(moves, 'move', 'moves') + (SO.peers ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
+      : (hereWhat ? hereWhat + ' · ' : '') + plural(moves, 'move', 'moves') + (SO.peers && !hereWhat ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
     const live = soLive(hk), f = soFeat(hk), act = $('soAct');
     act.hidden = !(live || f === 'exit') || !!SO.hustle;
     act.textContent = live === 'monster' ? 'Fight' : live === 'trap' ? 'Disarm' : live === 'chest' ? 'Open' : 'Exit';

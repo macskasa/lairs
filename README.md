@@ -56,6 +56,7 @@ On tablets and in landscape the map sits on the left at full height and the cont
 - **Tap a square** on the map, or use the **N / E / S / W** compass.
 - The first square you place the tracker on becomes the **Start (S)**.
 - Every square you move into is marked as **known** automatically.
+- **Standing on something:** when the tracker is on a square with a mark on it (a trap, monster, chest, the Start or the Exit), it fades to a halo and the square's icon is drawn on top. The Move tab also says what's there, for example "Trap (eliminated)".
 
 ### Movement rules
 
@@ -108,7 +109,7 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 **The map:**
 - **Dark squares** are unknown. The unknown squares next to your tracker that you could peer or creep into right now have a dashed outline.
 - **Learning about a space:** the app reveals its walls and what's in it, the way the Builder would describe it, and draws it on the map for you.
-- **Your route** is drawn as in the tracker.
+- **Your route** is drawn as in the tracker. When you stand on something, the tracker fades to a halo with the square's icon on top, and the line next to your position says what it is, for example "Monster, target 3".
 - **Achievements:** next to the tabs are your chests opened, monsters defeated and traps disarmed.
 
 **Cubes:** the Explore tab shows your cube mat: Conserved (3 slots), Fresh, Spent and Fatigued. You have 6 cubes: 4 basic, a Quickness cube (yellow, with a bolt) and a Perception cube (green, with an eye). They all start Fresh.
