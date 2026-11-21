@@ -113,26 +113,30 @@ Explore a hidden lair on your own. The app builds it and acts as the Builder; yo
 - **Achievements:** next to the tabs are your chests opened, monsters defeated and traps disarmed.
 
 **Cubes:** the Explore tab shows your cube mat: Conserved (3 slots), Fresh, Spent and Fatigued. You have 6 cubes: 4 basic, a Quickness cube (yellow, with a bolt) and a Perception cube (green, with an eye). They all start Fresh.
-- **Paying is automatic.** Conserved cubes go first, so their second use is never lost, then basic cubes. Your Quickness cube is kept for last, as it's the only way to backtrack.
+- **Paying is automatic** unless the choice matters (see [the map menu](#the-map-menu)). Conserved cubes go first, so their second use is never lost, then basic cubes. Your Quickness cube is kept for last, as it's the only way to backtrack.
 - **By hand:** tap a cube, then a basket, to move it, for treasure abilities or to correct something.
 - **Big cubes** (Settings → Fat fingers): the mat shows two rows of two baskets with bigger cubes, and a tap between cubes still counts. Turned sideways, the baskets stay in one row and the cubes wrap.
 
-**Actions** (tap the map; there's no compass in solo):
+### The map menu
 
-| Action | How | Cost |
+Tap any square and a menu opens beside it: what you know about the square, then what you can do there, each with its cost. Only what you can do right now is listed. The menu always opens, even with a single choice, so a stray tap never moves you. Tap outside it, tap the square again, or use the phone's Back button to close it.
+
+| Action | Where | Cost |
 |---|---|---|
-| **Creep** | Tap a neighbouring square | Any 1 cube |
-| **Peer** | Tap **Peer**, then a neighbouring unknown square. You learn about it, then choose whether to creep in for free. If you peer to leave a hazard's space, you must go in | Your Perception cube, or any 2 |
-| **Hustle** | Tap **Hustle** and pay first. If both ways of paying are possible, you choose which. That commits you: up to 3 moves, chosen one at a time. Entering any space that isn't empty ends it, and the rest are lost. **Stop** ends it early | Any 2 cubes, or your Quickness cube |
-| **Backtrack** | Tap a known square further away. The rulebook's backtrack rule applies | Your Quickness cube |
-| **Conserve** | **End turn** offers to conserve up to 3 Fresh cubes (Quickness and Perception first), and each can be spent twice next turn | Ends your turn |
+| **Creep in** | A neighbouring square | 1 cube |
+| **Peer** | A neighbouring unknown square. You learn about it, then choose whether to creep in for free. If you peer to leave a hazard's space, you must go in | Your Perception cube, or 2 cubes |
+| **Hustle in** | A neighbouring square. Paying commits you: this is the first of up to 3 moves, chosen one at a time. Entering any space that isn't empty ends it, and the rest are lost | Your Quickness cube, or 2 cubes |
+| **Backtrack here** | A known square further away. The rulebook's backtrack rule applies | Your Quickness cube |
+| **Look (card)** | Any unknown square: learn about it without moving | Your Perception cube |
+| **Go here** | Anywhere a trap's card may send you, right after it struck | Free |
 
-- **When a trap strikes,** its card may move you. Tap where it sends you; that's free.
-- **Card actions** (the **Cards** button): abilities from cards you hold. The app can't see your cards, so they're always offered and never limited.
-  - **Look into a space:** spend your Perception cube to learn about any unknown space on the map. You don't move.
+- **Choosing how to pay:** when a cost can be paid in ways that matter, a second step asks how: Peer and Hustle (the special cube or 2 cubes), and Creep when no basic cube is left (Quickness or Perception). Otherwise the app pays.
+- **Your own square:** Fight, Disarm, Open the chest or Exit the lair when that's possible, Stop hustling during a hustle, and End turn. The square's main action is also the first button under the map.
+- **Keyboard:** the arrow keys open the menu on that neighbour; Escape closes it.
+- **Conserve:** **End turn** offers to conserve up to 3 Fresh cubes (Quickness and Perception first), and each can be spent twice next turn.
+- **Card actions** (the **Cards** button): abilities from cards you hold that don't need a square. The app can't see your cards, so they're always offered and never limited.
   - **Builder reveals one:** the app reveals an unknown space that has something on it, chosen at random.
-  - **They count:** the number of card actions you used is shown with your score, because the simulated explorers behind par don't have them.
-- **Confirm moves on the map** (Settings → Fat fingers): when it's on, a tap on the map only selects a square and shows what it would do and cost, for example "Creep into D5 · 1 cube". Tap the same square again, or tap the button, to go. This is handy on small screens.
+  - **They count:** the card actions you used (including Look) are shown with your score, because the simulated explorers behind par don't have them.
 
 **Turns and par:**
 - **Your turn ends** when you have no Fresh cubes left, or when you tap **End turn**. If you're standing on a chest or at the Exit with an exit combination, the app waits, as those cost nothing to use.
@@ -221,7 +225,6 @@ For quick games: instead of designing a lair, the Builder gets a random one and 
   - **Loading saves:** if a saved game was made by a player further along, the app tells you which package that player had opened and offers to set your progress to match.
 - **Lair pieces:** how many walls, traps, monsters and chests the lair has. New games, Make a lair and Solo use these numbers. **Default** goes back to 21 / 3 / 3 / 3.
 - **Fat fingers:** helpers for easier tapping, in Solo for now.
-  - **Confirm moves on the map:** a tap on the map selects a square first, and a second tap (or the button) carries out the move.
   - **Big cubes:** a bigger cube mat (see [Solo](#solo)).
 - **About:** the version, and links to this page and the release notes.
 
@@ -261,7 +264,7 @@ The app is a single page with no build step.
 
 **Where data is kept** (browser storage on the device):
 - `lairs-tracker-v2`: the current game (route, map, walls, piece limits, open tab and tool).
-- `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, and the Fat fingers switches (`confirmMoves`, `bigCubes`).
+- `lairs-settings-v1`: settings that belong to the device: game progress, the last solo difficulty, and the Fat fingers switch (`bigCubes`).
 - `lairs-maker-v1`: Make a lair's last difficulty and lair code.
 - `lairs-solo-v1`: the solo game: the lair, what you know, your route, what's gone, your cubes, turn and achievements.
 - `lairs-solo-best-v1`: your best solo score for each lair code.

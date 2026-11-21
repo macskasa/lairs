@@ -418,9 +418,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-act[aria-pressed="true"]{border-color:var(--pc);background:var(--paper);color:var(--pc);box-shadow:inset 0 0 0 1.5px var(--pc)}
 .so-act:active{filter:brightness(.94)}
 .so-act:disabled{opacity:.45;cursor:default}
-.so-confirm{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px}
-.so-confirm span{min-width:0;font-size:13.5px;font-weight:600;line-height:1.25}
-.so-confirm .so-act{padding:4px 12px}
+/* The map menu: big rows, the cost on the right. Fixed to the screen, beside the tapped square. */
+.so-menu{position:fixed;z-index:25;left:0;top:0;width:min(310px, calc(100vw - 16px));max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:2px;padding:6px;
+  background:var(--paper);border:1.5px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgb(0 0 0 / .24)}
+.so-menu .mh{padding:5px 10px 4px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.so-menu button{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:12px;align-content:center;min-height:48px;padding:7px 10px;
+  border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;text-align:left}
+.so-menu button:active,.so-menu button:focus-visible{background:var(--tint);outline:none}
+.so-menu button + button{box-shadow:0 -1px 0 var(--line)}
+.so-menu button:active + button,.so-menu button:focus-visible + button{box-shadow:none}
+.so-menu b{min-width:0;font-family:var(--display);font-size:15.5px;font-weight:600;line-height:1.2}
+.so-menu .cost{font-size:13px;font-weight:600;line-height:1.2;text-align:right;color:var(--pc)}
+.so-menu small{grid-column:1 / -1;margin-top:2px;font-size:12px;line-height:1.3;color:var(--muted)}
+.so-menu .back{display:flex;justify-content:center;min-height:42px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .board.solo .cell.picked .box{border:2px solid var(--pc);box-shadow:inset 0 0 0 2px var(--pc)}
 .so-row3{display:grid;grid-template-columns:1fr 1fr auto;gap:6px}
 .so-row3 .primary{padding:3px 12px}
@@ -445,7 +455,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .switch-row input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--paper);box-shadow:0 1px 3px rgb(0 0 0 / .25);transition:left .15s}
 .switch-row input:checked{background:var(--pc)}
 .switch-row input:checked::after{left:21px}
-.board.solo.peering .cell.frontier .box{border-color:var(--pc);border-style:solid}
 /* Encounter and end of game */
 .so-text{margin:0;font-size:14px;line-height:1.4;color:var(--ink)}
 .so-text small{color:var(--muted);font-size:13px}
@@ -466,7 +475,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 .so-row,.so-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .so-grid .mk-btn{height:40px;padding:0 8px;font-size:13px}
 /* The "saves itself" note only on tall screens; the exit rule is left out on very short ones (the Exit says it too). */
-.board.solo.looking .cell.fog .box{border:1.5px dashed var(--pc)}
 /* New solo lair page */
 .solonew{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .solonew .mk-desc{min-height:2.8em}
@@ -739,6 +747,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
     </section>
   </div>
 
+  <!-- The map menu: what you can do on the square you tapped, and how to pay for it -->
+  <div class="so-menu" id="soMenu" role="menu" aria-labelledby="soMenuHead" hidden></div>
+
   <section class="tray">
     <div class="trayhead">
       <div class="seg two" role="tablist" aria-label="Solo">
@@ -759,20 +770,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
         </div>
         <div class="so-acts" id="soActs">
           <button type="button" class="so-act primary" id="soAct" hidden></button>
-          <button type="button" class="so-act" id="soPeer" aria-pressed="false">Peer</button>
-          <button type="button" class="so-act" id="soHustle" aria-pressed="false">Hustle</button>
           <button type="button" class="so-act" id="soCards" aria-pressed="false">Cards</button>
           <button type="button" class="so-act" id="soEndTurn">End turn</button>
         </div>
         <div class="so-acts" id="soCardRow" hidden>
-          <button type="button" class="so-act" id="soCardLook">Look into a space</button>
           <button type="button" class="so-act" id="soCardReveal">Builder reveals one</button>
           <button type="button" class="so-act" id="soCardBack">Back</button>
-        </div>
-        <div class="so-confirm" id="soConfirm" hidden>
-          <span id="soConfirmText"></span>
-          <button type="button" class="so-act" id="soConfirmNo">Cancel</button>
-          <button type="button" class="so-act primary" id="soConfirmGo">Go</button>
         </div>
       </div>
 
@@ -894,11 +897,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pc);outline-off
 
   <section class="set-card" aria-labelledby="fatSetTitle">
     <h3 id="fatSetTitle">Fat fingers</h3>
-    <p class="set-sub">Easier tapping. These work in Solo for now.</p>
-    <label class="switch-row">
-      <span><b>Confirm moves on the map</b><small>Tap a square to select it, then confirm, or tap it again.</small></span>
-      <input type="checkbox" id="setConfirm" role="switch">
-    </label>
+    <p class="set-sub">Easier tapping. Solo only for now.</p>
     <label class="switch-row">
       <span><b>Big cubes</b><small>The cube mat as two rows of two baskets with bigger cubes. A tap between cubes still counts.</small></span>
       <input type="checkbox" id="setBigCubes" role="switch">
@@ -2562,6 +2561,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     viewStack[depth - 1] = v;
     view = v;
     select(null);
+    soMenu = null;
     render();
   });
   try { history.replaceState({lairs: 'home', depth: 1}, ''); } catch (e) {}
@@ -2576,7 +2576,8 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // The lair comes from Make a lair's generator. You play with your own cards, dice and treasures:
   // the app reveals what you learn about, keeps your cubes and turns, and you tell it how fights and disarms went.
   const saveSolo = () => { try { if (SO) localStorage.setItem(SOLO_KEY, JSON.stringify(SO)); else localStorage.removeItem(SOLO_KEY); } catch (e) {} };
-  let soTab = 'explore', soFileAsk = false, soPick = null, soCubeSel = null, soDice = 2, soCardsOpen = false, soChoose = null;
+  let soTab = 'explore', soFileAsk = false, soCubeSel = null, soDice = 2, soCardsOpen = false, soChoose = null;
+  let soMenu = null, soMenuRows = []; // the map menu: {r, c, pay: the row being paid for, or -1}, and its rows
   const FEAT_NAME = {trap:'trap', monster:'monster', chest:'chest'};
   const listAnd = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
@@ -2664,10 +2665,10 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   function soloStart(lair){
     SO = soNormalize({v: 2, code: lair.code, lair, known: {}, path: [[lair.start[0], lair.start[1]]], gone: {}, power: {},
-      ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, hustle: null, over: null,
+      ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, hustle: null, over: null,
       cubes: newCubes(), turn: 1});
     SO.known[key(lair.start[0], lair.start[1])] = true;
-    soTab = 'explore'; soPick = null; soCubeSel = null; soCardsOpen = false; soChoose = null;
+    soTab = 'explore'; soMenuClose(); soCubeSel = null; soCardsOpen = false; soChoose = null;
     saveSolo();
     toast('You start in ' + soDescribe(lair.start[0], lair.start[1]) + ' Par: ' + plural(SO.par, 'turn', 'turns') + '.');
   }
@@ -2678,7 +2679,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     for (const c of SO.cubes) if (c.at === 'S') c.at = 'F';
     for (const c of SO.cubes) if (c.at === 'T') c.at = 'S';
     SO.turn++;
-    SO.hustle = null; SO.peer = false; SO.look = false; SO.strikeAt = null; soPick = null; soCubeSel = null; soCardsOpen = false;
+    SO.hustle = null; SO.strikeAt = null; soMenuClose(); soCubeSel = null; soCardsOpen = false;
     saveSolo();
     renderSolo();
     toast('Turn ' + SO.turn + '. Your cubes are refreshed.');
@@ -2714,58 +2715,136 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     return false;
   }
 
-  // ---- Moves ----
-  // What a tap on a square would do: {label, cost, go} to carry it out, {error} if it isn't possible, or {none}.
-  function soPlan(r, c){
-    const here = soHere(), to = [r, c], k = key(r, c), hk = key(here[0], here[1]);
-    const fc = coord(here[0], here[1]), tc = coord(r, c), p = SO.pending;
-    if (here[0] === r && here[1] === c) return {none: true};
-    if (p && p.must) return {error: p.kind === 'monster' ? 'First fight the monster on ' + coordK(p.k) + '.' : 'First disarm the trap on ' + coordK(p.k) + '.'};
-    if (p && p.stage !== 'face') return {error: 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'};
-    const near = isNeighbour(here, to), wall = near && soWall(here, to);
-    if (SO.look) {
-      if (SO.known[k]) return {error: tc + ' is already known. Pick an unknown space.'};
-      if (!hasCube('p')) return {error: 'That card needs your Perception cube.'};
-      return {label: 'Look into ' + tc, cost: 'Perception cube', go: () => { spendOne('p'); soLookAt(r, c); }};
+  // ---- The map menu ----
+  // Tap a square and a menu beside it lists what you can do there, with the cost. Actions you can't take are left out.
+  // When a cost can be paid in ways that matter (your Perception or Quickness cube, or other cubes), a second step asks
+  // how. The menu always shows, even for a single choice, so a stray tap never moves you.
+  // Each row: {label, note?, cost?, ways?: [{label, pay}], then}. With 2+ ways the payment step comes first.
+  const hasBasic = () => !!(firstAt('C', 'b') || firstAt('F', 'b'));
+  function soSquareWords(r, c){
+    const k = key(r, c), f = soFeat(k), gone = SO.gone[k];
+    if (!SO.known[k]) return 'unknown';
+    if (f === 'start') return 'the Start';
+    if (f === 'exit') return 'the Exit';
+    if (f === 'chest' || f === 'trap' || f === 'monster') return FEAT_NAME[f] + (gone ? ', ' + ({defeated: 'defeated', disarmed: 'disarmed', removed: 'gone', opened: 'opened'})[gone]
+      : f === 'monster' && SO.power[k] != null ? ', target ' + SO.power[k] : '');
+    return 'empty';
+  }
+  function soMenuPlan(r, c){
+    const here = soHere(), to = [r, c], k = key(r, c), tc = coord(r, c), fc = coord(here[0], here[1]), p = SO.pending;
+    if (p && (p.must || p.stage !== 'face')) return {error: busyMsg()};
+    const own = here[0] === r && here[1] === c;
+    const head = tc + ' · ' + (own ? 'you’re here' + (soSquareWords(r, c) === 'empty' ? '' : ', ' + soSquareWords(r, c)) : soSquareWords(r, c));
+    const rows = [];
+    if (own) {
+      const live = soLive(k), f = soFeat(k);
+      if (SO.hustle) rows.push({label: 'Stop hustling', note: plural(SO.hustle.left, 'move', 'moves') + ' left', then: soStopHustle});
+      else if (!p) {
+        if (live === 'monster' || live === 'trap') rows.push({label: live === 'monster' ? 'Fight' : 'Disarm', cost: 'dice cost a cube each', then: soAction});
+        else if (live === 'chest') rows.push({label: 'Open the chest', then: soAction});
+        else if (f === 'exit' && exitMet()) rows.push({label: 'Exit the lair', then: soAction});
+      }
+      rows.push({label: 'End turn', then: soEndTurnTap});
+      return {head, rows};
     }
-    if (SO.peer) {
-      if (!near) return {error: 'You can only peer into a neighbouring space.'};
-      if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
-      if (SO.known[k]) return {error: tc + ' is already known. Peer into an unknown space.'};
-      const perc = hasCube('p');
-      if (!perc && uses() < 2) return {error: 'Peering costs 2 cubes or your Perception cube.'};
-      return {label: 'Peer into ' + tc, cost: perc ? 'Perception cube' : '2 cubes', go: () => { if (perc) spendOne('p'); else spend(2); soPeerAt(r, c); }};
-    }
+    const near = isNeighbour(here, to), wall = near && soWall(here, to), known = !!SO.known[k];
+    const perc = hasCube('p'), quick = hasCube('q'), two = uses() >= 2;
+    const payP = {label: 'Perception cube', pay: () => spendOne('p')}, payQ = {label: 'Quickness cube', pay: () => spendOne('q')};
+    const payTwo = {label: '2 cubes', pay: () => spend(2)};
+    const costOf = ways => ways.map(w => w.label.replace(/ cube$/, '')).join(' or ');
+    let why = '';
     if (SO.hustle) {
-      if (!near) return {error: 'You’re hustling: move to a neighbouring space, or stop the hustle.'};
-      if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
-      return {label: 'Hustle into ' + tc, cost: SO.hustle.left + ' left', go: () => soEnter(r, c, null, {hustle: true})};
-    }
-    if (near && !wall) {
-      if (!uses()) return {error: 'No cubes left. End your turn.'};
-      return {label: 'Creep into ' + tc, cost: '1 cube', go: () => { spend(1); soEnter(r, c, null); }};
-    }
+      if (near && !wall) rows.push({label: 'Hustle in', cost: plural(SO.hustle.left, 'move', 'moves') + ' left', then: () => soEnter(r, c, null, {hustle: true})});
+      else why = wall ? 'A wall blocks ' + fc + ' → ' + tc + '.' : 'You’re hustling: move to a neighbouring space, or stop the hustle.';
+    } else if (near && !wall) {
+      if (uses()) {
+        // One cube: a basic one when you have it. Without one, choose which special cube to give up.
+        const ways = hasBasic() ? [{label: '1 cube', pay: () => spend(1)}] : [quick && payQ, perc && payP].filter(Boolean);
+        rows.push({label: 'Creep in', cost: '1 cube', ways, then: () => soEnter(r, c, null)});
+      }
+      if (!known && (perc || two)) rows.push({label: 'Peer', note: 'See what’s there, then creep in for free if you like.',
+        ways: [perc && payP, two && payTwo].filter(Boolean), then: () => soPeerAt(r, c)});
+      if (quick || two) rows.push({label: 'Hustle in', note: 'Up to 3 moves. Anything that isn’t empty ends it.',
+        ways: [quick && payQ, two && payTwo].filter(Boolean), then: () => { SO.hustle = {left: 3}; soEnter(r, c, null, {hustle: true}); }});
+      if (!uses()) why = 'No cubes left. End your turn.';
+    } else if (wall) why = 'A wall blocks ' + fc + ' → ' + tc + '.';
+    else if (known) {
+      if (!soCanBacktrack(here, to)) why = 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.';
+      else if (!quick) why = 'Backtracking needs your Quickness cube.';
+      else rows.push({label: 'Backtrack here', ways: [payQ], then: () => soEnter(r, c, 'b')});
+    } else why = tc + ' isn’t known yet, so you can’t backtrack there.';
     // Right after a trap struck you, its card may move you: to the Start, or anywhere once that's unlocked. That's free.
     const toStart = r === SO.lair.start[0] && c === SO.lair.start[1];
-    if (SO.strikeAt === hk && (unlocked('teleportAnywhere') || toStart)) {
-      return {label: 'Go to ' + tc, cost: 'the trap moves you', go: () => soEnter(r, c, 't')};
-    }
-    if (wall) return {error: 'A wall blocks ' + fc + ' → ' + tc + '.'};
-    if (!SO.known[k]) return {error: tc + ' isn’t known yet, so you can’t backtrack there.'};
-    if (!soCanBacktrack(here, to)) return {error: 'No way from ' + fc + ' to ' + tc + ' through known, empty squares.'};
-    if (!hasCube('q')) return {error: 'Backtracking needs your Quickness cube.'};
-    return {label: 'Backtrack to ' + tc, cost: 'Quickness cube', go: () => { spendOne('q'); soEnter(r, c, 'b'); }};
+    if (SO.strikeAt === key(here[0], here[1]) && (unlocked('teleportAnywhere') || toStart)) rows.push({label: 'Go here', cost: 'the trap moves you', then: () => soEnter(r, c, 't')});
+    // Card: look into any unknown space with your Perception cube, without moving.
+    if (!known && perc && !SO.hustle) rows.push({label: 'Look (card)', note: 'Learn what’s there without moving.', ways: [payP], then: () => soLookAt(r, c)});
+    rows.forEach(row => { if (row.ways && !row.cost) row.cost = costOf(row.ways); });
+    return rows.length ? {head, rows} : {error: why || 'Nothing to do on ' + tc + ' right now.'};
   }
-  // A tap on the map. With "Confirm moves on the map" on, the first tap selects; the second (or Go) carries it out.
-  function soTap(r, c, direct){
+  // Open the menu on a square (tapping the same square again closes it). The phone's Back button closes it too.
+  function soTap(r, c){
     if (!SO || SO.over) return;
     soCubeSel = null;
-    const plan = soPlan(r, c);
-    if (plan.none) return;
-    if (plan.error) { soPick = null; renderSolo(); toast(plan.error); return; }
-    if (SET.confirmMoves && !direct && !(soPick && soPick.r === r && soPick.c === c)) { soPick = {r, c}; renderSolo(); return; }
-    soPick = null;
-    plan.go();
+    if (soMenu && soMenu.r === r && soMenu.c === c) { soMenuClose(); renderSolo(); return; }
+    const plan = soMenuPlan(r, c);
+    if (plan.error) { soMenuClose(); renderSolo(); toast(plan.error); return; }
+    if (!soMenu) { try { history.pushState({lairs: view, depth: viewStack.length, menu: true}, ''); } catch (e) {} }
+    soMenu = {r, c, pay: -1};
+    soCardsOpen = false;
+    renderSolo();
+  }
+  function soMenuClose(){
+    if (!soMenu) return;
+    soMenu = null;
+    if (history.state && history.state.menu) { try { history.back(); } catch (e) {} }
+  }
+  function soMenuPick(i){
+    const row = soMenuRows[i];
+    if (!row) return;
+    if (soMenu.pay < 0 && row.ways && row.ways.length > 1) { soMenu.pay = i; renderSolo(); return; }
+    soMenuRun(row, row.ways ? row.ways[0] : null);
+  }
+  function soMenuRun(row, way){
+    soMenuClose();
+    if (way) way.pay();
+    row.then();
+  }
+  // Draw the menu and place it beside its square: below it, or above when there's more room there.
+  function renderMenu(){
+    const box = $('soMenu');
+    const plan = soMenu && !SO.over && soTab === 'explore' ? soMenuPlan(soMenu.r, soMenu.c) : null;
+    if (!plan || plan.error) { if (soMenu) soMenuClose(); box.hidden = true; soMenuRows = []; return; }
+    soMenuRows = plan.rows;
+    const paying = soMenu.pay >= 0 && plan.rows[soMenu.pay] && plan.rows[soMenu.pay].ways && plan.rows[soMenu.pay].ways.length > 1 ? plan.rows[soMenu.pay] : null;
+    if (!paying) soMenu.pay = -1;
+    const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    let html = '<div class="mh" id="soMenuHead">' + esc(paying ? paying.label + ' · pay with' : plan.head) + '</div>';
+    if (paying) {
+      paying.ways.forEach((w, j) => { html += '<button type="button" role="menuitem" data-pay="' + j + '"><b>' + esc(w.label) + '</b></button>'; });
+      html += '<button type="button" role="menuitem" class="back" data-back="1">Back</button>';
+    } else {
+      plan.rows.forEach((row, i) => {
+        html += '<button type="button" role="menuitem" data-i="' + i + '"><b>' + esc(row.label) + '</b>' + '<span class="cost">' + esc(row.cost || '') + '</span>' +
+          (row.note ? '<small>' + esc(row.note) + '</small>' : '') + '</button>';
+      });
+    }
+    box.innerHTML = html;
+    box.hidden = false;
+    const cell = $('soCells').querySelector('.cell[data-r="' + soMenu.r + '"][data-c="' + soMenu.c + '"]');
+    if (!cell) return;
+    // Below the square, above it, then to its right or left: the first spot that fits on screen without covering
+    // your tracker (or, failing that, the first that fits).
+    const cr = cell.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    const w = box.offsetWidth, h = box.offsetHeight, gap = 6, m = 8;
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const cx = clamp(cr.left + cr.width / 2 - w / 2, m, vw - w - m), cy = clamp(cr.top + cr.height / 2 - h / 2, m, vh - h - m);
+    const spots = [[cx, cr.bottom + gap], [cx, cr.top - gap - h], [cr.right + gap, cy], [cr.left - gap - w, cy]];
+    const fits = ([sx, sy]) => sx >= m - 0.5 && sy >= m - 0.5 && sx + w <= vw - m + 0.5 && sy + h <= vh - m + 0.5;
+    const tok = $('soToken').getBoundingClientRect();
+    const hidesTracker = ([sx, sy]) => !(sx + w <= tok.left + 2 || sx >= tok.right - 2 || sy + h <= tok.top + 2 || sy >= tok.bottom - 2);
+    const own = soMenu.r === soHere()[0] && soMenu.c === soHere()[1];
+    let [x, y] = spots.find(sp => fits(sp) && (own || !hidesTracker(sp))) || spots.find(fits) || [cx, clamp(cr.bottom + gap, m, vh - h - m)];
+    box.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round(y) + 'px)';
   }
 
   // Move into a space. Unknown spaces are learned about first; then you meet whatever is there.
@@ -2773,7 +2852,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const k = key(r, c), wasKnown = !!SO.known[k];
     SO.path.push(kind ? [r, c, kind] : [r, c]);
     SO.known[k] = true;
-    SO.pending = null; SO.strikeAt = null; SO.peer = false; soPick = null;
+    SO.pending = null; SO.strikeAt = null;
     const live = soLive(k), f = soFeat(k);
     let note = opt.note != null ? opt.note : wasKnown ? '' : soDescribe(r, c);
     if (SO.hustle) {
@@ -2797,7 +2876,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   // Peer (already paid for): learn about a neighbouring unknown space, then creep in for free if you like.
   function soPeerAt(r, c){
     const here = soHere(), k = key(r, c), tc = coord(r, c), hk = key(here[0], here[1]);
-    SO.known[k] = true; SO.peers++; SO.peer = false; soPick = null;
+    SO.known[k] = true; SO.peers++;
     const said = soDescribe(r, c), onHazard = soLive(hk) === 'monster' || soLive(hk) === 'trap';
     saveSolo();
     if (onHazard) { soEnter(r, c, null, {note: said + ' You peered to get away, so you go in.'}); return; }
@@ -2806,17 +2885,20 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       onGo: () => soEnter(r, c, null, {note: ''}), onKeep: soAfter});
   }
 
+  // Arrow keys open the menu on that neighbour, like a tap.
   function soStep(d){
     if (!SO || SO.over) return;
     const here = soHere(), [dr, dc, name] = DIRS[d], r = here[0] + dr, c = here[1] + dc;
     if (r < 0 || r > 5 || c < 0 || c > 5) { toast('The outer wall is to the ' + name + '.'); return; }
-    soTap(r, c, true);
+    soTap(r, c);
+    const first = $('soMenu').querySelector('button');
+    if (first && !$('soMenu').hidden) first.focus({preventScroll: true});
   }
 
   // ---- Card actions (abilities from cards you hold; the app can't see your cards, so they're always offered) ----
-  // Look into a space: your Perception cube, any unknown space, you don't move.
+  // Look into a space (paid with your Perception cube from the map menu): any unknown space, you don't move.
   function soLookAt(r, c){
-    SO.known[key(r, c)] = true; SO.look = false; SO.cardUses++; soPick = null;
+    SO.known[key(r, c)] = true; SO.cardUses++;
     saveSolo(); renderSolo();
     toast(soDescribe(r, c));
     soAfter();
@@ -2836,36 +2918,16 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   }
   function soCardsTap(){
     if (!SO || SO.over) return;
-    if (SO.look) { SO.look = false; soPick = null; saveSolo(); renderSolo(); return; }
     if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
     if (SO.hustle) { toast('Finish or stop your hustle first.'); return; }
-    soCardsOpen = !soCardsOpen; soPick = null;
+    soCardsOpen = !soCardsOpen; soMenuClose();
     renderSolo();
   }
   const busyMsg = () => { const p = SO.pending; return p.must ? (p.kind === 'monster' ? 'First fight the monster on ' : 'First disarm the trap on ') + coordK(p.k) + '.' : 'First finish with the ' + p.kind + ' on ' + coordK(p.k) + '.'; };
-  function soPeerTap(){
-    if (!SO || SO.over) return;
-    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
-    if (SO.hustle) { toast('You can’t peer while hustling.'); return; }
-    SO.peer = !SO.peer; SO.look = false; soCardsOpen = false; soPick = null;
-    saveSolo(); renderSolo();
-  }
-  // Hustle: you commit and pay first, then move up to 3 times. Entering anything that isn't empty ends it.
-  function soHustleTap(){
-    if (!SO || SO.over) return;
-    if (SO.hustle) { SO.hustle = null; soPick = null; saveSolo(); renderSolo(); toast('Hustle stopped.'); soAfter(); return; }
-    if (SO.pending && (SO.pending.must || SO.pending.stage !== 'face')) { toast(busyMsg()); return; }
-    const quick = hasCube('q'), two = uses() >= 2;
-    if (!quick && !two) { toast('Hustling costs 2 cubes or your Quickness cube.'); return; }
-    const start = how => {
-      if (how === 'q') spendOne('q'); else spend(2);
-      SO.hustle = {left: 3}; SO.peer = false; SO.look = false; soCardsOpen = false; soPick = null;
-      saveSolo(); renderSolo();
-      toast('Hustle! Up to 3 moves.');
-    };
-    const text = 'Up to 3 moves, chosen one at a time. If you enter any space that isn’t empty, the hustle ends and the rest are lost. Paying now commits you.';
-    if (quick && two) ask({title: 'Hustle?', text, keep: 'Cancel', go: '2 cubes', onGo: () => start('2'), alt: {label: 'Quickness', onGo: () => start('q')}});
-    else ask({title: 'Hustle?', text, keep: 'Cancel', go: quick ? 'Pay Quickness' : 'Pay 2 cubes', onGo: () => start(quick ? 'q' : '2')});
+  // A hustle starts from the map menu (paid there, and the first move made). Stop it from your own square's menu or the button.
+  function soStopHustle(){
+    if (!SO || !SO.hustle) return;
+    SO.hustle = null; soMenuClose(); saveSolo(); renderSolo(); toast('Hustle stopped.'); soAfter();
   }
   // End turn, with the option to Conserve up to 3 Fresh cubes (Quickness and Perception first).
   function soEndTurnTap(){
@@ -2952,8 +3014,9 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   }
 
   function soAction(){
+    if (SO.hustle) { soStopHustle(); return; }
     const here = soHere(), k = key(here[0], here[1]), live = soLive(k);
-    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live, stage: 'face'}; soDice = Math.min(2, uses()); soPick = null; saveSolo(); renderSolo(); return; }
+    if (live === 'monster' || live === 'trap') { SO.pending = {k, kind: live, stage: 'face'}; soDice = Math.min(2, uses()); soMenuClose(); saveSolo(); renderSolo(); return; }
     if (live === 'chest') {
       SO.gone[k] = 'opened'; SO.ach.chests++;
       saveSolo(); renderSolo();
@@ -2975,7 +3038,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   const BEST_KEY = 'lairs-solo-best-v1';
   function soFinish(how){
     SO.over = {how, moves: SO.path.length - 1, turn: SO.turn, treasure: null};
-    SO.pending = null; SO.peer = false; SO.hustle = null; SO.look = false; soPick = null; soCubeSel = null; soCardsOpen = false; soChoose = null; soTab = 'explore';
+    SO.pending = null; SO.hustle = null; soMenuClose(); soCubeSel = null; soCardsOpen = false; soChoose = null; soTab = 'explore';
     saveSolo();
     render();
     setTimeout(() => { const i = $('soTrInput'); if (i && !i.closest('[hidden]')) i.focus(); }, 60);
@@ -3049,7 +3112,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (show && f) parts.push(f === 'start' ? 'the Start' : f === 'exit' ? 'the Exit' : FEAT_NAME[f] + (gone ? ' (' + SO.gone[k] + ')' : ''));
       if (k === hk) parts.push('your tracker is here');
       const pw = known && soLive(k) === 'monster' && SO.power[k] != null ? '<span class="pw">' + SO.power[k] + '</span>' : '';
-      const picked = soPick && soPick.r === r && soPick.c === c;
+      const picked = soMenu && soMenu.r === r && soMenu.c === c;
       const cls = 'cell' + (known ? ' known' : ' fog') + (show && center ? ' marked' : '') + (visited.has(k) ? ' visited' : '') +
         (!known && over ? ' shown' : '') + (!known && !over && reach.has(k) ? ' frontier' : '') + (picked ? ' picked' : '') + (k === hk && center ? ' here' : '');
       html += '<button type="button" class="' + cls + '" data-r="' + r + '" data-c="' + c + '" aria-label="' + parts.join(', ') + '">' +
@@ -3077,8 +3140,6 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     $('soTokIco').innerHTML = hereIco;
     tok.hidden = false; tok.style.left = (here[1] * u) + '%'; tok.style.top = (here[0] * u) + '%';
     $('soBoard').classList.toggle('over', over);
-    $('soBoard').classList.toggle('peering', !!SO.peer && !over);
-    $('soBoard').classList.toggle('looking', !!SO.look && !over);
 
     // Tabs and achievements
     document.querySelectorAll('[data-solo-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.soloTab === soTab)));
@@ -3109,34 +3170,21 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     const hereWhat = hf === 'chest' || hf === 'trap' || hf === 'monster'
       ? FEAT_NAME[hf][0].toUpperCase() + FEAT_NAME[hf].slice(1) + (hGone ? ' (' + GONE_WORD[SO.gone[hk]] + ')' : hf === 'monster' && SO.power[hk] != null ? ', target ' + SO.power[hk] : '')
       : hf === 'exit' ? 'Exit' : hf === 'start' && moves ? 'Start' : '';
-    st.classList.toggle('peering', !!SO.peer || !!SO.hustle || !!SO.look);
-    st.textContent = SO.look ? 'Card: tap any unknown space to look into it.'
-      : SO.peer ? 'Peer: tap a neighbouring unknown space.'
-      : SO.hustle ? 'Hustle: ' + plural(SO.hustle.left, 'move', 'moves') + ' left. Anything that isn’t empty ends it.'
+    st.classList.toggle('peering', !!SO.hustle);
+    st.textContent = SO.hustle ? 'Hustle: ' + plural(SO.hustle.left, 'move', 'moves') + ' left. Anything that isn’t empty ends it.'
       : soCubeSel != null ? 'Tap a basket to move the ' + CUBE_NAME[SO.cubes[soCubeSel].k] + ' there.'
+      : !moves && SO.turn === 1 ? 'Tap a square to see what you can do there.'
       : (hereWhat ? hereWhat + ' · ' : '') + plural(moves, 'move', 'moves') + (SO.peers && !hereWhat ? ' · ' + plural(SO.peers, 'peer', 'peers') : '');
     const live = soLive(hk), f = soFeat(hk), act = $('soAct');
-    act.hidden = !(live || f === 'exit') || !!SO.hustle;
-    act.textContent = live === 'monster' ? 'Fight' : live === 'trap' ? 'Disarm' : live === 'chest' ? 'Open' : 'Exit';
-    act.classList.toggle('primary', !(f === 'exit' && !live && !exitMet()));
-    $('soPeer').setAttribute('aria-pressed', String(!!SO.peer));
-    $('soPeer').disabled = !!SO.hustle;
-    $('soHustle').setAttribute('aria-pressed', String(!!SO.hustle));
-    $('soHustle').textContent = SO.hustle ? 'Stop' : 'Hustle';
-    $('soCards').setAttribute('aria-pressed', String(soCardsOpen || !!SO.look));
+    // The square's own action (also in its menu). While hustling it's Stop hustling.
+    act.hidden = !(live || f === 'exit' || SO.hustle);
+    act.textContent = SO.hustle ? 'Stop hustling' : live === 'monster' ? 'Fight' : live === 'trap' ? 'Disarm' : live === 'chest' ? 'Open' : 'Exit';
+    act.classList.toggle('primary', !SO.hustle && !(f === 'exit' && !live && !exitMet()));
+    $('soCards').setAttribute('aria-pressed', String(soCardsOpen));
     $('soCards').disabled = !!SO.hustle;
-    $('soActs').hidden = !!soPick || soCardsOpen;
-    $('soCardRow').hidden = !!soPick || !soCardsOpen;
-    $('soConfirm').hidden = !soPick;
-    if (soPick) {
-      const plan = soPlan(soPick.r, soPick.c);
-      if (plan.error || plan.none) soPick = null;
-      else {
-        $('soConfirmText').textContent = plan.label + (plan.cost ? ' · ' + plan.cost : '');
-        $('soConfirmGo').textContent = plan.label.split(' ')[0];
-      }
-      $('soActs').hidden = !!soPick || soCardsOpen; $('soCardRow').hidden = !!soPick || !soCardsOpen; $('soConfirm').hidden = !soPick;
-    }
+    $('soActs').hidden = soCardsOpen;
+    $('soCardRow').hidden = !soCardsOpen;
+    renderMenu();
     if (enc) {
       const isM = p.kind === 'monster', co = coordK(p.k), what = isM ? 'monster' : 'trap';
       const tgt = isM && SO.power[p.k] != null ? ' (target ' + SO.power[p.k] + ')' : '';
@@ -3237,12 +3285,24 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
 
   // Solo screen events
   $('soCells').addEventListener('click', e => { const b = e.target.closest('.cell'); if (b) soTap(+b.dataset.r, +b.dataset.c); });
-  $('soConfirmGo').addEventListener('click', () => { if (soPick) soTap(soPick.r, soPick.c, true); });
-  $('soConfirmNo').addEventListener('click', () => { soPick = null; renderSolo(); });
-  $('soPeer').addEventListener('click', soPeerTap);
-  $('soHustle').addEventListener('click', soHustleTap);
+  // The map menu: a row, a way to pay, or Back from the payment step
+  $('soMenu').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || !soMenu) return;
+    if (b.dataset.back) { soMenu.pay = -1; renderSolo(); return; }
+    if (b.dataset.pay != null) { const row = soMenuRows[soMenu.pay]; if (row) soMenuRun(row, row.ways[+b.dataset.pay]); return; }
+    soMenuPick(+b.dataset.i);
+  });
+  // A tap anywhere else only closes the menu (it doesn't also press what's under it). Other squares reopen it there.
+  document.addEventListener('click', e => {
+    if (!soMenu || view !== 'solo') return;
+    if (e.target.closest('#soMenu') || e.target.closest('#soCells') || e.target.closest('#confirmBox')) return;
+    e.preventDefault(); e.stopPropagation();
+    soMenuClose(); renderSolo();
+  }, true);
+  window.addEventListener('resize', () => { if (soMenu && view === 'solo') renderMenu(); });
   $('soEndTurn').addEventListener('click', soEndTurnTap);
-  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; soFileAsk = false; soPick = null; renderSolo(); }));
+  document.querySelectorAll('[data-solo-tab]').forEach(b => b.addEventListener('click', () => { soTab = b.dataset.soloTab; soFileAsk = false; soMenuClose(); renderSolo(); }));
   $('soAct').addEventListener('click', soAction);
   // The cube mat: during a strike, tapping a cube fatigues it. Otherwise tap a cube, then a basket, to move it by hand
   // (for treasure abilities and corrections).
@@ -3264,7 +3324,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       toast('Moved your ' + CUBE_NAME[c.k] + ' to ' + BASKET[to] + '.');
       return;
     }
-    if (cubeBtn) { const i = +cubeBtn.dataset.i; soCubeSel = soCubeSel === i ? null : i; soPick = null; renderSolo(); return; }
+    if (cubeBtn) { const i = +cubeBtn.dataset.i; soCubeSel = soCubeSel === i ? null : i; soMenuClose(); renderSolo(); return; }
     if (soCubeSel != null) { soCubeSel = null; renderSolo(); }
   });
   $('soFatigue').addEventListener('click', () => { soChoose = 'fatigue'; renderSolo(); });
@@ -3273,11 +3333,6 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('soChooseBack').addEventListener('click', () => { soChoose = null; renderSolo(); });
   $('soCards').addEventListener('click', soCardsTap);
   $('soCardBack').addEventListener('click', () => { soCardsOpen = false; renderSolo(); });
-  $('soCardLook').addEventListener('click', () => {
-    if (!hasCube('p')) { toast('Looking into a space needs your Perception cube.'); return; }
-    SO.look = true; SO.peer = false; soCardsOpen = false; soPick = null;
-    saveSolo(); renderSolo();
-  });
   $('soCardReveal').addEventListener('click', () => {
     soCardsOpen = false; renderSolo();
     ask({title: 'Use a card?', text: 'The Builder reveals one unknown space that has something on it, chosen at random.',
@@ -3310,8 +3365,6 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
   $('soTreasure').addEventListener('submit', e => { e.preventDefault(); soTreasureDone(); });
   $('soAgain').addEventListener('click', () => { soloStart(SO.lair); render(); });
   // Settings: Confirm moves on the map
-  $('setConfirm').checked = !!SET.confirmMoves;
-  $('setConfirm').addEventListener('change', e => { SET.confirmMoves = e.target.checked; saveSettings(); soPick = null; });
   $('setBigCubes').checked = !!SET.bigCubes;
   $('setBigCubes').addEventListener('change', e => { SET.bigCubes = e.target.checked; saveSettings(); render(); });
   $('soNewEnd').addEventListener('click', openSoloNew);
@@ -3334,7 +3387,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (!g || !g.lair || !pt(g.lair.start) || !pt(g.lair.exit) || typeof g.lair.walls !== 'object' ||
         !['chests', 'traps', 'monsters'].every(t => Array.isArray(g.lair[t]) && g.lair[t].every(pt)) ||
         !Array.isArray(g.path) || !g.path.length || !g.path.every(pt) || typeof g.known !== 'object' || !g.known) return null;
-    return Object.assign({gone: {}, power: {}, ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, peer: false, over: null},
+    return Object.assign({gone: {}, power: {}, ach: {chests: 0, monsters: 0, traps: 0}, peers: 0, pending: null, strikeAt: null, over: null},
       g, {code: g.code || g.lair.code || ''});
   }
   $('soSave').addEventListener('click', () => {
@@ -3369,7 +3422,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
       if (!g) { toast('That file is not a Lairs solo save.'); return; }
       const load = () => {
         SO = soNormalize(g);
-        soTab = 'explore'; soFileAsk = false; soPick = null; soCubeSel = null;
+        soTab = 'explore'; soFileAsk = false; soMenuClose(); soCubeSel = null;
         saveSolo();
         render();
         const d = new Date(raw.savedAt);
@@ -4027,6 +4080,7 @@ if (typeof module !== 'undefined') module.exports = LairGen; // for tests in Nod
     if (view === 'settings' || view === 'maker') { if (e.key === 'Escape' && !(e.target && e.target.closest && e.target.closest('input'))) back(); return; }
     if (view === 'solo') {
       if (e.target && e.target.closest && e.target.closest('input')) return;
+      if (e.key === 'Escape' && soMenu) { e.preventDefault(); soMenuClose(); renderSolo(); return; }
       const sd = {ArrowUp:'n', ArrowDown:'s', ArrowLeft:'w', ArrowRight:'e'}[e.key];
       if (sd && soTab === 'explore') { e.preventDefault(); soStep(sd); }
       return;
